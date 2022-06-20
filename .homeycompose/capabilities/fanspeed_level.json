@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "uiComponent": "sensor",
+  "icon": "/assets/fanspeed.svg",
+  "title": {
+    "en": "Fan speed level (1-4)"
+  },
+  "desc": {
+    "en": "Fan level changed"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Fan level changed"
+  },
+  "insightsTitleFalse": {
+    "en": "Fan level changed"
+  }
+}

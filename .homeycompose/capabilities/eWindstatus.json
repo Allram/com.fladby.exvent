@@ -1,0 +1,43 @@
+{
+  "type": "enum",
+  "uiComponent": "sensor",
+  "icon": "/assets/status.svg",
+  "title": {
+    "en": "Heating/Cooling status"
+  },
+  "getable": true,
+  "setable": false,
+  "values": [
+    {
+      "id": "0",
+      "title": {
+        "en": "No heating/cooling"
+      }
+    },
+    {
+      "id": "1",
+      "title": {
+        "en": "Cooling"
+      }
+    },
+    {
+      "id": "2",
+      "title": {
+        "en": "Heat recovery"
+      }
+    },
+    {
+      "id": "3",
+      "title": {
+        "en": "Heating element active"
+      }
+    },
+    {
+      "id": "4",
+      "title": {
+        "en": "Additional heating"
+      }
+    }
+  ]
+}
+

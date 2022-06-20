@@ -1,0 +1,27 @@
+{
+  "type": "number",
+  "uiComponent": "sensor",
+  "icon": "/assets/efficiency.svg",
+  "title": {
+    "en": "Efficiency changed"
+  },
+  "desc": {
+    "en": "Efficiency level changed"
+  },
+
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Efficiency changed"
+  },
+  "insightsTitleFalse": {
+    "en": "Efficiency changed"
+  },
+  "units": {
+    "en": " %"
+    },
+    "min": 0,
+    "max": 100,
+    "step": 1
+}

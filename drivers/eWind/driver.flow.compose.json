@@ -1,0 +1,47 @@
+{
+    "title": { "en": "Set Ventilation mode" },
+    "titleFormatted": { "en": "Set Ventilation mode" },
+    "triggers": [
+    ],
+    "conditions": [
+        {
+            "id": "eWind mode",
+            "title": { "en": "Mode !{{is|isn't}}" },
+            "titleFormatted": { "en": "Mode !{{is|isn't}} [[mode]]" },
+            "args": [
+                {
+                "type": "dropdown",
+                "name": "mode",
+                "title": { "en": "Home"},
+                "values": [
+                    { "id": "0", "label": { "en": "Home" } },
+                    { "id": "1", "label": { "en": "Away" } },
+                    { "id": "2", "label": { "en": "Fireplace" } },
+                    { "id": "3", "label": { "en": "Boost" } }
+                ]
+            }
+        ]
+    }
+],
+    "actions": [
+        {
+            "id": "eWind_mode_action",
+            "title": { "en": "Set mode" },
+            "type": "number",
+            "titleFormatted": { "en": "Set mode [[mode]]" },
+            "args": [
+                {
+                "type": "dropdown",
+                "name": "mode",
+                "title": { "en": "Mode"},
+                "values": [
+                    { "id": "0", "label": { "en": "Home" } },
+                    { "id": "1", "label": { "en": "Away" } },
+                    { "id": "2", "label": { "en": "Fireplace" } },
+                    { "id": "3", "label": { "en": "Boost" } }
+                ]
+            }
+        ]
+    }
+]
+}

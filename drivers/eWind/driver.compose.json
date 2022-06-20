@@ -1,0 +1,115 @@
+{
+  "name": {
+    "en": "eWind"
+  },
+  "class": "other",
+  "capabilities": [
+    "efficiency.supplyEff",
+    "efficiency.extractEff",
+    "measure_temperature.outsideAir",
+    "measure_temperature.exhaustAir",
+    "measure_temperature.supplyAir",
+    "measure_temperature.extractAir",
+    "measure_temperature.supplyAirHRC"
+  ],
+  "capabilitiesOptions": {
+      "measure_temperature.exhaustAir": {
+        "title": {
+          "en": "Exhaust Air"
+        }
+      },
+      "measure_temperature.extractAir": {
+        "title": {
+          "en": "Extract Air temperature"
+        }
+      },
+      "measure_temperature.outsideAir": {
+        "title": {
+          "en": "Fresh Air"
+        }
+      },
+      "measure_temperature.supplyAirHRC": {
+        "title": {
+          "en": "Supply Air after Heat recovery"
+        }
+      },
+      "measure_temperature": {
+        "title": {
+          "en": "Supply Air temperature"
+        }
+      },
+      "measure_humidity.extractAir": {
+        "title": {
+          "en": "Extract Air humidity"
+        }
+      },
+      "efficiency.supplyEff": {
+        "title": {
+          "en": "Supply air efficiency"
+        }
+      },
+      "efficiency.extractEff": {
+        "title": {
+          "en": "Exhaust Air efficiency"
+        }
+      },
+       "measure_temperature.supplyAir": {
+        "title": {
+          "en": "Supply Air"
+        }
+    }      
+  },  
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.jpg",
+    "large": "{{driverAssetsPath}}/images/large.jpg"
+  },
+  "pair": [
+    {
+      "id": "start"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "eWind settings"
+      },
+      "children": [
+        {
+          "id": "address",
+          "type": "text",
+          "value": "0.0.0.0",
+          "label": {
+            "en": "IP Address"
+          }
+        },
+        {
+          "id": "port",
+          "type": "number",
+          "value": 502,
+          "step": 1,
+          "label": {
+            "en": "Port"
+          }
+        },
+        {
+          "id": "id",
+          "type": "number",
+          "value": 255,
+          "step": 1,
+          "attr": {
+            "min": 0,
+            "max": 255
+          },
+          "label": {
+            "en": "Modbus ID"
+          }
+        }          
+      ]
+    }
+  ]              
+}

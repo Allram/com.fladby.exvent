@@ -1,0 +1,15 @@
+{
+    "pair": {
+      "title": "Add eWind ventilation system",
+      "nosettings": "Please fill in all the required fields.",
+      "intro": "Enter the IP address and port of your eWind Wifi-dongle and ensure you have set Modbus TCP to ON in the app.",
+      "address": "IP Address",
+      "port": "Port",
+      "deviceid": "Device ID",
+      "connect": "Connect"
+    },
+    "Unreachable": "Unreachable",
+    "Off": "Off",
+    "NA": "Information Not Available"
+  }
+  

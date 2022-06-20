@@ -1,0 +1,38 @@
+{
+  "type": "enum",
+  "icon": "/assets/statusmode.svg",
+  "title": {
+    "en": "Mode"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "0",
+      "title": {
+        "en": "Home"
+      }
+    },
+    {
+      "id": "1",
+      "title": {
+        "en": "Away"
+      }
+    },
+    {
+      "id": "2",
+      "title": {
+        "en": "Fireplace"
+      }
+    },
+    {
+      "id": "3",
+      "title": {
+        "en": "Boost"
+      }
+    }
+  ]
+}
+
+
