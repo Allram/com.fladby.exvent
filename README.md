@@ -1,4 +1,10 @@
 # Exvent
 
-Adds support for Exvent eWind ventilation systems via Modbus TCP
-Remember to activate Modbus TCP in the eWind app before trying to connect.
+Homey app to receive data from your Exvent eWind ventilation systems via Modbus TCP.
+
+The modbus app receives data about every 20 seconds.
+Remember to activate Modbus TCP in the eWind app before trying to connect and to give it a static IP in your router.
+
+Supported devices
+Following devices are supported
+- Exvent eWind systems (at the moment only reading values are supported)

@@ -1,4 +1,7 @@
 {
+  "1.0.5": {
+    "en": "Update Appstore text and replaced icon for better visibility. Rephrased readme"
+  },
   "1.0.4": {
     "en": "Changed wording of eWind Status to Heating/Cooling status and rephrased 'nothing' to 'No heating/cooling'. Replaced icon for better readability."
   },
