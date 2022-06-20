@@ -1,0 +1,17 @@
+{
+  "1.0.4": {
+    "en": "Changed wording of eWind Status to Heating/Cooling status and rephrased 'nothing' to 'No heating/cooling'. Replaced icon for better readability."
+  },
+  "1.0.3": {
+    "en": "Further fixes, not need to convert string from string."
+  },
+  "1.0.2": {
+    "en": "Fixed wrong type used to get Status. Changed from Number to String"
+  },
+  "1.0.1": {
+    "en": "Changed 'Current Temperature' to show temperature after heat recovery instead of before heat recovery"
+  },
+  "1.0.0": {
+    "en": "Working modbus support for reading values"
+  }
+}    
