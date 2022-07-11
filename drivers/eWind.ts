@@ -50,13 +50,14 @@ export class eWind extends Homey.Device {
             this.addCapability('measure_temperature');
             let airsupply = ((Number(result['air_supply'].value) / 10));
             this.setCapabilityValue('measure_temperature.supplyAir', airsupply);
+            this.setCapabilityValue('measure_temperature', airsupply);
         }
         
         if (result['air_supply_HRC'] && result['air_supply_HRC'].value !== 'xxx') {
             this.addCapability('measure_temperature.supplyAirHRC');
             let temperature = ((Number(result['air_supply_HRC'].value) / 10));
             this.setCapabilityValue('measure_temperature.supplyAirHRC', temperature);
-            this.setCapabilityValue('measure_temperature', temperature);
+            
         }
 
         if (result['air_exhaust'] && result['air_exhaust'].value !== 'xxx') {
