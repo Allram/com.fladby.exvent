@@ -6,6 +6,13 @@
   },
   "getable": true,
   "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Mode changed"
+  },
+  "insightsTitleFalse": {
+    "en": "Mode changed"
+  },
   "uiComponent": "picker",
   "values": [
     {

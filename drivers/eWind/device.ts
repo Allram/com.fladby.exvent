@@ -2,6 +2,7 @@ import * as Modbus from 'jsmodbus';
 import net from 'net';
 import {eWind}     from '../eWind';
 import {checkRegister} from '../response';
+import {checkCoils} from '../response_coil';
 import {writeSingleRegister} from '../write';
 
 const RETRY_INTERVAL = 18 * 1000; 
@@ -34,12 +35,23 @@ class MyeWindDevice extends eWind {
       this.log('Changes to :', value);
     });
 
+    this.registerCapabilityListener('ecomode_mode', async (value) => {
+      this.log('Changes to :', value);
+    });
+
     // flow condition 
     let eWindstatusMode = this.homey.flow.getConditionCard("eWind mode");
     eWindstatusMode.registerRunListener(async (args, state) => {
         let result = (await this.getCapabilityValue('eWindstatus_mode') >= args.mode);
         return Promise.resolve(result);
     })  
+
+    let ecoMode = this.homey.flow.getConditionCard("Ecomode_condition");
+    ecoMode.registerRunListener(async (args, state) => {
+        let result = (await this.getCapabilityValue('ecomode_mode') >= args.mode);
+        return Promise.resolve(result);
+    }) 
+
 
     // flow action 
     //let eWindstatusMode2 = this.homey.flow.getActionCard("eWind_mode_action");
@@ -135,12 +147,17 @@ class MyeWindDevice extends eWind {
       console.log(modbusOptions);
 
       const checkRegisterRes = await checkRegister(this.registers, client);
-      console.log('disconnect'); 
-      client.socket.end();
-      socket.end();
       const finalRes = {...checkRegisterRes}
       this.processResult(finalRes)
+      const checkCoilsRes = await checkCoils(this.Coilregisters, client);
+      client.socket.end();
+      socket.end();
+      const finalRes2 = {...checkCoilsRes}
+      this.processResult(finalRes2)
+      console.log('disconnect');
     });    
+
+
 
     socket.on('close', () => {
       console.log('Client closed');

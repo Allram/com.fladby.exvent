@@ -4,6 +4,8 @@
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
+  "source": "https://github.com/Allram/com.fladby.exvent",
+  "support": "mailto:vegard.fladby@gmail.com",
   "platforms": [
     "local"
   ],
@@ -24,5 +26,8 @@
   "author": {
     "name": "Vegard Fladby",
     "email": "vegard.fladby@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/Allram/com.fladby.exvent/issues"
   }
 }

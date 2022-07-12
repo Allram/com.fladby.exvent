@@ -5,6 +5,8 @@
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
+  "source": "https://github.com/Allram/com.fladby.exvent",
+  "support": "mailto:vegard.fladby@gmail.com",
   "platforms": [
     "local"
   ],
@@ -25,6 +27,9 @@
   "author": {
     "name": "Vegard Fladby",
     "email": "vegard.fladby@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/Allram/com.fladby.exvent/issues"
   },
   "flow": {
     "conditions": [
@@ -71,6 +76,43 @@
                 "id": "3",
                 "label": {
                   "en": "Boost"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Ecomode_condition",
+        "title": {
+          "en": "Ecomode !{{is|isn't}}"
+        },
+        "titleFormatted": {
+          "en": "Ecomode !{{is|isn't}} [[Ecomode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "Ecomode",
+            "title": {
+              "en": "Ecomode"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Off"
                 }
               }
             ]
@@ -123,6 +165,44 @@
                 "id": "3",
                 "label": {
                   "en": "Boost"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Ecomode_action",
+        "title": {
+          "en": "Set ecomode"
+        },
+        "type": "number",
+        "titleFormatted": {
+          "en": "Set ecomode [[Ecomode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "Ecomode",
+            "title": {
+              "en": "Ecomode"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Off"
                 }
               }
             ]
@@ -250,6 +330,36 @@
     }
   ],
   "capabilities": {
+    "ecomode_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Ecomode"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Ecomode changed"
+      },
+      "insightsTitleFalse": {
+        "en": "Ecomode changed"
+      },
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "1",
+          "title": {
+            "en": "Ecomode on"
+          }
+        },
+        {
+          "id": "0",
+          "title": {
+            "en": "Ecomode off"
+          }
+        }
+      ]
+    },
     "efficiency": {
       "type": "number",
       "uiComponent": "sensor",
@@ -285,6 +395,13 @@
       },
       "getable": true,
       "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Heating/Cooling changed"
+      },
+      "insightsTitleFalse": {
+        "en": "Heating/Cooling changed"
+      },
       "values": [
         {
           "id": "0",
@@ -326,6 +443,13 @@
       },
       "getable": true,
       "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Mode changed"
+      },
+      "insightsTitleFalse": {
+        "en": "Mode changed"
+      },
       "uiComponent": "picker",
       "values": [
         {

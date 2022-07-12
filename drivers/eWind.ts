@@ -23,9 +23,14 @@ export class eWind extends Homey.Device {
         "status_mode": [44, 1, 'INT16', "statusMode"], 
     };
 
+    Coilregisters: Object = {
+        "eco_mode": [40, 1, 'UINT32', "eco Mode"], 
+    };
+
     processResult(result: Record<string, Measurement>) {
         if (!result) {
             return;
+            
         }
 
         // result
@@ -69,7 +74,9 @@ export class eWind extends Homey.Device {
         if (result['temperature_setpoint'] && result['temperature_setpoint'].value !== 'xxx') {
             this.addCapability('target_temperature');
             let temperature = ((Number(result['temperature_setpoint'].value) / 10));
-            this.setCapabilityValue('target_temperature', temperature);
+            if (temperature >= 15 && temperature <= 25) {
+                this.setCapabilityValue('target_temperature',temperature);
+            }
         }
 
         if (result['air_humidity'] && result['air_humidity'].value !== 'xxx') {
@@ -112,6 +119,7 @@ export class eWind extends Homey.Device {
             } else if (statusValue >= 201 && statusValue <= 300) {
                 this.setCapabilityValue('eWindstatus', '4');
             }
+        }
 
         if (result['status_mode'] && result['status_mode'].value !== 'xxx') {
             this.addCapability('eWindstatus_mode');
@@ -125,7 +133,14 @@ export class eWind extends Homey.Device {
             } else if (statusValue === "512") {
                 this.setCapabilityValue('eWindstatus_mode', '3');
             }
-            }  
-        }
+        }  
+
+        if (result['eco_mode'] && result['eco_mode'].value !== 'xxx') {
+            this.addCapability('ecomode_mode');
+                let ecomode_value = result['eco_mode'].value;
+            if (ecomode_value === "0" || ecomode_value === "1") {
+                this.setCapabilityValue('ecomode_mode', ecomode_value);
+            }
+        }  
     }
 }

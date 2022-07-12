@@ -21,7 +21,23 @@
                 ]
             }
         ]
-    }
+    },
+    {
+        "id": "Ecomode_condition",
+        "title": { "en": "Ecomode !{{is|isn't}}" },
+        "titleFormatted": { "en": "Ecomode !{{is|isn't}} [[Ecomode]]" },
+        "args": [
+            {
+            "type": "dropdown",
+            "name": "Ecomode",
+            "title": { "en": "Ecomode"},
+            "values": [
+                { "id": "1", "label": { "en": "On" } },
+                { "id": "0", "label": { "en": "Off" } }
+            ]
+        }
+    ]
+}
 ],
     "actions": [
         {
@@ -42,6 +58,23 @@
                 ]
             }
         ]
-    }
+    },
+    {
+        "id": "Ecomode_action",
+        "title": { "en": "Set ecomode" },
+        "type": "number",
+        "titleFormatted": { "en": "Set ecomode [[Ecomode]]" },
+        "args": [
+            {
+            "type": "dropdown",
+            "name": "Ecomode",
+            "title": { "en": "Ecomode"},
+            "values": [
+                { "id": "1", "label": { "en": "On" } },
+                { "id": "0", "label": { "en": "Off" } }
+            ]
+        }
+    ]
+}
 ]
 }
