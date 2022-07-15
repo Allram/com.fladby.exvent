@@ -17,13 +17,13 @@
     {
       "id": "1",
       "title": {
-        "en": "Ecomode on"
+        "en": "On"
       }
     },
     {
       "id": "0",
       "title": {
-        "en": "Ecomode off"
+        "en": "Off"
       }
     }
   ]

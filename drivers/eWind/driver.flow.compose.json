@@ -2,10 +2,44 @@
     "title": { "en": "Set Ventilation mode" },
     "titleFormatted": { "en": "Set Ventilation mode" },
     "triggers": [
+        {
+            "id": "eWind_mode_trigger",
+            "title": { "en": "Mode !{{is|isn't}}" },
+            "titleFormatted": { "en": "Mode !{{is|isn't}} [[mode]]" },
+            "args": [
+                {
+                "type": "dropdown",
+                "name": "mode",
+                "title": { "en": "Home"},
+                "values": [
+                    { "id": "0", "label": { "en": "Home" } },
+                    { "id": "1", "label": { "en": "Away" } },
+                    { "id": "2", "label": { "en": "Fireplace" } },
+                    { "id": "3", "label": { "en": "Boost" } }
+                ]
+            }
+        ]
+    },
+        {
+            "id": "Ecomode_trigger",
+            "title": { "en": "Ecomode !{{is|isn't}}" },
+            "titleFormatted": { "en": "Ecomode !{{is|isn't}} [[Ecomode]]" },
+            "args": [
+                {
+                "type": "dropdown",
+                "name": "Ecomode",
+                "title": { "en": "On"},
+                "values": [
+                    { "id": "1", "label": { "en": "On" } },
+                    { "id": "0", "label": { "en": "Off" } }
+                ]
+            }
+        ]
+    }
     ],
     "conditions": [
         {
-            "id": "eWind mode",
+            "id": "eWind_mode_condition",
             "title": { "en": "Mode !{{is|isn't}}" },
             "titleFormatted": { "en": "Mode !{{is|isn't}} [[mode]]" },
             "args": [
@@ -23,14 +57,14 @@
         ]
     },
     {
-        "id": "Ecomode_condition",
+        "id": "Ecomode_mode_condition",
         "title": { "en": "Ecomode !{{is|isn't}}" },
         "titleFormatted": { "en": "Ecomode !{{is|isn't}} [[Ecomode]]" },
         "args": [
             {
             "type": "dropdown",
             "name": "Ecomode",
-            "title": { "en": "Ecomode"},
+            "title": { "en": "On"},
             "values": [
                 { "id": "1", "label": { "en": "On" } },
                 { "id": "0", "label": { "en": "Off" } }
@@ -49,7 +83,7 @@
                 {
                 "type": "dropdown",
                 "name": "mode",
-                "title": { "en": "Mode"},
+                "title": { "en": "Home"},
                 "values": [
                     { "id": "0", "label": { "en": "Home" } },
                     { "id": "1", "label": { "en": "Away" } },
@@ -68,7 +102,7 @@
             {
             "type": "dropdown",
             "name": "Ecomode",
-            "title": { "en": "Ecomode"},
+            "title": { "en": "On"},
             "values": [
                 { "id": "1", "label": { "en": "On" } },
                 { "id": "0", "label": { "en": "Off" } }

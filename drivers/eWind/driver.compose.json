@@ -10,7 +10,9 @@
     "measure_temperature.exhaustAir",
     "measure_temperature.supplyAir",
     "measure_temperature.extractAir",
-    "measure_temperature.supplyAirHRC"
+    "measure_temperature.supplyAirHRC",
+    "ecomode_mode",
+    "measure_temperature"
   ],
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {

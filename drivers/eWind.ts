@@ -138,8 +138,10 @@ export class eWind extends Homey.Device {
         if (result['eco_mode'] && result['eco_mode'].value !== 'xxx') {
             this.addCapability('ecomode_mode');
                 let ecomode_value = result['eco_mode'].value;
-            if (ecomode_value === "0" || ecomode_value === "1") {
-                this.setCapabilityValue('ecomode_mode', ecomode_value);
+            if (ecomode_value === "0") {
+                this.setCapabilityValue('ecomode_mode', '0');
+            } else if (ecomode_value === "1") {
+                this.setCapabilityValue('ecomode_mode', '1');
             }
         }  
     }

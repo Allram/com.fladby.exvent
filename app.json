@@ -32,9 +32,9 @@
     "url": "https://github.com/Allram/com.fladby.exvent/issues"
   },
   "flow": {
-    "conditions": [
+    "triggers": [
       {
-        "id": "eWind mode",
+        "id": "eWind_mode_trigger",
         "title": {
           "en": "Mode !{{is|isn't}}"
         },
@@ -83,7 +83,7 @@
         ]
       },
       {
-        "id": "Ecomode_condition",
+        "id": "Ecomode_trigger",
         "title": {
           "en": "Ecomode !{{is|isn't}}"
         },
@@ -100,7 +100,95 @@
             "type": "dropdown",
             "name": "Ecomode",
             "title": {
-              "en": "Ecomode"
+              "en": "On"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Off"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "eWind_mode_condition",
+        "title": {
+          "en": "Mode !{{is|isn't}}"
+        },
+        "titleFormatted": {
+          "en": "Mode !{{is|isn't}} [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Home"
+            },
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Home"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Away"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Fireplace"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Boost"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Ecomode_mode_condition",
+        "title": {
+          "en": "Ecomode !{{is|isn't}}"
+        },
+        "titleFormatted": {
+          "en": "Ecomode !{{is|isn't}} [[Ecomode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "Ecomode",
+            "title": {
+              "en": "On"
             },
             "values": [
               {
@@ -140,7 +228,7 @@
             "type": "dropdown",
             "name": "mode",
             "title": {
-              "en": "Mode"
+              "en": "Home"
             },
             "values": [
               {
@@ -190,7 +278,7 @@
             "type": "dropdown",
             "name": "Ecomode",
             "title": {
-              "en": "Ecomode"
+              "en": "On"
             },
             "values": [
               {
@@ -224,7 +312,9 @@
         "measure_temperature.exhaustAir",
         "measure_temperature.supplyAir",
         "measure_temperature.extractAir",
-        "measure_temperature.supplyAirHRC"
+        "measure_temperature.supplyAirHRC",
+        "ecomode_mode",
+        "measure_temperature"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -349,13 +439,13 @@
         {
           "id": "1",
           "title": {
-            "en": "Ecomode on"
+            "en": "On"
           }
         },
         {
           "id": "0",
           "title": {
-            "en": "Ecomode off"
+            "en": "Off"
           }
         }
       ]

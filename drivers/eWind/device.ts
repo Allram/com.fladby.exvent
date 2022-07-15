@@ -3,7 +3,6 @@ import net from 'net';
 import {eWind}     from '../eWind';
 import {checkRegister} from '../response';
 import {checkCoils} from '../response_coil';
-import {writeSingleRegister} from '../write';
 
 const RETRY_INTERVAL = 18 * 1000; 
 let timer:NodeJS.Timer;
@@ -40,47 +39,19 @@ class MyeWindDevice extends eWind {
     });
 
     // flow condition 
-    let eWindstatusMode = this.homey.flow.getConditionCard("eWind mode");
+    let eWindstatusMode = this.homey.flow.getConditionCard("eWind_mode_condition");
     eWindstatusMode.registerRunListener(async (args, state) => {
         let result = (await this.getCapabilityValue('eWindstatus_mode') >= args.mode);
         return Promise.resolve(result);
     })  
 
-    let ecoMode = this.homey.flow.getConditionCard("Ecomode_condition");
+    let ecoMode = this.homey.flow.getConditionCard("Ecomode_mode_condition");
     ecoMode.registerRunListener(async (args, state) => {
         let result = (await this.getCapabilityValue('ecomode_mode') >= args.mode);
         return Promise.resolve(result);
     }) 
 
 
-    // flow action 
-    //let eWindstatusMode2 = this.homey.flow.getActionCard("eWind_mode_action");
-    //eWindstatusMode2.registerRunListener(async (args, state) => {
-    //    let result = (await this.setCapabilityValue('eWindstatus_mode', state) >= args.mode);
-    //    return Promise.resolve(result);
-    //})  
-
-    // flow action
-    //let eWindMode = this.homey.flow.getActionCard('eWind_mode_action');
-    //eWindMode.registerRunListener(async (args) => {
-    //  let result = (await this.setCapabilityValue('eWindstatus_mode', args) >= args.mode);
-    //  this.log(args);
-    //})
-
-    //const cardTriggerMode = this.homey.flow.getActionCard('eWind_mode_action');
-    //  cardTriggerMode.registerRunListener(async (args) => {
-    //    if (args = 0)
-    //    { 
-    //        this.setCapabilityValue('eWindstatus_mode', "0");
-    //    } else if (args = 1) {
-    //        this.setCapabilityValue('eWindstatus_mode', "1");  
-    //    } else if (args = 2) {
-    //        this.setCapabilityValue('eWindstatus_mode', "2");
-    //    } else if (args = 3) {
-    //        this.setCapabilityValue('eWindstatus_mode', "3"); 
-    //  }
-    //  console.log ('eWindstatus_mode', args);
-    //});
 
   }
 
