@@ -166,7 +166,7 @@ export class eWind extends Homey.Device {
             this.addCapability('heat_exchanger_mode');
             let statusValue = result['heat_exchanger_state'].value;
             if (statusValue === "0") { 
-                this.setCapabilityValue('hheat_exchanger_mode', "0");
+                this.setCapabilityValue('heat_exchanger_mode', "0");
             } else if (statusValue === "1" ) {
                 this.setCapabilityValue('heat_exchanger_mode', "1");
             }
