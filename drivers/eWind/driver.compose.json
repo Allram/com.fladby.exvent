@@ -16,7 +16,8 @@
     "remaining.filter_days",
     "heater_mode",
     "heat_exchanger_mode",
-    "target_temperature"
+    "target_temperature",
+    "alarm_b.desc"
   ],
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {
@@ -77,6 +78,11 @@
       "heat_exchanger_mode": {
        "title": {
          "en": "Heat exchanger"
+       }
+      },
+      "alarm_b.desc": {
+       "title": {
+         "en": "Filter alarm"
        }
              
     }

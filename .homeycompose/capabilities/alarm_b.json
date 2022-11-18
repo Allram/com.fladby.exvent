@@ -1,0 +1,10 @@
+{
+  "type": "boolean",
+  "icon": "/assets/filter_alarm.svg",
+  "title": {
+    "en": "Filter alarm"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "sensor"
+}

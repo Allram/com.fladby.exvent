@@ -35,7 +35,23 @@
                 ]
             }
         ]
-    }
+    },
+    {
+        "id": "alarm_b.desc_trigger",
+        "title": { "en": "Filter alarm !{{is|isn't}}" },
+        "titleFormatted": { "en": "Filter alarm !{{is|isn't}} [[Filter alarm]]" },
+        "args": [
+            {
+            "type": "dropdown",
+            "name": "Filter alarm",
+            "title": { "en": "On"},
+            "values": [
+                { "id": "1", "label": { "en": "On" } },
+                { "id": "0", "label": { "en": "Off" } }
+            ]
+        }
+    ]
+}
     ],
     "conditions": [
         {

@@ -171,6 +171,16 @@ export class eWind extends Homey.Device {
                 this.setCapabilityValue('heat_exchanger_mode', "1");
             }
         }
+        if (result['alarm_b_desc'] && result['alarm_b_desc'].value !== 'xxx') {
+            this.addCapability('alarm_b.desc');
+            let statusValue = result['alarm_b_desc'].value;
+            if (statusValue === "0") { 
+                this.setCapabilityValue('alarm_b.desc', false);
+            } else if (statusValue === "1" ) {
+                this.setCapabilityValue('alarm_b.desc', true);
+            }
+        }
+
 
     }
 }

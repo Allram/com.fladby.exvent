@@ -38,6 +38,11 @@ class MyeWindDevice extends eWind {
       this.log('Changes to :', value);
     });
 
+    this.registerCapabilityListener('alarm_b.desc', async (value) => {
+      this.log('Changes to :', value);
+    });
+
+
     // flow condition 
     let eWindstatusMode = this.homey.flow.getConditionCard("eWind_mode_condition");
     eWindstatusMode.registerRunListener(async (args, state) => {

@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fladby.exvent",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -99,6 +99,43 @@
           {
             "type": "dropdown",
             "name": "Ecomode",
+            "title": {
+              "en": "On"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Off"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "alarm_b.desc_trigger",
+        "title": {
+          "en": "Filter alarm !{{is|isn't}}"
+        },
+        "titleFormatted": {
+          "en": "Filter alarm !{{is|isn't}} [[Filter alarm]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "Filter alarm",
             "title": {
               "en": "On"
             },
@@ -318,7 +355,8 @@
         "remaining.filter_days",
         "heater_mode",
         "heat_exchanger_mode",
-        "target_temperature"
+        "target_temperature",
+        "alarm_b.desc"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -380,6 +418,11 @@
           "title": {
             "en": "Heat exchanger"
           }
+        },
+        "alarm_b.desc": {
+          "title": {
+            "en": "Filter alarm"
+          }
         }
       },
       "platforms": [
@@ -439,6 +482,16 @@
     }
   ],
   "capabilities": {
+    "alarm_b": {
+      "type": "boolean",
+      "icon": "/assets/filter_alarm.svg",
+      "title": {
+        "en": "Filter alarm"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "sensor"
+    },
     "ecomode_mode": {
       "type": "enum",
       "title": {
