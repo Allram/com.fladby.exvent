@@ -20,11 +20,15 @@ export class eWind extends Homey.Device {
         "temperature_setpoint": [135, 1, 'INT16', "Temperature setpoint"], 
         "fan_speed_level": [50, 1, 'UINT16', "Fan speed level"], 
         "status": [49, 1, 'INT16', "status"], 
-        "status_mode": [44, 1, 'INT16', "statusMode"], 
+        "status_mode": [44, 1, 'INT16', "statusMode"],
+        "remaining_filter_days": [538, 1, 'UINT16', "Remaining filter days"], 
     };
 
     Coilregisters: Object = {
         "eco_mode": [40, 1, 'UINT32', "eco Mode"], 
+        "alarm_b_desc": [42, 1, 'UINT32', "Alarm B description"], 
+        "heater_status": [32, 1, 'UINT32', "After-heater On/Off"], 
+        "heat_exchanger_state": [30, 1, 'UINT32', "State of Heat exchanger On/Off"], 
     };
 
     processResult(result: Record<string, Measurement>) {
@@ -103,7 +107,12 @@ export class eWind extends Homey.Device {
             this.setCapabilityValue('fanspeed_level', humidity);
         }
 
-
+        if (result['remaining_filter_days'] && result['remaining_filter_days'].value !== 'xxx') {
+            this.addCapability('remaining.filter_days');
+            let days = ((Number(result['remaining_filter_days'].value)));
+            this.setCapabilityValue('remaining.filter_days', days);
+        }       
+  
 
         if (result['status'] && result['status'].value !== 'xxx') {
             this.addCapability('eWindstatus');
@@ -144,5 +153,24 @@ export class eWind extends Homey.Device {
                 this.setCapabilityValue('ecomode_mode', '1');
             }
         }  
+        if (result['heater_status'] && result['heater_status'].value !== 'xxx') {
+            this.addCapability('heater_mode');
+            let statusValue = result['heater_status'].value;
+            if (statusValue === "0") { 
+                this.setCapabilityValue('heater_mode', "0");
+            } else if (statusValue === "1" ) {
+                this.setCapabilityValue('heater_mode', "1");
+            }
+        }
+        if (result['heat_exchanger_state'] && result['heat_exchanger_state'].value !== 'xxx') {
+            this.addCapability('heat_exchanger_mode');
+            let statusValue = result['heat_exchanger_state'].value;
+            if (statusValue === "0") { 
+                this.setCapabilityValue('hheat_exchanger_mode', "0");
+            } else if (statusValue === "1" ) {
+                this.setCapabilityValue('heat_exchanger_mode', "1");
+            }
+        }
+
     }
 }

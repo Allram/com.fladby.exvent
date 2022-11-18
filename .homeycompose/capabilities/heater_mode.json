@@ -1,0 +1,32 @@
+{
+  "type": "enum",
+  "uiComponent": "sensor",
+  "icon": "/assets/heater_mode.svg",
+  "title": {
+    "en": "Heating element status"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Heating element status changed"
+  },
+  "insightsTitleFalse": {
+    "en": "Heating element status changed"
+  },
+  "values": [
+    {
+      "id": "0",
+      "title": {
+        "en": "Inactive"
+      }
+    },
+    {
+      "id": "1",
+      "title": {
+        "en": "Active"
+      }
+    }
+  ]
+}
+

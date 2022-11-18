@@ -1,6 +1,6 @@
 {
   "1.0.5": {
-    "en": "Update Appstore text and replaced icon for better visibility. Rephrased readme"
+    "en": "Update Appstore text and replaced icon for better visibility. Rephrased readme."
   },
   "1.0.4": {
     "en": "Changed wording of eWind Status to Heating/Cooling status and rephrased 'nothing' to 'No heating/cooling'. Replaced icon for better readability."
@@ -9,27 +9,30 @@
     "en": "Further fixes, not need to convert string from string."
   },
   "1.0.2": {
-    "en": "Fixed wrong type used to get Status. Changed from Number to String"
+    "en": "Fixed wrong type used to get Status. Changed from Number to String."
   },
   "1.0.1": {
-    "en": "Changed 'Current Temperature' to show temperature after heat recovery instead of before heat recovery"
+    "en": "Changed 'Current Temperature' to show temperature after heat recovery instead of before heat recovery."
   },
   "1.0.0": {
-    "en": "Working modbus support for reading values"
+    "en": "Working modbus support for reading values."
   },
   "1.0.6": {
     "en": "Rebased."
   },
   "1.0.7": {
-    "en": "Changed temperature current airtemp to supply_air"
+    "en": "Changed temperature current airtemp to supply_air."
   },
   "1.1.0": {
-    "en": "Added Support, Source and Bugs URL. Added more Insights, Fixed a potensial crash, added Ecomode readout, added Ecomode flows"
+    "en": "Added Support, Source and Bugs URL. Added more Insights, Fixed a potensial crash, added Ecomode readout, added Ecomode flows."
   },
   "1.1.1": {
     "en": "Added rewrite Ecomode flows. Cleanup of code."
-  }  ,
+  },
   "1.1.2": {
-    "en": "Fixed a fault in calculation of effectivity and updated packages"
+    "en": "Fixed a fault in calculation of effectivity and updated packages."
+  },
+  "1.2.0": {
+    "en": "Added remaining filter days and status of heating element and heat exchanger."
   }
 }

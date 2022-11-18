@@ -1,0 +1,14 @@
+{
+  "type": "number",
+  "uiComponent": "sensor",
+  "icon": "/assets/remaining.svg",
+  "title": {
+    "en": "Remaining filter days"
+  },
+  "desc": {
+    "en": "Remaining filter days changed"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": false
+}

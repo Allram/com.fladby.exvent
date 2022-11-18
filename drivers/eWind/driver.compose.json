@@ -12,7 +12,10 @@
     "measure_temperature.extractAir",
     "measure_temperature.supplyAirHRC",
     "ecomode_mode",
-    "measure_temperature"
+    "measure_temperature",
+    "remaining.filter_days",
+    "heater_mode",
+    "heat_exchanger_mode"
   ],
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {
@@ -55,10 +58,26 @@
           "en": "Exhaust Air efficiency"
         }
       },
+      "remaining.filter_days": {
+        "title": {
+          "en": "Days before filter change"
+        }
+      },
        "measure_temperature.supplyAir": {
         "title": {
           "en": "Supply Air"
         }
+      },
+      "heater_mode": {
+       "title": {
+         "en": "Heating element"
+       }
+      },
+      "heat_exchanger_mode": {
+       "title": {
+         "en": "Heat exchanger"
+       }
+             
     }
   },  
   "platforms": [
