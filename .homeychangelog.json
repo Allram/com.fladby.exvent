@@ -22,5 +22,14 @@
   },
   "1.0.7": {
     "en": "Changed temperature current airtemp to supply_air"
+  },
+  "1.1.0": {
+    "en": "Added Support, Source and Bugs URL. Added more Insights, Fixed a potensial crash, added Ecomode readout, added Ecomode flows"
+  },
+  "1.1.1": {
+    "en": "Added rewrite Ecomode flows. Cleanup of code."
+  }  ,
+  "1.1.2": {
+    "en": "Fixed a fault in calculation of effectivity and updated packages"
   }
 }

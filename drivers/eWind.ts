@@ -87,13 +87,13 @@ export class eWind extends Homey.Device {
 
         if (result['air_supply_eff'] && result['air_supply_eff'].value !== 'xxx') {
             this.addCapability('efficiency.supplyEff');
-            let humidity = ((Number(result['air_supply_eff'].value) / 10));
+            let humidity = ((Number(result['air_supply_eff'].value)));
             this.setCapabilityValue('efficiency.supplyEff', humidity);
         }
 
         if (result['air_extract_eff'] && result['air_extract_eff'].value !== 'xxx') {
             this.addCapability('efficiency.extractEff');
-            let humidity = ((Number(result['air_extract_eff'].value) / 10));
+            let humidity = ((Number(result['air_extract_eff'].value)));
             this.setCapabilityValue('efficiency.extractEff', humidity);
         }
 
