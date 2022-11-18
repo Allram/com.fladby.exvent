@@ -15,7 +15,8 @@
     "measure_temperature",
     "remaining.filter_days",
     "heater_mode",
-    "heat_exchanger_mode"
+    "heat_exchanger_mode",
+    "target_temperature"
   ],
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {
