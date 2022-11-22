@@ -32,6 +32,125 @@
     "url": "https://github.com/Allram/com.fladby.exvent/issues"
   },
   "flow": {
+    "actions": [
+      {
+        "title": {
+          "en": "Ecomode mode"
+        },
+        "hint": {
+          "en": "Set ecomode"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "On",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Off"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ecomode-mode"
+      },
+      {
+        "id": "eWind_mode_action",
+        "title": {
+          "en": "Set mode"
+        },
+        "type": "number",
+        "titleFormatted": {
+          "en": "Set mode [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Home"
+            },
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Home"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Away"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Fireplace"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Boost"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Ecomode_action",
+        "title": {
+          "en": "Set ecomode"
+        },
+        "type": "number",
+        "titleFormatted": {
+          "en": "Set ecomode [[Ecomode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "Ecomode",
+            "title": {
+              "en": "On"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "Off"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "triggers": [
       {
         "id": "eWind_mode_trigger",
@@ -214,96 +333,6 @@
         },
         "titleFormatted": {
           "en": "Ecomode !{{is|isn't}} [[Ecomode]]"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=eWind"
-          },
-          {
-            "type": "dropdown",
-            "name": "Ecomode",
-            "title": {
-              "en": "On"
-            },
-            "values": [
-              {
-                "id": "1",
-                "label": {
-                  "en": "On"
-                }
-              },
-              {
-                "id": "0",
-                "label": {
-                  "en": "Off"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "actions": [
-      {
-        "id": "eWind_mode_action",
-        "title": {
-          "en": "Set mode"
-        },
-        "type": "number",
-        "titleFormatted": {
-          "en": "Set mode [[mode]]"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=eWind"
-          },
-          {
-            "type": "dropdown",
-            "name": "mode",
-            "title": {
-              "en": "Home"
-            },
-            "values": [
-              {
-                "id": "0",
-                "label": {
-                  "en": "Home"
-                }
-              },
-              {
-                "id": "1",
-                "label": {
-                  "en": "Away"
-                }
-              },
-              {
-                "id": "2",
-                "label": {
-                  "en": "Fireplace"
-                }
-              },
-              {
-                "id": "3",
-                "label": {
-                  "en": "Boost"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "Ecomode_action",
-        "title": {
-          "en": "Set ecomode"
-        },
-        "type": "number",
-        "titleFormatted": {
-          "en": "Set ecomode [[Ecomode]]"
         },
         "args": [
           {

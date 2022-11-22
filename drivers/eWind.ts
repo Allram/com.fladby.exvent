@@ -24,7 +24,7 @@ export class eWind extends Homey.Device {
         "remaining_filter_days": [538, 1, 'UINT16', "Remaining filter days"], 
     };
 
-    Coilregisters: Object = {
+    coilRegisters: Object = {
         "eco_mode": [40, 1, 'UINT32', "eco Mode"], 
         "alarm_b_desc": [42, 1, 'UINT32', "Alarm B description"], 
         "heater_status": [32, 1, 'UINT32', "After-heater On/Off"], 
@@ -34,12 +34,11 @@ export class eWind extends Homey.Device {
     processResult(result: Record<string, Measurement>) {
         if (!result) {
             return;
-            
         }
 
         // result
         for (let k in result) {
-            console.log(k, result[k].value, result[k].scale, result[k].label)   
+            //console.log(k, result[k].value, result[k].scale, result[k].label)   
         }
 
         if (result['air_outside'] && result['air_outside'].value !== 'xxx') {
@@ -180,7 +179,5 @@ export class eWind extends Homey.Device {
                 this.setCapabilityValue('alarm_b.desc', true);
             }
         }
-
-
     }
 }

@@ -43,5 +43,8 @@
   },
   "1.3.0": {
     "en": "Added alarm for filter alarm and trigger flow card."
+  },
+  "2.0.0": {
+    "en": "Added adjustment of temperature, mode setting, ecomode setting."
   }
 }

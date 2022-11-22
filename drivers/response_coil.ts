@@ -1,9 +1,9 @@
 import * as Modbus from 'jsmodbus';
 import { Measurement } from './eWind';
 
-export async function checkCoils(Coilregisters: Object, client: InstanceType<typeof Modbus.client.TCP>) {
+export async function checkCoils(coilRegisters: Object, client: InstanceType<typeof Modbus.client.TCP>) {
     let result: Record<string, Measurement> = {};
-    for (const [key, value] of Object.entries(Coilregisters)) {
+    for (const [key, value] of Object.entries(coilRegisters)) {
         try {
             const res = client.readCoils(value[0], value[1])
             const actualRes = await res;

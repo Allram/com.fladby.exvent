@@ -26,38 +26,37 @@ class MyeWindDevice extends eWind {
       this.poll_eWind();
     }, RETRY_INTERVAL);
 
-    this.registerCapabilityListener('eWindstatus_mode', async (value, opts) => {
+    this.registerCapabilityListener('eWindstatus_mode', async (value) => {
       this.log('Changes to :', value);
+      switch (value) {
+        case "0":
+          this.sendCoilRequest(1, false);
+          this.sendCoilRequest(3, false);
+          this.sendCoilRequest(10, false);
+          break;
+        case "1":
+          this.sendCoilRequest(1, true);
+          break;
+        case "2":
+          this.sendCoilRequest(3, true);
+          break;
+        case "3":
+          this.sendCoilRequest(10, true);
+          break;
+        default:
+          break;
+      }
     });
 
     this.registerCapabilityListener('target_temperature', async (value) => {
       this.log('Changes to :', value);
+      this.sendHoldingRequest(135, value*10);
     });
 
     this.registerCapabilityListener('ecomode_mode', async (value) => {
       this.log('Changes to :', value);
+      this.sendCoilRequest(40, value === '1');
     });
-
-    this.registerCapabilityListener('alarm_b.desc', async (value) => {
-      this.log('Changes to :', value);
-    });
-
-
-    // flow condition 
-    let eWindstatusMode = this.homey.flow.getConditionCard("eWind_mode_condition");
-    eWindstatusMode.registerRunListener(async (args, state) => {
-        let result = (await this.getCapabilityValue('eWindstatus_mode') >= args.mode);
-        return Promise.resolve(result);
-    })  
-
-    let ecoMode = this.homey.flow.getConditionCard("Ecomode_mode_condition");
-    ecoMode.registerRunListener(async (args, state) => {
-        let result = (await this.getCapabilityValue('ecomode_mode') >= args.mode);
-        return Promise.resolve(result);
-    }) 
-
-
-
   }
 
   /**
@@ -96,59 +95,95 @@ class MyeWindDevice extends eWind {
     this.homey.clearInterval(timer);
   }
   
+  modbusOptions = {
+    'host': this.getSetting('address'),
+    'port': this.getSetting('port'),
+    'unitId': this.getSetting('id'),
+    'timeout': 15,
+    'autoReconnect': false,
+    'logLabel' : 'eWind',
+    'logLevel': 'error',
+    'logEnabled': true
+  }
+
   async poll_eWind() {
     this.log("poll_eWind");
     this.log(this.getSetting('address'));
-
-    let modbusOptions = {
-      'host': this.getSetting('address'),
-      'port': this.getSetting('port'),
-      'unitId': this.getSetting('id'),
-      'timeout': 15,
-      'autoReconnect': false,
-      'logLabel' : 'eWind',
-      'logLevel': 'error',
-      'logEnabled': true
-    }    
-    
-
     let socket = new net.Socket();
     var unitID = this.getSetting('id');
     let client = new Modbus.client.TCP(socket, unitID);
     socket.setKeepAlive(false);
-    socket.connect(modbusOptions);
-
+    socket.connect(this.modbusOptions);
     socket.on('connect', async () => {
       console.log('Connected ...');
-      console.log(modbusOptions);
-
+      console.log(this.modbusOptions);
       const checkRegisterRes = await checkRegister(this.registers, client);
-      const finalRes = {...checkRegisterRes}
-      this.processResult(finalRes)
-      const checkCoilsRes = await checkCoils(this.Coilregisters, client);
+      this.processResult({...checkRegisterRes});
+      const checkCoilsRes = await checkCoils(this.coilRegisters, client); 
+      this.processResult({...checkCoilsRes});
       client.socket.end();
       socket.end();
-      const finalRes2 = {...checkCoilsRes}
-      this.processResult(finalRes2)
       console.log('disconnect');
     });    
-
-
-
     socket.on('close', () => {
       console.log('Client closed');
     });  
-
     socket.on('timeout', () => {
       console.log('socket timed out!');
       socket.end();
     });
+    socket.on('error', (err) => {
+      console.log(err);
+      socket.end();
+    })
+  }
 
+  sendHoldingRequest(register: number, value: number) {
+    let socket = new net.Socket();
+    var unitID = this.getSetting('id');
+    let client = new Modbus.client.TCP(socket, unitID);
+    socket.setKeepAlive(false);
+    socket.connect(this.modbusOptions);
+    socket.on('connect', async () => {
+      client.writeSingleRegister(register, value).then(({ metrics, response }) => {
+        //console.log('Metrics: ' + JSON.stringify(metrics));
+        //console.log('Response: ' + JSON.stringify(response));
+      }).then(() => {
+        client.socket.end();
+        socket.end();
+      });
+    });    
+    socket.on('timeout', () => {
+      socket.end();
+    });
+    socket.on('error', (err) => {
+      console.log(err);
+      socket.end();
+    })
+  }
+  
+  sendCoilRequest(register: number, value: boolean) {
+    let socket = new net.Socket();
+    var unitID = this.getSetting('id');
+    let client = new Modbus.client.TCP(socket, unitID);
+    socket.setKeepAlive(false);
+    socket.connect(this.modbusOptions);
+    socket.on('connect', async () => {
+      client.writeSingleCoil(register, value).then(({ metrics, response }) => {
+        //console.log('Metrics: ' + JSON.stringify(metrics));
+        //console.log('Response: ' + JSON.stringify(response));
+      }).then(() => {
+        client.socket.end();
+        socket.end();
+      });
+    });    
+    socket.on('timeout', () => {
+      socket.end();
+    });
     socket.on('error', (err) => {
       console.log(err);
       socket.end();
     })
   }
 }
-
 module.exports = MyeWindDevice;
