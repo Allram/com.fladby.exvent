@@ -46,5 +46,8 @@
   },
   "2.0.0": {
     "en": "Added adjustment of temperature, mode setting, ecomode setting."
+  },
+  "2.1.0": {
+    "en": "Code cleanup, fixed migration/updating of new capabilities for exisiting devices."
   }
 }

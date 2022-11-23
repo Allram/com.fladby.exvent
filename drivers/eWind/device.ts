@@ -12,7 +12,64 @@ class MyeWindDevice extends eWind {
    * onInit is called when the device is initialized.
    */
   async onInit() {
+    if (this.hasCapability('efficiency.supplyEff') === false) {
+      // You need to check if migration is needed
+      // do not call addCapability on every init!
+      await this.addCapability('efficiency.supplyEff');
+    }
+    if (this.hasCapability('efficiency.extractEff') === false) {
+      await this.addCapability('efficiency.extractEff');
+    }
+    if (this.hasCapability('measure_temperature.outsideAir') === false) {
+      await this.addCapability('measure_temperature.outsideAir');
+    }
+    if (this.hasCapability('measure_temperature.exhaustAir') === false) {
+      await this.addCapability('measure_temperature.exhaustAir');
+    }
+    if (this.hasCapability('measure_temperature.supplyAir') === false) {
+      await this.addCapability('measure_temperature.supplyAir');
+    }
+    if (this.hasCapability('measure_temperature.extractAir') === false) {
+      await this.addCapability('measure_temperature.extractAir');
+    }
+    if (this.hasCapability('measure_temperature.supplyAirHRC') === false) {
+      await this.addCapability('measure_temperature.supplyAirHRC');
+    }
+    if (this.hasCapability('ecomode_mode') === false) {
+      await this.addCapability('ecomode_mode');
+    }
+    if (this.hasCapability('measure_temperature') === false) {
+      await this.addCapability('measure_temperature');
+    }
+    if (this.hasCapability('remaining.filter_days') === false) {
+      await this.addCapability('remaining.filter_days');
+    }
+    if (this.hasCapability('heater_mode') === false) {
+      await this.addCapability('heater_mode');
+    }
+    if (this.hasCapability('heat_exchanger_mode') === false) {
+      await this.addCapability('heat_exchanger_mode');
+    }
+    if (this.hasCapability('target_temperature') === false) {
+      await this.addCapability('target_temperature');
+    }
+    if (this.hasCapability('alarm_b.desc') === false) {
+      await this.addCapability('alarm_b.desc');
+    }
+    if (this.hasCapability('measure_humidity.extractAir') === false) {
+      await this.addCapability('measure_humidity.extractAir');
+    }
+    if (this.hasCapability('fanspeed_level') === false) {
+      await this.addCapability('fanspeed_level');
+    }
+    if (this.hasCapability('eWindstatus') === false) {
+      await this.addCapability('eWindstatus');
+    }
+    if (this.hasCapability('eWindstatus_mode') === false) {
+      await this.addCapability('eWindstatus_mode');
+    }
     this.log('MyeWindDevice has been initialized');
+
 
 
     let name = this.getData().id;
@@ -25,7 +82,8 @@ class MyeWindDevice extends eWind {
       // poll device state from eWind
       this.poll_eWind();
     }, RETRY_INTERVAL);
-
+  
+  
     this.registerCapabilityListener('eWindstatus_mode', async (value) => {
       this.log('Changes to :', value);
       switch (value) {

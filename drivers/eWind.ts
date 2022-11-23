@@ -42,40 +42,33 @@ export class eWind extends Homey.Device {
         }
 
         if (result['air_outside'] && result['air_outside'].value !== 'xxx') {
-            this.addCapability('measure_temperature.outsideAir');
             let air_outside = ((Number(result['air_outside'].value) / 10));
             this.setCapabilityValue('measure_temperature.outsideAir', air_outside);
         }
 
         if (result['air_extract'] && result['air_extract'].value !== 'xxx') {
-            this.addCapability('measure_temperature.extractAir');
             let extractair = ((Number(result['air_extract'].value) / 10));
             this.setCapabilityValue('measure_temperature.extractAir', extractair);
         }
 
         if (result['air_supply'] && result['air_supply'].value !== 'xxx') {
-            this.addCapability('measure_temperature.supplyAir');
-            this.addCapability('measure_temperature');
             let airsupply = ((Number(result['air_supply'].value) / 10));
             this.setCapabilityValue('measure_temperature.supplyAir', airsupply);
             this.setCapabilityValue('measure_temperature', airsupply);
         }
         
         if (result['air_supply_HRC'] && result['air_supply_HRC'].value !== 'xxx') {
-            this.addCapability('measure_temperature.supplyAirHRC');
             let temperature = ((Number(result['air_supply_HRC'].value) / 10));
             this.setCapabilityValue('measure_temperature.supplyAirHRC', temperature);
             
         }
 
         if (result['air_exhaust'] && result['air_exhaust'].value !== 'xxx') {
-            this.addCapability('measure_temperature.exhaustAir');
             let temperature = ((Number(result['air_exhaust'].value) / 10));
             this.setCapabilityValue('measure_temperature.exhaustAir', temperature);
         }
 
         if (result['temperature_setpoint'] && result['temperature_setpoint'].value !== 'xxx') {
-            this.addCapability('target_temperature');
             let temperature = ((Number(result['temperature_setpoint'].value) / 10));
             if (temperature >= 15 && temperature <= 25) {
                 this.setCapabilityValue('target_temperature',temperature);
@@ -83,38 +76,32 @@ export class eWind extends Homey.Device {
         }
 
         if (result['air_humidity'] && result['air_humidity'].value !== 'xxx') {
-            this.addCapability('measure_humidity.extractAir');
             let humidity = ((Number(result['air_humidity'].value)));
             this.setCapabilityValue('measure_humidity.extractAir', humidity);
         }
 
         if (result['air_supply_eff'] && result['air_supply_eff'].value !== 'xxx') {
-            this.addCapability('efficiency.supplyEff');
             let humidity = ((Number(result['air_supply_eff'].value)));
             this.setCapabilityValue('efficiency.supplyEff', humidity);
         }
 
         if (result['air_extract_eff'] && result['air_extract_eff'].value !== 'xxx') {
-            this.addCapability('efficiency.extractEff');
             let humidity = ((Number(result['air_extract_eff'].value)));
             this.setCapabilityValue('efficiency.extractEff', humidity);
         }
 
         if (result['fan_speed_level'] && result['fan_speed_level'].value !== 'xxx') {
-            this.addCapability('fanspeed_level');
             let humidity = ((Number(result['fan_speed_level'].value)));
             this.setCapabilityValue('fanspeed_level', humidity);
         }
 
         if (result['remaining_filter_days'] && result['remaining_filter_days'].value !== 'xxx') {
-            this.addCapability('remaining.filter_days');
             let days = ((Number(result['remaining_filter_days'].value)));
             this.setCapabilityValue('remaining.filter_days', days);
         }       
   
 
         if (result['status'] && result['status'].value !== 'xxx') {
-            this.addCapability('eWindstatus');
             let statusValue = Number(result['status'].value);
             if (statusValue === 0) { 
                 this.setCapabilityValue('eWindstatus', '0');
@@ -130,7 +117,6 @@ export class eWind extends Homey.Device {
         }
 
         if (result['status_mode'] && result['status_mode'].value !== 'xxx') {
-            this.addCapability('eWindstatus_mode');
             let statusValue = result['status_mode'].value;
             if (statusValue === "0") { 
                 this.setCapabilityValue('eWindstatus_mode', '0');
@@ -144,7 +130,6 @@ export class eWind extends Homey.Device {
         }  
 
         if (result['eco_mode'] && result['eco_mode'].value !== 'xxx') {
-            this.addCapability('ecomode_mode');
                 let ecomode_value = result['eco_mode'].value;
             if (ecomode_value === "0") {
                 this.setCapabilityValue('ecomode_mode', '0');
@@ -153,7 +138,6 @@ export class eWind extends Homey.Device {
             }
         }  
         if (result['heater_status'] && result['heater_status'].value !== 'xxx') {
-            this.addCapability('heater_mode');
             let statusValue = result['heater_status'].value;
             if (statusValue === "0") { 
                 this.setCapabilityValue('heater_mode', "0");
@@ -162,7 +146,6 @@ export class eWind extends Homey.Device {
             }
         }
         if (result['heat_exchanger_state'] && result['heat_exchanger_state'].value !== 'xxx') {
-            this.addCapability('heat_exchanger_mode');
             let statusValue = result['heat_exchanger_state'].value;
             if (statusValue === "0") { 
                 this.setCapabilityValue('heat_exchanger_mode', "0");
@@ -171,7 +154,6 @@ export class eWind extends Homey.Device {
             }
         }
         if (result['alarm_b_desc'] && result['alarm_b_desc'].value !== 'xxx') {
-            this.addCapability('alarm_b.desc');
             let statusValue = result['alarm_b_desc'].value;
             if (statusValue === "0") { 
                 this.setCapabilityValue('alarm_b.desc', false);

@@ -17,7 +17,11 @@
     "heater_mode",
     "heat_exchanger_mode",
     "target_temperature",
-    "alarm_b.desc"
+    "alarm_b.desc",
+    "measure_humidity.extractAir",
+    "fanspeed_level",
+    "eWindstatus",
+    "eWindstatus_mode"
   ],
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {
@@ -84,8 +88,30 @@
        "title": {
          "en": "Filter alarm"
        }
-             
-    }
+      },
+      "fanspeed_level": {
+       "title": {
+         "en": "Fan speed level"
+       }      
+      },
+      "eWindstatus": {
+       "title": {
+         "en": "Status"
+       }  
+      },
+      "eWindstatus_mode": {
+       "title": {
+         "en": "Mode"
+       }  
+      },
+      "target_temperature": {
+       "title": {
+         "en": "Target temperature",
+         "step": 0.5,
+         "min": 15,
+         "max": 23
+       }
+      }
   },  
   "platforms": [
     "local"
