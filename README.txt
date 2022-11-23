@@ -5,4 +5,4 @@ Remember to activate Modbus TCP in the eWind app before trying to connect and to
 
 Supported devices
 Following devices are supported
-- Exvent eWind systems (at the moment only reading values are supported)
+- Exvent eWind systems

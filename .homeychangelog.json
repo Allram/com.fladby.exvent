@@ -49,5 +49,8 @@
   },
   "2.1.0": {
     "en": "Code cleanup, fixed migration/updating of new capabilities for exisiting devices."
+  },
+  "2.1.1": {
+    "en": "Fixed spelling error."
   }
 }
