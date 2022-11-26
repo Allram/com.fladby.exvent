@@ -52,5 +52,8 @@
   },
   "2.1.1": {
     "en": "Fixed spelling error."
+  },
+  "2.1.2": {
+    "en": "Removed Remaining filter days as that was a static value."
   }
 }

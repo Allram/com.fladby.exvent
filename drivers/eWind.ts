@@ -21,7 +21,6 @@ export class eWind extends Homey.Device {
         "fan_speed_level": [50, 1, 'UINT16', "Fan speed level"], 
         "status": [49, 1, 'INT16', "status"], 
         "status_mode": [44, 1, 'INT16', "statusMode"],
-        "remaining_filter_days": [538, 1, 'UINT16', "Remaining filter days"], 
     };
 
     coilRegisters: Object = {
@@ -95,11 +94,6 @@ export class eWind extends Homey.Device {
             this.setCapabilityValue('fanspeed_level', humidity);
         }
 
-        if (result['remaining_filter_days'] && result['remaining_filter_days'].value !== 'xxx') {
-            let days = ((Number(result['remaining_filter_days'].value)));
-            this.setCapabilityValue('remaining.filter_days', days);
-        }       
-  
 
         if (result['status'] && result['status'].value !== 'xxx') {
             let statusValue = Number(result['status'].value);

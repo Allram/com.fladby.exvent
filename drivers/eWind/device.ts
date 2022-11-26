@@ -42,7 +42,7 @@ class MyeWindDevice extends eWind {
       await this.addCapability('measure_temperature');
     }
     if (this.hasCapability('remaining.filter_days') === false) {
-      await this.addCapability('remaining.filter_days');
+      await this.removeCapability('remaining.filter_days');
     }
     if (this.hasCapability('heater_mode') === false) {
       await this.addCapability('heater_mode');

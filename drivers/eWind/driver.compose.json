@@ -13,7 +13,6 @@
     "measure_temperature.supplyAirHRC",
     "ecomode_mode",
     "measure_temperature",
-    "remaining.filter_days",
     "heater_mode",
     "heat_exchanger_mode",
     "target_temperature",
@@ -62,11 +61,6 @@
       "efficiency.extractEff": {
         "title": {
           "en": "Exhaust Air efficiency"
-        }
-      },
-      "remaining.filter_days": {
-        "title": {
-          "en": "Days before filter change"
         }
       },
        "measure_temperature.supplyAir": {
