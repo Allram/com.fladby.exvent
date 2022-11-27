@@ -4,7 +4,7 @@ import {eWind}     from '../eWind';
 import {checkRegister} from '../response';
 import {checkCoils} from '../response_coil';
 
-const RETRY_INTERVAL = 18 * 1000; 
+const RETRY_INTERVAL = 60 * 1000; 
 let timer:NodeJS.Timer;
 
 class MyeWindDevice extends eWind {
@@ -69,7 +69,6 @@ class MyeWindDevice extends eWind {
       await this.addCapability('eWindstatus_mode');
     }
     this.log('MyeWindDevice has been initialized');
-
 
 
     let name = this.getData().id;

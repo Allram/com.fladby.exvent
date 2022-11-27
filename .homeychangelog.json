@@ -55,5 +55,8 @@
   },
   "2.1.2": {
     "en": "Removed Remaining filter days as that was a static value."
+  },
+  "2.1.3": {
+    "en": "Update packages and removed unnecessary packages, changed polling rate to 1min."
   }
 }
