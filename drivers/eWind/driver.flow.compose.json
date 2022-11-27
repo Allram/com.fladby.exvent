@@ -1,0 +1,80 @@
+{
+  "actions": [
+    {
+      "id": "ecomode",
+      "title": {
+        "en": "Set Ecomode to "
+      },
+      "titleFormatted": {
+        "en": "Set ecomode to [[ecomode]]"
+      },
+      "hint": {
+        "en": "Set ecomode to "
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ecomode",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "enabled"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "disabled"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "status-mode",
+      "title": {
+        "en": "Set mode to "
+      },
+      "titleFormatted": {
+        "en": "Set mode to [[mode]]"
+      },
+      "hint": {
+        "en": "Set mode to"
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "mode",
+          "values": [
+            {
+              "id": "0",
+              "label": {
+                "en": "Home"
+              }
+            },
+            {
+              "id": "1",
+              "label": {
+                "en": "Away"
+              }
+            },
+            {
+              "id": "2",
+              "label": {
+                "en": "Fireplace"
+              }
+            },
+            {
+              "id": "4",
+              "label": {
+                "en": "Boost"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -58,5 +58,8 @@
   },
   "2.1.3": {
     "en": "Update packages and removed unnecessary packages, changed polling rate to 1min."
+  },
+  "2.2.0": {
+    "en": "Added action flowcards for Ecomode and Mode."
   }
 }

@@ -81,8 +81,15 @@ class MyeWindDevice extends eWind {
       // poll device state from eWind
       this.poll_eWind();
     }, RETRY_INTERVAL);
-  
-  
+
+    //Action cards
+    const ecomodeCard = this.homey.flow.getActionCard('ecomode');
+    ecomodeCard.registerRunListener(async (args) => args.device.setMode('ecomode_mode', args.ecomode));
+    
+    const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
+    eWindStatusCard.registerRunListener(async (args) => args.device.setMode('eWindstatus_mode', args.mode));
+    
+
     this.registerCapabilityListener('eWindstatus_mode', async (value) => {
       this.log('Changes to :', value);
       switch (value) {
@@ -115,6 +122,13 @@ class MyeWindDevice extends eWind {
       this.sendCoilRequest(40, value === '1');
     });
   }
+
+  async setMode(mode: string, enabled: string): Promise<void> {
+    if (!this.getAvailable()) {
+      return;
+    }
+    this.setCapabilityValue(mode, enabled);
+  } 
 
   /**
    * onAdded is called when the user adds the device, called just after pairing.
