@@ -123,11 +123,11 @@ class MyeWindDevice extends eWind {
     });
   }
 
-  async setMode(mode: string, enabled: string): Promise<void> {
+  async setMode(mode: string, value: string): Promise<void> {
     if (!this.getAvailable()) {
       return;
     }
-    this.setCapabilityValue(mode, enabled);
+    this.setCapabilityValue(mode, value);
   } 
 
   /**
