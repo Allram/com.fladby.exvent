@@ -70,5 +70,8 @@
   },
   "2.3.0": {
     "en": "Fixed flow cards, added Capability: Last Poll time. Cleanup code and removed some unnecessary logging."
+  },
+  "2.3.1": {
+    "en": "Try to fix capability crash."
   }
 }
