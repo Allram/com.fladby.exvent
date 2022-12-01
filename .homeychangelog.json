@@ -64,5 +64,11 @@
   },
   "2.2.1": {
     "en": "Updated code."
+  },
+  "2.2.2": {
+    "en": "Turn off boost when mode changes."
+  },
+  "2.3.0": {
+    "en": "Fixed flow cards, added Capability: Last Poll time. Cleanup code and removed some unnecessary logging."
   }
 }

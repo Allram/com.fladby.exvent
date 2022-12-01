@@ -20,7 +20,8 @@
     "measure_humidity.extractAir",
     "fanspeed_level",
     "eWindstatus",
-    "eWindstatus_mode"
+    "eWindstatus_mode",
+    "lastPollTime"
   ],
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {
@@ -105,7 +106,12 @@
          "min": 15,
          "max": 23
        }
-      }
+      },
+      "lastPollTime": {
+       "title": {
+         "en": "Last poll time"
+       } 
+      } 
   },  
   "platforms": [
     "local"

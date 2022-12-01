@@ -35,11 +35,6 @@ export class eWind extends Homey.Device {
             return;
         }
 
-        // result
-        for (let k in result) {
-            //console.log(k, result[k].value, result[k].scale, result[k].label)   
-        }
-
         if (result['air_outside'] && result['air_outside'].value !== 'xxx') {
             let air_outside = ((Number(result['air_outside'].value) / 10));
             this.setCapabilityValue('measure_temperature.outsideAir', air_outside);
@@ -93,7 +88,6 @@ export class eWind extends Homey.Device {
             let humidity = ((Number(result['fan_speed_level'].value)));
             this.setCapabilityValue('fanspeed_level', humidity);
         }
-
 
         if (result['status'] && result['status'].value !== 'xxx') {
             let statusValue = Number(result['status'].value);

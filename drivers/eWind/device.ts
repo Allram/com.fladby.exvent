@@ -68,13 +68,13 @@ class MyeWindDevice extends eWind {
     if (this.hasCapability('eWindstatus_mode') === false) {
       await this.addCapability('eWindstatus_mode');
     }
+    if (this.hasCapability('lastPollTime') === false) {
+      await this.addCapability('lastPollTime');
+    }
     this.log('MyeWindDevice has been initialized');
-
-
     let name = this.getData().id;
     this.log("device name id " + name );
     this.log("device name " + this.getName());
-
     this.poll_eWind();
 
     timer = this.homey.setInterval(() => {
@@ -84,32 +84,20 @@ class MyeWindDevice extends eWind {
 
     //Action cards
     const ecomodeCard = this.homey.flow.getActionCard('ecomode');
-    ecomodeCard.registerRunListener(async (args) => args.device.setMode('ecomode_mode', args.ecomode));
+    ecomodeCard.registerRunListener(async (args) => {
+      args.device.setMode('ecomode_mode', args.ecomode);
+      this.sendCoilRequest(40, args.ecomode === '1');
+    });
     
     const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
-    eWindStatusCard.registerRunListener(async (args) => args.device.setMode('eWindstatus_mode', args.mode));
-    
+    eWindStatusCard.registerRunListener(async (args) => {
+      args.device.setMode('eWindstatus_mode', args.mode);
+      this.setEWindValue(args.mode);
+    });
 
     this.registerCapabilityListener('eWindstatus_mode', async (value) => {
       this.log('Changes to :', value);
-      switch (value) {
-        case "0":
-          this.sendCoilRequest(1, false);
-          this.sendCoilRequest(3, false);
-          this.sendCoilRequest(10, false);
-          break;
-        case "1":
-          this.sendCoilRequest(1, true);
-          break;
-        case "2":
-          this.sendCoilRequest(3, true);
-          break;
-        case "3":
-          this.sendCoilRequest(10, true);
-          break;
-        default:
-          break;
-      }
+      this.setEWindValue(value);
     });
 
     this.registerCapabilityListener('target_temperature', async (value) => {
@@ -121,6 +109,29 @@ class MyeWindDevice extends eWind {
       this.log('Changes to :', value);
       this.sendCoilRequest(40, value === '1');
     });
+  }
+
+  setEWindValue(value: string) {
+    switch (value) {
+      case "0":
+        this.sendCoilRequest(1, false);
+        this.sendCoilRequest(3, false);
+        this.sendCoilRequest(10, false);
+        break;
+      case "1":
+        this.sendCoilRequest(1, true);
+        this.sendCoilRequest(10, false);
+        break;
+      case "2":
+        this.sendCoilRequest(3, true);
+        this.sendCoilRequest(10, false);
+        break;
+      case "3":
+        this.sendCoilRequest(10, true);
+        break;
+      default:
+        break;
+    }
   }
 
   async setMode(mode: string, value: string): Promise<void> {
@@ -177,30 +188,35 @@ class MyeWindDevice extends eWind {
     'logEnabled': true
   }
 
+  delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   async poll_eWind() {
-    this.log("poll_eWind");
-    this.log(this.getSetting('address'));
+    console.log('Polling eWind...');
+    //this.log(this.getSetting('address'));
     let socket = new net.Socket();
     var unitID = this.getSetting('id');
     let client = new Modbus.client.TCP(socket, unitID);
     socket.setKeepAlive(false);
     socket.connect(this.modbusOptions);
     socket.on('connect', async () => {
-      console.log('Connected ...');
-      console.log(this.modbusOptions);
+      console.log('Connected...');
+      //console.log(this.modbusOptions);
       const checkRegisterRes = await checkRegister(this.registers, client);
       this.processResult({...checkRegisterRes});
+      await this.delay(10000); // Add 10 seconds delay to avoid socket hangup
       const checkCoilsRes = await checkCoils(this.coilRegisters, client); 
       this.processResult({...checkCoilsRes});
       client.socket.end();
       socket.end();
-      console.log('disconnect');
     });    
     socket.on('close', () => {
       console.log('Client closed');
+      this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });  
     socket.on('timeout', () => {
-      console.log('socket timed out!');
+      console.log('Socket timed out!');
       socket.end();
     });
     socket.on('error', (err) => {

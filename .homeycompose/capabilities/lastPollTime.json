@@ -1,0 +1,21 @@
+{
+  "type": "string",
+  "uiComponent": "sensor",
+  "icon": "/assets/efficiency.svg",
+  "title": {
+    "en": "Last poll time changed"
+  },
+  "desc": {
+    "en": "Poll time changed"
+  },
+
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Poll time changed"
+  },
+  "insightsTitleFalse": {
+    "en": "Poll time changed"
+  }
+}
