@@ -73,5 +73,8 @@
   },
   "2.3.1": {
     "en": "Try to fix capability crash."
+  },
+  "2.4.0": {
+    "en": "Added more delays between sending commands to prevent socket hangup. Try to fix Last poll time to not count when poll is failing."
   }
 }

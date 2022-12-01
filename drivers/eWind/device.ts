@@ -83,12 +83,14 @@ class MyeWindDevice extends eWind {
     const ecomodeCard = this.homey.flow.getActionCard('ecomode');
     ecomodeCard.registerRunListener(async (args) => {
       args.device.setMode('ecomode_mode', args.ecomode);
+      await this.delay(1000); // Add 1 second delay to avoid socket hangup
       this.sendCoilRequest(40, args.ecomode === '1');
     });
     
     const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
     eWindStatusCard.registerRunListener(async (args) => {
       args.device.setMode('eWindstatus_mode', args.mode);
+      await this.delay(1000); // Add 1 second delay to avoid socket hangup
       this.setEWindValue(args.mode);
     });
 
@@ -112,15 +114,19 @@ class MyeWindDevice extends eWind {
     switch (value) {
       case "0":
         this.sendCoilRequest(1, false);
+        this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(3, false);
+        this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(10, false);
         break;
       case "1":
         this.sendCoilRequest(1, true);
+        this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(10, false);
         break;
       case "2":
         this.sendCoilRequest(3, true);
+        this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(10, false);
         break;
       case "3":
@@ -207,10 +213,10 @@ class MyeWindDevice extends eWind {
       this.processResult({...checkCoilsRes});
       client.socket.end();
       socket.end();
+      this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });    
     socket.on('close', () => {
       console.log('Client closed');
-      this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });  
     socket.on('timeout', () => {
       console.log('Socket timed out!');
