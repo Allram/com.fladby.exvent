@@ -68,6 +68,9 @@ class MyeWindDevice extends eWind {
     if (this.hasCapability('lastPollTime') === false) {
       await this.addCapability('lastPollTime');
     }
+    if (this.hasCapability('remaining.filter_days') === true) {
+      await this.removeCapability('remaining.filter_days');
+    }
     this.log('MyeWindDevice has been initialized');
     let name = this.getData().id;
     this.log("device name id " + name );
