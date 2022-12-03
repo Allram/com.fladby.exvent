@@ -79,5 +79,8 @@
   },
   "2.4.1": {
     "en": "Remove deprecated capability. Tune delays."
+  },
+  "2.5.0": {
+    "en": "Added TCP keepAlive to keep the Modbus connection always connected (30sec KeepAlive), Removed some more logging, removed delay between requests as KeepAlive solves the problem with Socket Hangup."
   }
 }

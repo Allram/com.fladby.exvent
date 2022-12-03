@@ -73,7 +73,7 @@ class MyeWindDevice extends eWind {
     }
     this.log('MyeWindDevice has been initialized');
     let name = this.getData().id;
-    this.log("device name id " + name );
+    //this.log("device name id " + name );
     this.log("device name " + this.getName());
     this.poll_eWind();
 
@@ -86,14 +86,14 @@ class MyeWindDevice extends eWind {
     const ecomodeCard = this.homey.flow.getActionCard('ecomode');
     ecomodeCard.registerRunListener(async (args) => {
       args.device.setMode('ecomode_mode', args.ecomode);
-      await this.delay(1000); // Add 1 second delay to avoid socket hangup
+      //await this.delay(1000); // Add 1 second delay to avoid socket hangup
       this.sendCoilRequest(40, args.ecomode === '1');
     });
     
     const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
     eWindStatusCard.registerRunListener(async (args) => {
       args.device.setMode('eWindstatus_mode', args.mode);
-      await this.delay(1000); // Add 1 second delay to avoid socket hangup
+      //await this.delay(1000); // Add 1 second delay to avoid socket hangup
       this.setEWindValue(args.mode);
     });
 
@@ -117,20 +117,20 @@ class MyeWindDevice extends eWind {
     switch (value) {
       case "0":
         this.sendCoilRequest(1, false);
-        this.delay(1000); // Add 1 second delay to avoid socket hangup
+        //this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(3, false);
-        this.delay(1000); // Add 1 second delay to avoid socket hangup
+        //this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(10, false);
         break;
       case "1":
-        this.sendCoilRequest(1, true);
-        this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(10, false);
+        //this.delay(1000); // Add 1 second delay to avoid socket hangup
+        this.sendCoilRequest(1, true);
         break;
       case "2":
-        this.sendCoilRequest(3, true);
-        this.delay(1000); // Add 1 second delay to avoid socket hangup
         this.sendCoilRequest(10, false);
+        //this.delay(1000); // Add 1 second delay to avoid socket hangup
+        this.sendCoilRequest(3, true);
         break;
       case "3":
         this.sendCoilRequest(10, true);
@@ -204,18 +204,18 @@ class MyeWindDevice extends eWind {
     let socket = new net.Socket();
     var unitID = this.getSetting('id');
     let client = new Modbus.client.TCP(socket, unitID);
-    socket.setKeepAlive(false);
+    socket.setKeepAlive(true,30000); //Set Keepalive to 30sec=30000ms
     socket.connect(this.modbusOptions);
     socket.on('connect', async () => {
       console.log('Connected...');
       //console.log(this.modbusOptions);
       const checkRegisterRes = await checkRegister(this.registers, client);
       this.processResult({...checkRegisterRes});
-      await this.delay(10000); // Add 10 seconds delay to avoid socket hangup
+      //await this.delay(10000); // Add 10 seconds delay to avoid socket hangup
       const checkCoilsRes = await checkCoils(this.coilRegisters, client); 
       this.processResult({...checkCoilsRes});
       client.socket.end();
-      socket.end();
+      //socket.end();
       this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });    
     socket.on('close', () => {
@@ -235,15 +235,16 @@ class MyeWindDevice extends eWind {
     let socket = new net.Socket();
     var unitID = this.getSetting('id');
     let client = new Modbus.client.TCP(socket, unitID);
-    socket.setKeepAlive(false);
+    socket.setKeepAlive(true,30000); //Set Keepalive to 30sec=30000ms
     socket.connect(this.modbusOptions);
     socket.on('connect', async () => {
       client.writeSingleRegister(register, value).then(({ metrics, response }) => {
         //console.log('Metrics: ' + JSON.stringify(metrics));
         //console.log('Response: ' + JSON.stringify(response));
+        //this.log('skriver til register', register, 'med verdi', value)
       }).then(() => {
         client.socket.end();
-        socket.end();
+        //socket.end();
       });
     });    
     socket.on('timeout', () => {
@@ -259,15 +260,16 @@ class MyeWindDevice extends eWind {
     let socket = new net.Socket();
     var unitID = this.getSetting('id');
     let client = new Modbus.client.TCP(socket, unitID);
-    socket.setKeepAlive(false);
+    socket.setKeepAlive(true,30000); //Set Keepalive to 30sec=30000ms
     socket.connect(this.modbusOptions);
     socket.on('connect', async () => {
       client.writeSingleCoil(register, value).then(({ metrics, response }) => {
         //console.log('Metrics: ' + JSON.stringify(metrics));
         //console.log('Response: ' + JSON.stringify(response));
+        //this.log('skriver til register', register, 'med verdi', value)
       }).then(() => {
         client.socket.end();
-        socket.end();
+        //socket.end();
       });
     });    
     socket.on('timeout', () => {
