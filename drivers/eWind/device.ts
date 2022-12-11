@@ -8,6 +8,7 @@ const RETRY_INTERVAL = 18 * 1000;
 let timer:NodeJS.Timer;
 
 class MyeWindDevice extends eWind {
+  static socket: net.Socket = new net.Socket();
    modbusOptions = {
     'host': this.getSetting('address'),
     'port': this.getSetting('port'),
@@ -19,53 +20,53 @@ class MyeWindDevice extends eWind {
     'logEnabled': true
   }
 
-  createSocket() {
-    let socket = new net.Socket();
-    socket.setKeepAlive(true, 10000);
-    socket.setTimeout(10000);
-    socket.connect(this.modbusOptions);
-    return socket;
+  setSocketAttributes() {
+    MyeWindDevice.socket.setKeepAlive(true, 10000);
+    MyeWindDevice.socket.setTimeout(10000);
+  }
+
+  connectSocket() {
+    MyeWindDevice.socket.connect(this.modbusOptions);
   }
 
   async onInit() {
     this.log('MyeWindDevice has been initialized');
+    this.setSocketAttributes();
+    this.connectSocket();
     this.setCapabilities();
     this.flowActionCards();
     this.registerCapabilityListeners();
-    const socket: net.Socket = this.createSocket();
-    this.poll_eWind(socket);
+    this.poll_eWind();
     timer = this.homey.setInterval(() => {
-      this.poll_eWind(socket);
+      this.poll_eWind();
     }, RETRY_INTERVAL);
   }
   
-  async poll_eWind(socket: net.Socket) {
+  async poll_eWind() {
     console.log('Polling eWind...');
     var unitID = this.getSetting('id');
-    let client = new Modbus.client.TCP(socket, unitID);
-    socket.on('connect', async () => {
+    let client = new Modbus.client.TCP(MyeWindDevice.socket, unitID);
+    MyeWindDevice.socket.on('connect', async () => {
       console.log('Connected...');
-      console.log(JSON.stringify(socket));
       const checkRegisterRes = await checkRegister(this.registers, client);
       this.processResult({...checkRegisterRes});
       const checkCoilsRes = await checkCoils(this.coilRegisters, client); 
       this.processResult({...checkCoilsRes});
       this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });    
-    socket.on('close', () => {
+    MyeWindDevice.socket.on('close', () => {
       console.log('Client closed');
-      socket.end();
+      this.connectSocket();
+      this.poll_eWind();
     });  
-    socket.on('timeout', () => {
+    MyeWindDevice.socket.on('timeout', () => {
       console.log('Socket timed out!');
-      socket.destroy();
-      const socket = this.createSocket();
-      this.poll_eWind(socket);
+      this.connectSocket();
+      this.poll_eWind();
     });
-    socket.on('error', (err) => {
-      console.log(err);
-      socket.end();
-    })
+    MyeWindDevice.socket.on('error', (err) => {
+      console.log('Socket error: ', err);
+    });
   }
 
   setEWindValue(value: string) {
@@ -92,50 +93,37 @@ class MyeWindDevice extends eWind {
   }
 
   sendHoldingRequest(register: number, value: number) {
-    let socket = new net.Socket();
+    const socket = MyeWindDevice.socket;
     var unitID = this.getSetting('id');
     let client = new Modbus.client.TCP(socket, unitID);
-    socket.setKeepAlive(true,30000); //Set Keepalive to 30sec=30000ms
-    socket.connect(this.modbusOptions);
     socket.on('connect', async () => {
-      client.writeSingleRegister(register, value).then(({ metrics, response }) => {
-      }).then(() => {
-        client.socket.end();
-        //socket.end();
-      });
+      client.writeSingleRegister(register, value)
     });    
     socket.on('timeout', () => {
-      socket.end();
+      console.log('Socket timed out!');
+      this.connectSocket();
+      this.poll_eWind();
     });
     socket.on('error', (err) => {
-      console.log(err);
-      socket.end();
-    })
+      console.log('Socket error: ', err);
+    });
   }
   
   sendCoilRequest(register: number, value: boolean) {
-    let socket = new net.Socket();
+    const socket = MyeWindDevice.socket;
     var unitID = this.getSetting('id');
     let client = new Modbus.client.TCP(socket, unitID);
-    socket.setKeepAlive(true,30000); //Set Keepalive to 30sec=30000ms
-    socket.connect(this.modbusOptions);
     socket.on('connect', async () => {
-      client.writeSingleCoil(register, value).then(({ metrics, response }) => {
-        //console.log('Metrics: ' + JSON.stringify(metrics));
-        //console.log('Response: ' + JSON.stringify(response));
-        //this.log('skriver til register', register, 'med verdi', value)
-      }).then(() => {
-        client.socket.end();
-        //socket.end();
-      });
-    });    
+      client.writeSingleCoil(register, value)
+    });
     socket.on('timeout', () => {
-      socket.end();
+      console.log('Socket timed out!');
+      this.connectSocket();
+      this.poll_eWind();
     });
     socket.on('error', (err) => {
-      console.log(err);
-      socket.end();
-    })
+      console.log('Socket error: ', err);
+    });
   }
 
   async setCapabilities() {
