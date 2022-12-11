@@ -82,5 +82,8 @@
   },
   "2.5.0": {
     "en": "Added TCP keepAlive to keep the Modbus connection always connected (30sec KeepAlive), Removed some more logging, removed delay between requests as KeepAlive solves the problem with Socket Hangup."
+  },
+  "2.6.0": {
+    "en": "Fixed socket problems. Removed ModbusID."
   }
 }

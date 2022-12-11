@@ -8,7 +8,6 @@ $(function() {
 
     var inputaddress = $('#address').val();
     var inputport = Number($('#port').val());
-    var eWindid = Number($('#eWindid').val());
 
     var deviceId = Math.random().toString(36).substr(2,5).toLowerCase();
     var id = Math.round(Math.random() * (100000 - 10000) + 10000);
@@ -21,7 +20,6 @@ $(function() {
       var settings = {
         address : inputaddress,
         port    : inputport,
-        id      : eWindid
       };
 
       Homey.addDevice({
@@ -88,10 +86,6 @@ $(function() {
   <div class="form-group">
   	<label for="port" data-i18n="pair.port">Port</label>
   	<input type="number" class="form-control" id="port" placeholder="502" value="502" required>
-  </div>
-  <div class="form-group">
-  	<label for="eWindid" data-i18n="pair.deviceid">Port</label>
-  	<input type="number" class="form-control" id="eWindid" placeholder="255" value="255" required>
   </div>
   <div class="form-group buttons">
     <button id="connect" class="button" data-i18n="pair.connect">Connect</button>

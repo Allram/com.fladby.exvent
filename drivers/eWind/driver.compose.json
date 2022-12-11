@@ -149,19 +149,6 @@
           "label": {
             "en": "Port"
           }
-        },
-        {
-          "id": "id",
-          "type": "number",
-          "value": 255,
-          "step": 1,
-          "attr": {
-            "min": 0,
-            "max": 255
-          },
-          "label": {
-            "en": "Modbus ID"
-          }
         }          
       ]
     }
