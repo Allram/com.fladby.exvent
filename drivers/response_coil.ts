@@ -54,7 +54,7 @@ export async function checkCoils(coilRegisters: Object, client: InstanceType<typ
 
         } catch (err) {
             console.log("error with key: " + key);
-            // console.log(err);
+            console.log(err);
         }
     }
 

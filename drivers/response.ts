@@ -54,7 +54,7 @@ export async function checkRegister(registers: Object, client: InstanceType<type
 
         } catch (err) {
             console.log("error with key: " + key);
-            // console.log(err);
+            console.log(err);
         }
     }
 
