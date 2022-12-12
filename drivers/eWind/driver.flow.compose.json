@@ -71,6 +71,12 @@
               "label": {
                 "en": "Boost"
               }
+            },
+            {
+              "id": "4",
+              "label": {
+                "en": "Off"
+              }
             }
           ]
         }
