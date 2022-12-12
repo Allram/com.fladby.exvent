@@ -64,27 +64,27 @@ class MyeWindDevice extends eWind {
   setEWindValue(value: string) {
     switch (value) {
       case "0":
-        this.sendCoilRequest(0, true);
+        this.sendCoilRequest(0, false);
         this.sendCoilRequest(1, false);
         this.sendCoilRequest(3, false);
         this.sendCoilRequest(10, false);
         break;
       case "1":
-        this.sendCoilRequest(0, true);
+        this.sendCoilRequest(0, false);
         this.sendCoilRequest(10, false);
         this.sendCoilRequest(1, true);
         break;
       case "2":
-        this.sendCoilRequest(0, true);
+        this.sendCoilRequest(0, false);
         this.sendCoilRequest(10, false);
         this.sendCoilRequest(3, true);
         break;
       case "3":
-        this.sendCoilRequest(0, true);
+        this.sendCoilRequest(0, false);
         this.sendCoilRequest(10, true);
         break;
       case "4":
-        this.sendCoilRequest(0, false);
+        this.sendCoilRequest(0, true);
         break;
       default:
         break;
