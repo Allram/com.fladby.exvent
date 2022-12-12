@@ -85,5 +85,8 @@
   },
   "2.6.0": {
     "en": "Fixed socket problems. Removed ModbusID."
+  },
+  "2.6.1": {
+    "en": "Added OFF-mode to turn the ventilation system off."
   }
 }
