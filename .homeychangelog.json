@@ -88,5 +88,8 @@
   },
   "2.6.1": {
     "en": "Added OFF-mode to turn the ventilation system off."
+  },
+  "2.6.2": {
+    "en": "Added AutoReconnect if Wifi-connection is unstable or the Modbus module in the ventilation system randomly disconnects."
   }
 }

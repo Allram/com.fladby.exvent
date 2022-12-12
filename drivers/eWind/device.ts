@@ -22,7 +22,7 @@ class MyeWindDevice extends eWind {
     'port': this.getSetting('port'),
     'unitId': this.getSetting('id'),
     'timeout': 15,
-    'autoReconnect': false,
+    'autoReconnect': true,
     'logLabel' : 'eWind',
     'logLevel': 'error',
     'logEnabled': true
