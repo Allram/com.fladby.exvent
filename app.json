@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fladby.exvent",
-  "version": "2.6.2",
+  "version": "2.7.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -11,10 +11,12 @@
     "local"
   ],
   "name": {
-    "en": "Exvent"
+    "en": "Exvent",
+    "no": "Exvent"
   },
   "description": {
-    "en": "Improve your indoor climate with your ventilation system"
+    "en": "Improve your indoor climate with your ventilation system",
+    "no": "Forbedre innendørsklima med ventilasjonsanlegget"
   },
   "category": [
     "climate"
@@ -36,13 +38,16 @@
       {
         "id": "ecomode",
         "title": {
-          "en": "Set Ecomode to "
+          "en": "Set ecomode to ",
+          "no": "Sett ecomodus til "
         },
         "titleFormatted": {
-          "en": "Set ecomode to [[ecomode]]"
+          "en": "Set ecomode to [[ecomode]]",
+          "no": "Sett ecomodus til [[ecomode]]"
         },
         "hint": {
-          "en": "Set ecomode to "
+          "en": "Set ecomode to",
+          "no": "Sett ecomodus til"
         },
         "args": [
           {
@@ -57,13 +62,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "enabled"
+                  "en": "active",
+                  "no": "aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "disabled"
+                  "en": "inactive",
+                  "no": "inaktiv"
                 }
               }
             ]
@@ -73,13 +80,16 @@
       {
         "id": "status-mode",
         "title": {
-          "en": "Set mode to "
+          "en": "Set mode to ",
+          "no": "Sett modus til "
         },
         "titleFormatted": {
-          "en": "Set mode to [[mode]]"
+          "en": "Set mode to [[mode]]",
+          "no": "Sett modus til [[mode]]"
         },
         "hint": {
-          "en": "Set mode to"
+          "en": "Set mode to",
+          "no": "Sett modus til "
         },
         "args": [
           {
@@ -94,31 +104,36 @@
               {
                 "id": "0",
                 "label": {
-                  "en": "Home"
+                  "en": "Home",
+                  "no": "Hjemme"
                 }
               },
               {
                 "id": "1",
                 "label": {
-                  "en": "Away"
+                  "en": "Away",
+                  "no": "Borte"
                 }
               },
               {
                 "id": "2",
                 "label": {
-                  "en": "Fireplace"
+                  "en": "Fireplace",
+                  "no": "Peismodus"
                 }
               },
               {
                 "id": "3",
                 "label": {
-                  "en": "Boost"
+                  "en": "Boost",
+                  "no": "Boost"
                 }
               },
               {
                 "id": "4",
                 "label": {
-                  "en": "Off"
+                  "en": "Off",
+                  "no": "Av"
                 }
               }
             ]
@@ -156,82 +171,98 @@
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
           "title": {
-            "en": "Exhaust Air"
+            "en": "Exhaust Air",
+            "no": "Utkast"
           }
         },
         "measure_temperature.extractAir": {
           "title": {
-            "en": "Extract Air temperature"
+            "en": "Extract Air temperature",
+            "no": "Avtrekk"
           }
         },
         "measure_temperature.outsideAir": {
           "title": {
-            "en": "Fresh Air"
+            "en": "Fresh Air",
+            "no": "Inntak"
           }
         },
         "measure_temperature.supplyAirHRC": {
           "title": {
-            "en": "Supply Air after Heat recovery"
+            "en": "Supply Air after Heat recovery",
+            "no": "Tilluft etter varmegjenvinning"
           }
         },
         "measure_temperature": {
           "title": {
-            "en": "Supply Air temperature"
+            "en": "Supply Air temperature",
+            "no": "Tilluft"
           }
         },
         "measure_humidity.extractAir": {
           "title": {
-            "en": "Extract Air humidity"
+            "en": "Extract Air humidity",
+            "no": "Avtrekksfuktighet"
           }
         },
         "efficiency.supplyEff": {
           "title": {
-            "en": "Supply air efficiency"
+            "en": "Supply air efficiency",
+            "no": "Tilluftseffektivitet"
           }
         },
         "efficiency.extractEff": {
           "title": {
-            "en": "Exhaust Air efficiency"
+            "en": "Exhaust Air efficiency",
+            "no": "Avtrekkseffektivitet"
           }
         },
         "measure_temperature.supplyAir": {
           "title": {
-            "en": "Supply Air"
+            "en": "Supply Air",
+            "no": "Tilluft"
           }
         },
         "heater_mode": {
           "title": {
-            "en": "Heating element"
+            "en": "Heating element",
+            "no": "Varmeelement"
           }
         },
         "heat_exchanger_mode": {
           "title": {
-            "en": "Heat exchanger"
+            "en": "Heat exchanger",
+            "no": "Varmeveksler"
           }
         },
         "alarm_b.desc": {
           "title": {
-            "en": "Filter alarm"
+            "en": "Filteralarm",
+            "no": "Filteralarm"
           }
         },
         "fanspeed_level": {
           "title": {
-            "en": "Fan speed level"
+            "en": "Fan speed level",
+            "no": "Viftenivå"
           }
         },
         "eWindstatus": {
           "title": {
-            "en": "Status"
+            "en": "Status",
+            "no": "Status"
           }
         },
         "eWindstatus_mode": {
           "title": {
-            "en": "Mode"
+            "en": "Mode",
+            "no": "Modus"
           }
         },
         "target_temperature": {
           "title": {
             "en": "Target temperature",
+            "no": "Mål temperatur",
             "step": 0.5,
             "min": 15,
             "max": 23
@@ -239,7 +270,8 @@
         },
         "lastPollTime": {
           "title": {
-            "en": "Last poll time"
+            "en": "Last poll time",
+            "no": "Siste polling"
           }
         }
       },
@@ -291,7 +323,8 @@
       "type": "boolean",
       "icon": "/assets/filter_alarm.svg",
       "title": {
-        "en": "Filter alarm"
+        "en": "Filteralarm",
+        "no": "Filteralarm"
       },
       "getable": true,
       "setable": true,
@@ -300,29 +333,34 @@
     "ecomode_mode": {
       "type": "enum",
       "title": {
-        "en": "Ecomode"
+        "en": "Ecomode",
+        "no": "Ecomodus"
       },
       "getable": true,
       "setable": true,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Ecomode changed"
+        "en": "Ecomode changed",
+        "no": "Ecomodus endret"
       },
       "insightsTitleFalse": {
-        "en": "Ecomode changed"
+        "en": "Ecomode changed",
+        "no": "Ecomodus endret"
       },
       "uiComponent": "picker",
       "values": [
         {
           "id": "1",
           "title": {
-            "en": "On"
+            "en": "Active",
+            "no": "Aktiv"
           }
         },
         {
           "id": "0",
           "title": {
-            "en": "Off"
+            "en": "Inactive",
+            "no": "Inaktiv"
           }
         }
       ]
@@ -332,22 +370,27 @@
       "uiComponent": "sensor",
       "icon": "/assets/efficiency.svg",
       "title": {
-        "en": "Efficiency changed"
+        "en": "Efficiency",
+        "no": "Effektivitet"
       },
       "desc": {
-        "en": "Efficiency level changed"
+        "en": "Efficiency level changed",
+        "no": "Effektivitet endret"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Efficiency changed"
+        "en": "Efficiency changed",
+        "no": "Effektivitet endret"
       },
       "insightsTitleFalse": {
-        "en": "Efficiency changed"
+        "en": "Efficiency changed",
+        "no": "Effektivitet endret"
       },
       "units": {
-        "en": " %"
+        "en": " %",
+        "no": " %"
       },
       "min": 0,
       "max": 100,
@@ -358,46 +401,54 @@
       "uiComponent": "sensor",
       "icon": "/assets/status.svg",
       "title": {
-        "en": "Heating/Cooling status"
+        "en": "eWind status",
+        "no": "eWind status"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Heating/Cooling changed"
+        "en": "eWind status changed",
+        "no": "eWind status endret"
       },
       "insightsTitleFalse": {
-        "en": "Heating/Cooling changed"
+        "en": "eWind status changed",
+        "no": "eWind status endret"
       },
       "values": [
         {
           "id": "0",
           "title": {
-            "en": "No heating/cooling"
+            "en": "No heating/cooling",
+            "no": "Ingen varming/kjøling"
           }
         },
         {
           "id": "1",
           "title": {
-            "en": "Cooling"
+            "en": "Cooling",
+            "no": "Kjøling"
           }
         },
         {
           "id": "2",
           "title": {
-            "en": "Heat recovery"
+            "en": "Heat recovery",
+            "no": "Varmegjenvinning"
           }
         },
         {
           "id": "3",
           "title": {
-            "en": "Heating element active"
+            "en": "Heating element active",
+            "no": "Varmeelement aktivt"
           }
         },
         {
           "id": "4",
           "title": {
-            "en": "Additional heating"
+            "en": "Additional heating",
+            "no": "Tilleggsvarme"
           }
         }
       ]
@@ -406,47 +457,55 @@
       "type": "enum",
       "icon": "/assets/statusmode.svg",
       "title": {
-        "en": "Mode"
+        "en": "Mode",
+        "no": "Modus"
       },
       "getable": true,
       "setable": true,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Mode changed"
+        "en": "Mode changed",
+        "no": "Modus endret"
       },
       "insightsTitleFalse": {
-        "en": "Mode changed"
+        "en": "Mode changed",
+        "no": "Modus endret"
       },
       "uiComponent": "picker",
       "values": [
         {
           "id": "0",
           "title": {
-            "en": "Home"
+            "en": "Home",
+            "no": "Hjemme"
           }
         },
         {
           "id": "1",
           "title": {
-            "en": "Away"
+            "en": "Away",
+            "no": "Borte"
           }
         },
         {
           "id": "2",
           "title": {
-            "en": "Fireplace"
+            "en": "Fireplace",
+            "no": "Peismodus"
           }
         },
         {
           "id": "3",
           "title": {
-            "en": "Boost"
+            "en": "Boost",
+            "no": "Boost"
           }
         },
         {
           "id": "4",
           "title": {
-            "en": "Off"
+            "en": "Off",
+            "no": "Av"
           }
         }
       ]
@@ -456,19 +515,23 @@
       "uiComponent": "sensor",
       "icon": "/assets/fanspeed.svg",
       "title": {
-        "en": "Fan speed level (1-4)"
+        "en": "Fan speed level (1-4)",
+        "no": "Viftenivå (1-4)"
       },
       "desc": {
-        "en": "Fan level changed"
+        "en": "Fan level changed",
+        "no": "Viftenivå endret"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Fan level changed"
+        "en": "Fan level changed",
+        "no": "Viftenivå endret"
       },
       "insightsTitleFalse": {
-        "en": "Fan level changed"
+        "en": "Fan level changed",
+        "no": "Viftenivå endret"
       }
     },
     "heat_exchanger_mode": {
@@ -476,28 +539,33 @@
       "uiComponent": "sensor",
       "icon": "/assets/heat_exchanger_mode.svg",
       "title": {
-        "en": "Heat exchanger status"
+        "en": "Heat exchanger",
+        "no": "Varmeveksler"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Heat exchanger status changed"
+        "en": "Heat exchanger status changed",
+        "no": "Varmeveksler status endret"
       },
       "insightsTitleFalse": {
-        "en": "Heat exchanger status changed"
+        "en": "Heat exchanger status changed",
+        "no": "Varmeveksler status endret"
       },
       "values": [
         {
           "id": "0",
           "title": {
-            "en": "Inactive"
+            "en": "Inactive",
+            "no": "Inaktiv"
           }
         },
         {
           "id": "1",
           "title": {
-            "en": "Active"
+            "en": "Active",
+            "no": "Aktiv"
           }
         }
       ]
@@ -507,28 +575,33 @@
       "uiComponent": "sensor",
       "icon": "/assets/heater_mode.svg",
       "title": {
-        "en": "Heating element status"
+        "en": "Heatingelement",
+        "no": "Varmeeleement"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Heating element status changed"
+        "en": "Heatingelement status changed",
+        "no": "Varmeelement status endret"
       },
       "insightsTitleFalse": {
-        "en": "Heating element status changed"
+        "en": "Heatingelement status changed",
+        "no": "Varmeelement status endret"
       },
       "values": [
         {
           "id": "0",
           "title": {
-            "en": "Inactive"
+            "en": "Inactive",
+            "no": "Inaktivt"
           }
         },
         {
           "id": "1",
           "title": {
-            "en": "Active"
+            "en": "Active",
+            "no": "Aktivt"
           }
         }
       ]
@@ -538,19 +611,23 @@
       "uiComponent": "sensor",
       "icon": "/assets/efficiency.svg",
       "title": {
-        "en": "Last poll time changed"
+        "en": "Last poll",
+        "no": "Siste polling"
       },
       "desc": {
-        "en": "Poll time changed"
+        "en": "Poll time changed",
+        "no": "Polling endret"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Poll time changed"
+        "en": "Poll time changed",
+        "no": "Polling endret"
       },
       "insightsTitleFalse": {
-        "en": "Poll time changed"
+        "en": "Poll time changed",
+        "no": "Polling endret"
       }
     }
   }

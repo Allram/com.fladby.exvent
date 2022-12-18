@@ -8,11 +8,11 @@
       },
       "titleFormatted": {
         "en": "Set ecomode to [[ecomode]]",
-        "no": "Sett ecomode til [[ecomode]]"
+        "no": "Sett ecomodus til [[ecomode]]"
       },
       "hint": {
         "en": "Set ecomode to",
-        "no": "Sett ecomode til"
+        "no": "Sett ecomodus til"
       },
       "args": [
         {
@@ -30,7 +30,7 @@
               "id": "0",
               "label": {
                 "en": "inactive",
-                "no": "deaktivert"
+                "no": "inaktiv"
               }
             }
           ]
