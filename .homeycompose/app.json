@@ -10,10 +10,12 @@
     "local"
   ],
   "name": {
-    "en": "Exvent"
+    "en": "Exvent",
+    "no": "Exvent"
   },
   "description": {
-    "en": "Improve your indoor climate with your ventilation system"
+    "en": "Improve your indoor climate with your ventilation system",
+    "no": "Forbedre innendørsklima med ventilasjonsanlegget"
   },
   "category": [
     "climate"

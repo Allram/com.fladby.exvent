@@ -1,0 +1,15 @@
+{
+    "pair": {
+      "title": "Legg til eWind ventilasjonssystem",
+      "nosettings": "Vennligst fyll inn alle tomme felter.",
+      "intro": "Skriv inn IP-Adressen og porten på eWind Wifi-enheten og verifiser at du har satt Modbus TCP til ON i Exvent appen.",
+      "address": "IP-Addresse",
+      "port": "Port",
+      "deviceid": "Enhets-ID",
+      "connect": "Koble til"
+    },
+    "Unreachable": "Unreachable",
+    "Off": "Av",
+    "NA": "Ikke tilgjengelig"
+  }
+  
