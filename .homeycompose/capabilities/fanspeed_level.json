@@ -3,18 +3,22 @@
   "uiComponent": "sensor",
   "icon": "/assets/fanspeed.svg",
   "title": {
-    "en": "Fan speed level (1-4)"
+    "en": "Fan speed level (1-4)",
+    "no": "Viftenivå (1-4)"
   },
   "desc": {
-    "en": "Fan level changed"
+    "en": "Fan level changed",
+    "no": "Viftenivå endret"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Fan level changed"
+    "en": "Fan level changed",
+    "no": "Viftenivå endret"
   },
   "insightsTitleFalse": {
-    "en": "Fan level changed"
+    "en": "Fan level changed",
+    "no": "Viftenivå endret"
   }
 }
