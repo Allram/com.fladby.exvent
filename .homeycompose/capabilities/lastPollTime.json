@@ -3,7 +3,7 @@
   "uiComponent": "sensor",
   "icon": "/assets/efficiency.svg",
   "title": {
-    "en": "Last poll time",
+    "en": "Last poll",
     "no": "Siste polling"
   },
   "desc": {

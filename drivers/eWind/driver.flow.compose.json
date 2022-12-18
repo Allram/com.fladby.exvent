@@ -3,13 +3,16 @@
     {
       "id": "ecomode",
       "title": {
-        "en": "Set Ecomode to "
+        "en": "Set ecomode to ",
+        "no": "Sett ecomodus til "
       },
       "titleFormatted": {
-        "en": "Set ecomode to [[ecomode]]"
+        "en": "Set ecomode to [[ecomode]]",
+        "no": "Sett ecomode til [[ecomode]]"
       },
       "hint": {
-        "en": "Set ecomode to "
+        "en": "Set ecomode to",
+        "no": "Sett ecomode til"
       },
       "args": [
         {
@@ -19,13 +22,15 @@
             {
               "id": "1",
               "label": {
-                "en": "enabled"
+                "en": "active",
+                "no": "aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "disabled"
+                "en": "inactive",
+                "no": "deaktivert"
               }
             }
           ]
@@ -35,13 +40,16 @@
     {
       "id": "status-mode",
       "title": {
-        "en": "Set mode to "
+        "en": "Set mode to ",
+        "no": "Sett modus til "
       },
       "titleFormatted": {
-        "en": "Set mode to [[mode]]"
+        "en": "Set mode to [[mode]]",
+        "no": "Sett modus til [[mode]]"
       },
       "hint": {
-        "en": "Set mode to"
+        "en": "Set mode to",
+        "no": "Sett modus til "
       },
       "args": [
         {
@@ -51,31 +59,36 @@
             {
               "id": "0",
               "label": {
-                "en": "Home"
+                "en": "Home",
+                "no": "Hjemme"
               }
             },
             {
               "id": "1",
               "label": {
-                "en": "Away"
+                "en": "Away",
+                "no": "Borte"
               }
             },
             {
               "id": "2",
               "label": {
-                "en": "Fireplace"
+                "en": "Fireplace",
+                "no": "Peismodus"
               }
             },
             {
               "id": "3",
               "label": {
-                "en": "Boost"
+                "en": "Boost",
+                "no": "Boost"
               }
             },
             {
               "id": "4",
               "label": {
-                "en": "Off"
+                "en": "Off",
+                "no": "Av"
               }
             }
           ]
