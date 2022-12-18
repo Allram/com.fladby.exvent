@@ -26,82 +26,98 @@
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {
         "title": {
-          "en": "Exhaust Air"
+          "en": "Exhaust Air",
+          "no": "Utkast"
         }
       },
       "measure_temperature.extractAir": {
         "title": {
-          "en": "Extract Air temperature"
+          "en": "Extract Air temperature",
+          "no": "Avtrekk"
         }
       },
       "measure_temperature.outsideAir": {
         "title": {
-          "en": "Fresh Air"
+          "en": "Fresh Air",
+          "no": "Inntak"
         }
       },
       "measure_temperature.supplyAirHRC": {
         "title": {
-          "en": "Supply Air after Heat recovery"
+          "en": "Supply Air after Heat recovery",
+          "no": "Tilluft etter varmegjenvinning"
         }
       },
       "measure_temperature": {
         "title": {
-          "en": "Supply Air temperature"
+          "en": "Supply Air temperature",
+          "no": "Tilluft"
         }
       },
       "measure_humidity.extractAir": {
         "title": {
-          "en": "Extract Air humidity"
+          "en": "Extract Air humidity",
+          "no": "Avtrekksfuktighet"
         }
       },
       "efficiency.supplyEff": {
         "title": {
-          "en": "Supply air efficiency"
+          "en": "Supply air efficiency",
+          "no": "Tilluftseffektivitet"
         }
       },
       "efficiency.extractEff": {
         "title": {
-          "en": "Exhaust Air efficiency"
+          "en": "Exhaust Air efficiency",
+          "no": "Avtrekkeffektivitet"
         }
       },
        "measure_temperature.supplyAir": {
         "title": {
-          "en": "Supply Air"
+          "en": "Supply Air",
+          "no": "Tilluft"
         }
       },
       "heater_mode": {
        "title": {
-         "en": "Heating element"
+         "en": "Heating element",
+         "no": "Varmeelement"
        }
       },
       "heat_exchanger_mode": {
        "title": {
-         "en": "Heat exchanger"
+         "en": "Heat exchanger",
+         "no": "Varmeveksler"
        }
       },
       "alarm_b.desc": {
        "title": {
-         "en": "Filter alarm"
+         "en": "Filteralarm",
+         "no": "Filteralarm"
        }
       },
       "fanspeed_level": {
        "title": {
-         "en": "Fan speed level"
+         "en": "Fan speed level",
+         "no": "Viftenivå"
        }      
       },
       "eWindstatus": {
        "title": {
-         "en": "Status"
+         "en": "Status",
+         "no": "Status"
        }  
       },
       "eWindstatus_mode": {
        "title": {
-         "en": "Mode"
+         "en": "Mode",
+         "no": "Modus"
        }  
       },
       "target_temperature": {
        "title": {
          "en": "Target temperature",
+         "no": "Mål temperatur",
          "step": 0.5,
          "min": 15,
          "max": 23
@@ -109,7 +125,8 @@
       },
       "lastPollTime": {
        "title": {
-         "en": "Last poll time"
+         "en": "Last poll time",
+         "no": "Siste polling"
        } 
       } 
   },  
