@@ -22,14 +22,14 @@
       "id": "0",
       "title": {
         "en": "Inactive",
-        "no": "Inaktiv"
+        "no": "Inaktivt"
       }
     },
     {
       "id": "1",
       "title": {
         "en": "Active",
-        "no": "Aktiv"
+        "no": "Aktivt"
       }
     }
   ]

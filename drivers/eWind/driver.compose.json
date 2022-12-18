@@ -69,7 +69,7 @@
       "efficiency.extractEff": {
         "title": {
           "en": "Exhaust Air efficiency",
-          "no": "Avtrekkeffektivitet"
+          "no": "Avtrekkseffektivitet"
         }
       },
        "measure_temperature.supplyAir": {

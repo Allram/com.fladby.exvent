@@ -91,5 +91,8 @@
   },
   "2.6.2": {
     "en": "Added AutoReconnect if Wifi-connection is unstable or the Modbus module in the ventilation system randomly disconnects."
+  },
+  "2.7.0": {
+    "en": "Translated into Norwegian."
   }
 }
