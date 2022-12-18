@@ -4,15 +4,15 @@
       "id": "ecomode",
       "title": {
         "en": "Set ecomode to ",
-        "no": "Sett ecomodus til "
+        "no": "Sett økomodus til "
       },
       "titleFormatted": {
         "en": "Set ecomode to [[ecomode]]",
-        "no": "Sett ecomodus til [[ecomode]]"
+        "no": "Sett økomodus til [[ecomode]]"
       },
       "hint": {
         "en": "Set ecomode to",
-        "no": "Sett ecomodus til"
+        "no": "Sett økomodus til"
       },
       "args": [
         {

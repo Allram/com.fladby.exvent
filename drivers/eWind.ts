@@ -91,7 +91,6 @@ export class eWind extends Homey.Device {
 
         if (result['status'] && result['status'].value !== 'xxx') {
             let statusValue = result['status'].value;
-            console.log(typeof statusValue)
             if (statusValue === '0') { 
                 this.setCapabilityValue('eWindstatus', '0');
             } else if (statusValue === '1' ) {

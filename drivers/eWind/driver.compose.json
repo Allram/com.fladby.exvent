@@ -114,6 +114,12 @@
          "no": "Modus"
        }  
       },
+      "ecomode_mode": {
+        "title": {
+          "en": "Ecomode",
+          "no": "Økomodus"
+        }  
+       },
       "target_temperature": {
        "title": {
          "en": "Target temperature",
