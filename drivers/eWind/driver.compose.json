@@ -120,7 +120,7 @@
          "no": "Mål temperatur",
          "step": 0.5,
          "min": 15,
-         "max": 23
+         "max": 25
        }
       },
       "lastPollTime": {

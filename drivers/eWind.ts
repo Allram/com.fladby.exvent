@@ -19,7 +19,7 @@ export class eWind extends Homey.Device {
         "air_extract_eff": [30, 1, 'UINT16', "Heat recovery efficiency, exhaust air"], 
         "temperature_setpoint": [135, 1, 'INT16', "Temperature setpoint"], 
         "fan_speed_level": [50, 1, 'UINT16', "Fan speed level"], 
-        "status": [49, 1, 'INT16', "status"], 
+        "status": [45, 1, 'INT16', "status"], 
         "status_mode": [44, 1, 'INT16', "statusMode"],
     };
 
@@ -90,17 +90,20 @@ export class eWind extends Homey.Device {
         }
 
         if (result['status'] && result['status'].value !== 'xxx') {
-            let statusValue = Number(result['status'].value);
-            if (statusValue === 0) { 
+            let statusValue = result['status'].value;
+            console.log(typeof statusValue)
+            if (statusValue === '0') { 
                 this.setCapabilityValue('eWindstatus', '0');
-            } else if (statusValue >= -100 && statusValue <= -1) {
+            } else if (statusValue === '1' ) {
                 this.setCapabilityValue('eWindstatus', '1');
-            } else if (statusValue >= 1 && statusValue <= 100) {
+            } else if (statusValue === '2') {
                 this.setCapabilityValue('eWindstatus', '2');
-            } else if (statusValue >= 101 && statusValue <= 200) {
+            } else if (statusValue === '4') {
                 this.setCapabilityValue('eWindstatus', '3');
-            } else if (statusValue >= 201 && statusValue <= 300) {
+            } else if (statusValue === '7') {
                 this.setCapabilityValue('eWindstatus', '4');
+            } else if (statusValue === '8') {
+                this.setCapabilityValue('eWindstatus', '5');
             }
         }
 

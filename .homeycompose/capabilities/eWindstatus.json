@@ -49,8 +49,15 @@
     {
       "id": "4",
       "title": {
-        "en": "Additional heating",
-        "no": "Tilleggsvarme"
+        "en": "Starting up",
+        "no": "Starter opp"
+      }
+    },
+    {
+      "id": "5",
+      "title": {
+        "en": "Dehumidification",
+        "no": "Avfukting"
       }
     }
   ]
