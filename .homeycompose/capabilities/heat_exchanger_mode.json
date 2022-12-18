@@ -3,28 +3,33 @@
   "uiComponent": "sensor",
   "icon": "/assets/heat_exchanger_mode.svg",
   "title": {
-    "en": "Heat exchanger status"
+    "en": "Heat exchanger",
+    "no": "Varmeveksler"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Heat exchanger status changed"
+    "en": "Heat exchanger status changed",
+    "no": "Varmeveksler status endret"
   },
   "insightsTitleFalse": {
-    "en": "Heat exchanger status changed"
+    "en": "Heat exchanger status changed",
+    "no": "Varmeveksler status endret"
   },
   "values": [
     {
       "id": "0",
       "title": {
-        "en": "Inactive"
+        "en": "Inactive",
+        "no": "Inaktiv"
       }
     },
     {
       "id": "1",
       "title": {
-        "en": "Active"
+        "en": "Active",
+        "no": "Aktiv"
       }
     }
   ]

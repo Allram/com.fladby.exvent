@@ -3,23 +3,28 @@
   "uiComponent": "sensor",
   "icon": "/assets/efficiency.svg",
   "title": {
-    "en": "Efficiency changed"
+    "en": "Efficiency",
+    "no": "Effektivitet"
   },
   "desc": {
-    "en": "Efficiency level changed"
+    "en": "Efficiency level changed",
+    "no": "Effektivitet endret"
   },
 
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Efficiency changed"
+    "en": "Efficiency changed",
+    "no": "Effektivitet endret"
   },
   "insightsTitleFalse": {
-    "en": "Efficiency changed"
+    "en": "Efficiency changed",
+    "no": "Effektivitet endret"
   },
   "units": {
-    "en": " %"
+    "en": " %",
+    "no": " %"
     },
     "min": 0,
     "max": 100,

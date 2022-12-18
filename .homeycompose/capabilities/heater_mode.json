@@ -3,28 +3,33 @@
   "uiComponent": "sensor",
   "icon": "/assets/heater_mode.svg",
   "title": {
-    "en": "Heating element status"
+    "en": "Heatingelement",
+    "no": "Varmeeleement"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Heating element status changed"
+    "en": "Heatingelement status changed",
+    "no": "Varmeelement status endret"
   },
   "insightsTitleFalse": {
-    "en": "Heating element status changed"
+    "en": "Heatingelement status changed",
+    "no": "Varmeelement status endret"
   },
   "values": [
     {
       "id": "0",
       "title": {
-        "en": "Inactive"
+        "en": "Inactive",
+        "no": "Inaktiv"
       }
     },
     {
       "id": "1",
       "title": {
-        "en": "Active"
+        "en": "Active",
+        "no": "Aktiv"
       }
     }
   ]

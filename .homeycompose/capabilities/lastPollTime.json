@@ -3,19 +3,23 @@
   "uiComponent": "sensor",
   "icon": "/assets/efficiency.svg",
   "title": {
-    "en": "Last poll time changed"
+    "en": "Last poll time",
+    "no": "Siste polling"
   },
   "desc": {
-    "en": "Poll time changed"
+    "en": "Poll time changed",
+    "no": "Polling endret"
   },
 
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Poll time changed"
+    "en": "Poll time changed",
+    "no": "Polling endret"
   },
   "insightsTitleFalse": {
-    "en": "Poll time changed"
+    "en": "Poll time changed",
+    "no": "Polling endret"
   }
 }

@@ -3,46 +3,54 @@
   "uiComponent": "sensor",
   "icon": "/assets/status.svg",
   "title": {
-    "en": "Heating/Cooling status"
+    "en": "eWind status",
+    "no": "eWind status"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Heating/Cooling changed"
+    "en": "eWind status changed",
+    "no": "eWind status endret"
   },
   "insightsTitleFalse": {
-    "en": "Heating/Cooling changed"
+    "en": "eWind status changed",
+    "no": "eWind status endret"
   },
   "values": [
     {
       "id": "0",
       "title": {
-        "en": "No heating/cooling"
+        "en": "No heating/cooling",
+        "no": "Ingen varming/kjøling"
       }
     },
     {
       "id": "1",
       "title": {
-        "en": "Cooling"
+        "en": "Cooling",
+        "no": "Kjøling"
       }
     },
     {
       "id": "2",
       "title": {
-        "en": "Heat recovery"
+        "en": "Heat recovery",
+        "no": "Varmegjenvinning"
       }
     },
     {
       "id": "3",
       "title": {
-        "en": "Heating element active"
+        "en": "Heating element active",
+        "no": "Varmeelement aktivt"
       }
     },
     {
       "id": "4",
       "title": {
-        "en": "Additional heating"
+        "en": "Additional heating",
+        "no": "Tilleggsvarme"
       }
     }
   ]
