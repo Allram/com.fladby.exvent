@@ -53,7 +53,7 @@ class MyeWindDevice extends eWind {
     socket.on('data', () => {
       console.log('Socket received data. Updating lastPollTime');
       this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
-    })
+    });
     timer = this.homey.setInterval(() => {
       this.poll_eWind();
     }, RETRY_INTERVAL);
