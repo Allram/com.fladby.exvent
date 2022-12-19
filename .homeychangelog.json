@@ -97,5 +97,8 @@
   },
   "2.7.1": {
     "en": "Fixed translation errors."
+  },
+  "2.7.2": {
+    "en": "Fixed lastPollTime to show actually poll time and stop update if Modbus connection quits."
   }
 }
