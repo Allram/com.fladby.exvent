@@ -49,6 +49,10 @@ class MyeWindDevice extends eWind {
     });
     socket.on('close', (err: any) => {
       console.log('Socket close: ', err);
+    });
+    socket.on('data', () => {
+      console.log('Socket received data. Updating lastPollTime');
+      this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     })
     timer = this.homey.setInterval(() => {
       this.poll_eWind();
@@ -61,7 +65,6 @@ class MyeWindDevice extends eWind {
     this.processResult({...checkRegisterRes});
     const checkCoilsRes = await checkCoils(this.coilRegisters, client); 
     this.processResult({...checkCoilsRes});
-    this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
   }
 
   setEWindValue(value: string) {
