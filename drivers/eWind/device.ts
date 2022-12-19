@@ -47,6 +47,9 @@ class MyeWindDevice extends eWind {
     socket.on('error', (err: any) => {
       console.log('Socket error: ', err);
     });
+    socket.on('close', (err: any) => {
+      console.log('Socket close: ', err);
+    })
     timer = this.homey.setInterval(() => {
       this.poll_eWind();
     }, RETRY_INTERVAL);
