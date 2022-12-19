@@ -49,6 +49,8 @@ class MyeWindDevice extends eWind {
     });
     socket.on('close', (err: any) => {
       console.log('Socket close: ', err);
+      socket.end();
+      socket.connect(this.modbusOptions);
     });
     socket.on('data', () => {
       console.log('Socket received data. Updating lastPollTime');
