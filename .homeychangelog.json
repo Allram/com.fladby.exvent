@@ -100,5 +100,8 @@
   },
   "2.7.2": {
     "en": "Fixed lastPollTime to show actually poll time and stop update if Modbus connection quits."
+  },
+  "2.7.3": {
+    "en": "Reduced timeout."
   }
 }

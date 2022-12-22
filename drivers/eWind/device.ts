@@ -31,7 +31,7 @@ class MyeWindDevice extends eWind {
   async onInit() {
     this.log('MyeWindDevice has been initialized');
     socket.setKeepAlive(true);
-    socket.setTimeout(100000);
+    socket.setTimeout(15000);
     socket.connect(this.modbusOptions);
     this.setCapabilities();
     this.flowActionCards();
