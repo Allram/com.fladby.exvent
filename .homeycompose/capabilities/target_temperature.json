@@ -2,6 +2,7 @@
     "type": "number",
     "min": 15,
     "max": 22,
+    "step": 1,
     "title": {
       "en": "Target temperature",
       "nl": "Ingestelde temperatuur",

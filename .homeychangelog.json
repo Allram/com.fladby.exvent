@@ -106,5 +106,8 @@
   },
   "2.7.4": {
     "en": "Fixed a bug in target_temperature which forced the modbus-connection to force-close if values were out of range."
+  },
+  "2.7.5": {
+    "en": "Fixed a bug in the new bugfix..."
   }
 }
