@@ -123,10 +123,7 @@
       "target_temperature": {
        "title": {
          "en": "Target temperature",
-         "no": "Mål temperatur",
-         "step": 0.5,
-         "min": 15,
-         "max": 25
+         "no": "Ønsket temperatur"
        }
       },
       "lastPollTime": {

@@ -64,7 +64,7 @@ export class eWind extends Homey.Device {
 
         if (result['temperature_setpoint'] && result['temperature_setpoint'].value !== 'xxx') {
             let temperature = ((Number(result['temperature_setpoint'].value) / 10));
-            if (temperature >= 15 && temperature <= 25) {
+            if (temperature >= 15 && temperature <= 22) {
                 this.setCapabilityValue('target_temperature',temperature);
             }
         }

@@ -103,5 +103,8 @@
   },
   "2.7.3": {
     "en": "Reduced timeout."
+  },
+  "2.7.4": {
+    "en": "Fixed a bug in target_temperature which forced the modbus-connection to force-close if values were out of range."
   }
 }
