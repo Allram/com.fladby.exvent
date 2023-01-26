@@ -109,5 +109,8 @@
   },
   "2.7.5": {
     "en": "Fixed a bug in the new bugfix..."
+  },
+  "2.7.6": {
+    "en": "Added possibility to set target temperature"
   }
 }

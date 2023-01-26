@@ -180,6 +180,12 @@ class MyeWindDevice extends eWind {
       args.device.setMode('eWindstatus_mode', args.mode);
       this.setEWindValue(args.mode);
     });
+
+    const SetTemperatureCard = this.homey.flow.getActionCard('set-temperature');
+    SetTemperatureCard.registerRunListener(async (args) => {
+      this.setCapabilityValue('target_temperature', args.temperature);
+      this.sendHoldingRequest(135, args.temperature*10);
+    });
   }
 
   registerCapabilityListeners() {

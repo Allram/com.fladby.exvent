@@ -38,6 +38,30 @@
       ]
     },
     {
+      "id": "set-temperature",
+      "title": {
+        "en": "Set temperature",
+        "no": "Sett temperatur"
+      },
+      "titleFormatted": {
+        "en": "Set temperature to [[temperature]]",
+        "no": "Sett temperatur til [[temperature]]"
+      },
+      "hint": {
+        "en": "Set target temperature",
+        "no": "Sett måltemperatur"
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "temperature",
+          "min": 15,
+          "max": 22,
+          "step": 1
+        }
+      ]
+    },
+    {
       "id": "status-mode",
       "title": {
         "en": "Set mode to ",
