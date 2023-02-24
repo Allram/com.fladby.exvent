@@ -8,7 +8,6 @@
     "efficiency.extractEff",
     "measure_temperature.outsideAir",
     "measure_temperature.exhaustAir",
-    "measure_temperature.supplyAir",
     "measure_temperature.extractAir",
     "measure_temperature.supplyAirHRC",
     "ecomode_mode",
@@ -50,7 +49,7 @@
       },
       "measure_temperature": {
         "title": {
-          "en": "Supply Air temperature",
+          "en": "Supply Air",
           "no": "Tilluft"
         }
       },
@@ -70,12 +69,6 @@
         "title": {
           "en": "Exhaust Air efficiency",
           "no": "Avtrekkseffektivitet"
-        }
-      },
-       "measure_temperature.supplyAir": {
-        "title": {
-          "en": "Supply Air",
-          "no": "Tilluft"
         }
       },
       "heater_mode": {

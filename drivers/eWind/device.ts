@@ -114,14 +114,17 @@ class MyeWindDevice extends eWind {
     if (this.hasCapability('efficiency.extractEff') === false) {
       await this.addCapability('efficiency.extractEff');
     }
-    if (this.hasCapability('measure_temperature.outsideAir') === false) {
-      await this.addCapability('measure_temperature.outsideAir');
+    if (this.hasCapability('measure_temperature') === false) {
+      await this.addCapability('measure_temperature');
     }
     if (this.hasCapability('measure_temperature.exhaustAir') === false) {
       await this.addCapability('measure_temperature.exhaustAir');
     }
-    if (this.hasCapability('measure_temperature.supplyAir') === false) {
-      await this.addCapability('measure_temperature.supplyAir');
+    if (this.hasCapability('measure_temperature.supplyAir') === true) {
+      await this.removeCapability('measure_temperature.supplyAir');
+    }
+    if (this.hasCapability('measure_temperature') === false) {
+      await this.removeCapability('measure_temperature');
     }
     if (this.hasCapability('measure_temperature.extractAir') === false) {
       await this.addCapability('measure_temperature.extractAir');
