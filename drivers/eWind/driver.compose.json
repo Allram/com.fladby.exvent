@@ -15,7 +15,7 @@
     "measure_temperature",
     "heater_mode",
     "heat_exchanger_mode",
-    "target_temperature",
+    "target_temperature.step",
     "alarm_b.desc",
     "measure_humidity.extractAir",
     "fanspeed_level",
@@ -120,12 +120,15 @@
           "no": "Økomodus"
         }  
        },
-      "target_temperature": {
-       "title": {
-         "en": "Target temperature",
-         "no": "Ønsket temperatur"
-       }
-      },
+      "target_temperature.step": {
+        "min": 15,
+        "max": 22,
+        "step": 1,
+        "title": {
+          "en": "Target temperature",
+          "no": "Ønsket temperatur"
+        }
+       },
       "lastPollTime": {
        "title": {
          "en": "Last poll time",

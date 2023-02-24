@@ -141,8 +141,8 @@ class MyeWindDevice extends eWind {
     if (this.hasCapability('heat_exchanger_mode') === false) {
       await this.addCapability('heat_exchanger_mode');
     }
-    if (this.hasCapability('target_temperature') === false) {
-      await this.addCapability('target_temperature');
+    if (this.hasCapability('target_temperature.step') === false) {
+      await this.addCapability('target_temperature.step');
     }
     if (this.hasCapability('alarm_b.desc') === false) {
       await this.addCapability('alarm_b.desc');
@@ -183,7 +183,7 @@ class MyeWindDevice extends eWind {
 
     const SetTemperatureCard = this.homey.flow.getActionCard('set-temperature');
     SetTemperatureCard.registerRunListener(async (args) => {
-      this.setCapabilityValue('target_temperature', args.temperature);
+      this.setCapabilityValue('target_temperature.step', args.temperature);
       this.sendHoldingRequest(135, args.temperature*10);
     });
   }
@@ -193,7 +193,7 @@ class MyeWindDevice extends eWind {
       this.log('Changes to :', value);
       this.setEWindValue(value);
     });
-    this.registerCapabilityListener('target_temperature', async (value) => {
+    this.registerCapabilityListener('target_temperature.step', async (value) => {
       this.log('Changes to :', value);
       this.sendHoldingRequest(135, value*10);
     });
