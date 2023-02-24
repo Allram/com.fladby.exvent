@@ -123,9 +123,6 @@ class MyeWindDevice extends eWind {
     if (this.hasCapability('measure_temperature.supplyAir') === true) {
       await this.removeCapability('measure_temperature.supplyAir');
     }
-    if (this.hasCapability('measure_temperature') === false) {
-      await this.removeCapability('measure_temperature');
-    }
     if (this.hasCapability('measure_temperature.extractAir') === false) {
       await this.addCapability('measure_temperature.extractAir');
     }
