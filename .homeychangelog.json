@@ -112,5 +112,8 @@
   },
   "2.7.6": {
     "en": "Added possibility to set target temperature"
+  },
+  "2.8.0": {
+    "en": "Updated and changed some capabilities to work with the new Homey Pro 2023."
   }
 }
