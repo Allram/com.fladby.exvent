@@ -132,9 +132,6 @@ class MyeWindDevice extends eWind {
     if (this.hasCapability('ecomode_mode') === false) {
       await this.addCapability('ecomode_mode');
     }
-    if (this.hasCapability('measure_temperature') === false) {
-      await this.addCapability('measure_temperature');
-    }
     if (this.hasCapability('heater_mode') === false) {
       await this.addCapability('heater_mode');
     }
