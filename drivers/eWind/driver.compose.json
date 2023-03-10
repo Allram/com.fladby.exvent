@@ -11,7 +11,7 @@
     "measure_temperature.extractAir",
     "measure_temperature.supplyAirHRC",
     "ecomode_mode",
-    "measure_temperature",
+    "measure_temperature.step",
     "heater_mode",
     "heat_exchanger_mode",
     "target_temperature.step",
@@ -47,7 +47,7 @@
           "no": "Tilluft etter varmegjenvinning"
         }
       },
-      "measure_temperature": {
+      "measure_temperature.step": {
         "title": {
           "en": "Supply Air",
           "no": "Tilluft"

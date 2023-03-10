@@ -115,5 +115,8 @@
   },
   "2.8.0": {
     "en": "Updated and changed some capabilities to work with the new Homey Pro 2023."
+  },
+  "2.8.1": {
+    "en": "Fixed a bug in rewritting to HP23. Measure_temperature should be back on HP now."
   }
 }
