@@ -51,10 +51,10 @@ async onInit() {
     socket.on('data', () => {
       this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });
+    await this.poll_eWind();
     setInterval(async () => {
       await this.poll_eWind();
     }, RETRY_INTERVAL);
-    await this.poll_eWind();
   } catch (error: Error) {
     console.log(error);
   }
