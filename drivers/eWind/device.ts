@@ -65,7 +65,8 @@ async onInit() {
     this.processResult({ ...checkCoilsRes });
   }
 
-  setEWindValue(value: string) {
+  async setEWindValue(value: string) {
+    await this.poll_eWind(); // Wait for polling to finish
     switch (value) {
       case "0":
         this.sendCoilRequest(0, false);
