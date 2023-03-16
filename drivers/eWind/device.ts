@@ -7,7 +7,7 @@ import {checkCoils} from '../response_coil';
 	
 const socket = new net.Socket();
 const client = new Modbus.client.TCP(socket, 255);
-const RETRY_INTERVAL = 15 * 1000; 
+const RETRY_INTERVAL = 60 * 1000; 
 //let timer:NodeJS.Timer;
 
 const shutdown = () => {
@@ -22,7 +22,7 @@ class MyeWindDevice extends eWind {
     host: this.getSetting('address'),
     port: this.getSetting('port'),
     unitId: this.getSetting('id'),
-    timeout: 15,
+    timeout: 5,
     autoReconnect: true,
     logLabel: 'eWind',
     logLevel: 'error',
