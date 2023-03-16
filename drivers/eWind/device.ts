@@ -38,28 +38,21 @@ async onInit() {
     this.setCapabilities();
     this.flowActionCards();
     this.registerCapabilityListeners();
-    socket.once('end', () => {
-      //console.log('Client ended.');
-    });  
+    socket.once('end', () => {});
     socket.once('timeout', () => {
-      //console.log('Socket timed out!');
       socket.end();
       socket.connect(this.modbusOptions);
     });
-    socket.once('error', (err: any) => {
-      //console.log('Socket error: ', err);
-    });
+    socket.once('error', (err: any) => {});
     socket.once('close', (err: any) => {
-      //console.log('Socket close: ', err);
       socket.end();
       socket.connect(this.modbusOptions);
     });
     socket.on('data', () => {
-      //console.log('Socket received data. Updating lastPollTime');
       this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });
-    timer = this.homey.setInterval(() => { 
-      //this.poll_eWind();
+    let pollInterval = setInterval(async () => {
+      await this.poll_eWind();
     }, RETRY_INTERVAL);
     await this.poll_eWind();
   }
@@ -67,12 +60,9 @@ async onInit() {
   async poll_eWind() {
     console.log('Polling eWind...');
     const checkRegisterRes = await checkRegister(this.registers, client);
-    this.processResult({...checkRegisterRes});
-    const checkCoilsRes = await checkCoils(this.coilRegisters, client); 
-    this.processResult({...checkCoilsRes});
-    setTimeout(() => {
-      this.poll_eWind();
-    }, RETRY_INTERVAL);
+    this.processResult({ ...checkRegisterRes });
+    const checkCoilsRes = await checkCoils(this.coilRegisters, client);
+    this.processResult({ ...checkCoilsRes });
   }
 
   setEWindValue(value: string) {
