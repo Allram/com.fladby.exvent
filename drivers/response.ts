@@ -46,15 +46,15 @@ export async function checkRegister(registers: Object, client: InstanceType<type
                     resultValue = response.body.valuesAsBuffer.swap16().swap32().readFloatBE().toString();
                     break;
                 default:
-                    console.log(key + ": type not found " + value[2]);
+                    //console.log(key + ": type not found " + value[2]);
                     break;
             }
             measurement.value = resultValue;
             result[key] = measurement;
 
         } catch (err) {
-            console.log("error with key: " + key);
-            console.log(err);
+            //console.log("error with key: " + key);
+            //console.log(err);
         }
     }
 
