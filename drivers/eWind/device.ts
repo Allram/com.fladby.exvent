@@ -61,10 +61,14 @@ async onInit() {
 
   async poll_eWind() {
     console.log('Polling eWind...');
-    const checkRegisterRes = await checkRegister(this.registers, client);
-    this.processResult({ ...checkRegisterRes });
-    const checkCoilsRes = await checkCoils(this.coilRegisters, client);
-    this.processResult({ ...checkCoilsRes });
+    try {
+      const checkRegisterRes = await checkRegister(this.registers, client);
+      this.processResult({ ...checkRegisterRes });
+      const checkCoilsRes = await checkCoils(this.coilRegisters, client);
+      this.processResult({ ...checkCoilsRes });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async setEWindValue(value: string) {
@@ -100,14 +104,19 @@ async onInit() {
 
   async sendHoldingRequest(register: number, value: number) {
     await this.poll_eWind(); // Wait for polling to finish
-    client.writeSingleRegister(register, value);   
-  }
+    client.writeSingleRegister(register, value)
+      .catch((error) => {
+        console.error(error);
+      });   
+  } 
   
   async sendCoilRequest(register: number, value: boolean) {
     await this.poll_eWind(); // Wait for polling to finish
-    client.writeSingleCoil(register, value);   
+    client.writeSingleCoil(register, value)
+      .catch((error) => {
+        console.error(error);
+      });   
   }
-
   async setCapabilities() {
     if (this.hasCapability('efficiency.supplyEff') === false) {
       await this.addCapability('efficiency.supplyEff');
