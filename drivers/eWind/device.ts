@@ -8,7 +8,7 @@ import {checkCoils} from '../response_coil';
 const socket = new net.Socket();
 const client = new Modbus.client.TCP(socket, 255);
 const RETRY_INTERVAL = 15 * 1000; 
-let timer:NodeJS.Timer;
+//let timer:NodeJS.Timer;
 
 const shutdown = () => {
 	socket.end();
@@ -33,28 +33,30 @@ class MyeWindDevice extends eWind {
 async onInit() {
     this.log('MyeWindDevice has been initialized');
     socket.setKeepAlive(true);
-    socket.setTimeout(15000);
+    //socket.setTimeout(15000);
     socket.connect(this.modbusOptions);
     this.setCapabilities();
     this.flowActionCards();
     this.registerCapabilityListeners();
-    socket.once('end', () => {});
-    socket.once('timeout', () => {
+    socket.on('end', () => {});
+    socket.on('timeout', () => {
       socket.end();
       socket.connect(this.modbusOptions);
     });
-    socket.once('error', (err: any) => {});
-    socket.once('close', (err: any) => {
+    socket.on('error', (err: any) => {});
+    socket.on('close', (err: any) => {
       socket.end();
       socket.connect(this.modbusOptions);
     });
     socket.on('data', () => {
       this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', {timeZone: 'CET', hour12: false}));
     });
-    let pollInterval = setInterval(async () => {
+    setInterval(async () => {
       await this.poll_eWind();
     }, RETRY_INTERVAL);
     await this.poll_eWind();
+  } catch (error: Error) {
+    console.log(error);
   }
 
   async poll_eWind() {
@@ -248,7 +250,7 @@ async onInit() {
    */
   async onDeleted() {
     this.log('MyeWindDevice has been deleted');
-    this.homey.clearInterval(timer);
+    //this.homey.clearInterval(timer);
   }
 
   delay(ms: number) {
