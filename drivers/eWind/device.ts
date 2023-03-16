@@ -96,11 +96,13 @@ async onInit() {
     }
   }
 
-  sendHoldingRequest(register: number, value: number) {
+  async sendHoldingRequest(register: number, value: number) {
+    await this.poll_eWind(); // Wait for polling to finish
     client.writeSingleRegister(register, value);   
   }
   
-  sendCoilRequest(register: number, value: boolean) {
+  async sendCoilRequest(register: number, value: boolean) {
+    await this.poll_eWind(); // Wait for polling to finish
     client.writeSingleCoil(register, value);   
   }
 
@@ -190,14 +192,17 @@ async onInit() {
 
   registerCapabilityListeners() {
     this.registerCapabilityListener('eWindstatus_mode', async (value) => {
+      await this.poll_eWind(); // Wait for polling to finish
       this.log('Changes to :', value);
       this.setEWindValue(value);
     });
     this.registerCapabilityListener('target_temperature.step', async (value) => {
+      await this.poll_eWind(); // Wait for polling to finish
       this.log('Changes to :', value);
       this.sendHoldingRequest(135, value*10);
     });
     this.registerCapabilityListener('ecomode_mode', async (value) => {
+      await this.poll_eWind(); // Wait for polling to finish
       this.log('Changes to :', value);
       this.sendCoilRequest(40, value === '1');
     });
