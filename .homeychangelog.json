@@ -121,5 +121,8 @@
   },
   "2.9.0": {
     "en": "Changing modes while polling data should now set the mode after the pull is complete, rewrote some of the code for further optimalization."
+  },
+  "2.9.1": {
+    "en": "Updated dependencies."
   }
 }
