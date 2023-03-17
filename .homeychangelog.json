@@ -118,5 +118,8 @@
   },
   "2.8.1": {
     "en": "Fixed a bug in rewritting to HP23. Measure_temperature should be back on HP now."
+  },
+  "2.9.0": {
+    "en": "Changing modes while polling data should now set the mode after the pull is complete, rewrote some of the code for further optimalization."
   }
 }
