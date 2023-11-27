@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fladby.exvent",
-  "version": "2.9.1",
+  "version": "2.10.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -35,6 +35,140 @@
   },
   "flow": {
     "actions": [
+      {
+        "id": "ecomode_eAir",
+        "title": {
+          "en": "Set ecomode to ",
+          "no": "Sett økomodus til "
+        },
+        "titleFormatted": {
+          "en": "Set ecomode to [[ecomode]]",
+          "no": "Sett økomodus til [[ecomode]]"
+        },
+        "hint": {
+          "en": "Set ecomode to",
+          "no": "Sett økomodus til"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "dropdown",
+            "name": "ecomode",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "active",
+                  "no": "aktiv"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "inactive",
+                  "no": "inaktiv"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set-temperature_eAir",
+        "title": {
+          "en": "Set temperature",
+          "no": "Sett temperatur"
+        },
+        "titleFormatted": {
+          "en": "Set temperature to [[temperature]]",
+          "no": "Sett temperatur til [[temperature]]"
+        },
+        "hint": {
+          "en": "Set target temperature",
+          "no": "Sett måltemperatur"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "range",
+            "name": "temperature",
+            "min": 15,
+            "max": 22,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "status-mode_eAir",
+        "title": {
+          "en": "Set mode to ",
+          "no": "Sett modus til "
+        },
+        "titleFormatted": {
+          "en": "Set mode to [[mode]]",
+          "no": "Sett modus til [[mode]]"
+        },
+        "hint": {
+          "en": "Set mode to",
+          "no": "Sett modus til "
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Home",
+                  "no": "Hjemme"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Away",
+                  "no": "Borte"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Fireplace",
+                  "no": "Peismodus"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Boost",
+                  "no": "Boost"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "Off",
+                  "no": "Av"
+                }
+              }
+            ]
+          }
+        ]
+      },
       {
         "id": "ecomode",
         "title": {
@@ -172,6 +306,179 @@
     ]
   },
   "drivers": [
+    {
+      "name": {
+        "en": "eAir"
+      },
+      "class": "other",
+      "capabilities": [
+        "efficiency.supplyEff",
+        "efficiency.extractEff",
+        "measure_temperature.outsideAir",
+        "measure_temperature.exhaustAir",
+        "measure_temperature.extractAir",
+        "measure_temperature.supplyAirHRC",
+        "ecomode_mode",
+        "measure_temperature.step",
+        "heater_mode",
+        "heat_exchanger_mode",
+        "target_temperature.step",
+        "alarm_b.desc",
+        "measure_humidity.extractAir",
+        "fanspeed_level",
+        "eAirstatus",
+        "eAirstatus_mode",
+        "lastPollTime"
+      ],
+      "capabilitiesOptions": {
+        "measure_temperature.exhaustAir": {
+          "title": {
+            "en": "Exhaust Air",
+            "no": "Utkast"
+          }
+        },
+        "measure_temperature.extractAir": {
+          "title": {
+            "en": "Extract Air temperature",
+            "no": "Avtrekk"
+          }
+        },
+        "measure_temperature.outsideAir": {
+          "title": {
+            "en": "Fresh Air",
+            "no": "Inntak"
+          }
+        },
+        "measure_temperature.supplyAirHRC": {
+          "title": {
+            "en": "Supply Air after Heat recovery",
+            "no": "Tilluft etter varmegjenvinning"
+          }
+        },
+        "measure_temperature.step": {
+          "title": {
+            "en": "Supply Air",
+            "no": "Tilluft"
+          }
+        },
+        "measure_humidity.extractAir": {
+          "title": {
+            "en": "Extract Air humidity",
+            "no": "Avtrekksfuktighet"
+          }
+        },
+        "efficiency.supplyEff": {
+          "title": {
+            "en": "Supply air efficiency",
+            "no": "Tilluftseffektivitet"
+          }
+        },
+        "efficiency.extractEff": {
+          "title": {
+            "en": "Exhaust Air efficiency",
+            "no": "Avtrekkseffektivitet"
+          }
+        },
+        "heater_mode": {
+          "title": {
+            "en": "Heating element",
+            "no": "Varmeelement"
+          }
+        },
+        "heat_exchanger_mode": {
+          "title": {
+            "en": "Heat exchanger",
+            "no": "Varmeveksler"
+          }
+        },
+        "alarm_b.desc": {
+          "title": {
+            "en": "Filteralarm",
+            "no": "Filteralarm"
+          }
+        },
+        "fanspeed_level": {
+          "title": {
+            "en": "Fan speed level",
+            "no": "Viftenivå"
+          }
+        },
+        "eWindstatus": {
+          "title": {
+            "en": "Status",
+            "no": "Status"
+          }
+        },
+        "eWindstatus_mode": {
+          "title": {
+            "en": "Mode",
+            "no": "Modus"
+          }
+        },
+        "ecomode_mode": {
+          "title": {
+            "en": "Ecomode",
+            "no": "Økomodus"
+          }
+        },
+        "target_temperature.step": {
+          "min": 15,
+          "max": 22,
+          "step": 1,
+          "title": {
+            "en": "Target temperature",
+            "no": "Ønsket temperatur"
+          }
+        },
+        "lastPollTime": {
+          "title": {
+            "en": "Last poll time",
+            "no": "Siste polling"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [],
+      "images": {
+        "small": "/drivers/eAir/assets/images/small.jpg",
+        "large": "/drivers/eAir/assets/images/large.jpg"
+      },
+      "pair": [
+        {
+          "id": "start"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "eAir settings"
+          },
+          "children": [
+            {
+              "id": "address",
+              "type": "text",
+              "value": "0.0.0.0",
+              "label": {
+                "en": "IP Address"
+              }
+            },
+            {
+              "id": "port",
+              "type": "number",
+              "value": 502,
+              "step": 1,
+              "label": {
+                "en": "Port"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "eAir"
+    },
     {
       "name": {
         "en": "eWind"
@@ -357,6 +664,127 @@
       "getable": true,
       "setable": true,
       "uiComponent": "sensor"
+    },
+    "eAirstatus": {
+      "type": "enum",
+      "uiComponent": "sensor",
+      "icon": "/assets/status.svg",
+      "title": {
+        "en": "eWind status",
+        "no": "eWind status"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "eWind status changed",
+        "no": "eWind status endret"
+      },
+      "insightsTitleFalse": {
+        "en": "eWind status changed",
+        "no": "eWind status endret"
+      },
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "No heating/cooling",
+            "no": "Ingen varming/kjøling"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Cooling",
+            "no": "Kjøling"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Heat recovery",
+            "no": "Varmegjenvinning"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Heating element active",
+            "no": "Varmeelement aktivt"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Starting up",
+            "no": "Starter opp"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "Dehumidification",
+            "no": "Avfukting"
+          }
+        }
+      ]
+    },
+    "eAirstatus_mode": {
+      "type": "enum",
+      "icon": "/assets/statusmode.svg",
+      "title": {
+        "en": "Mode",
+        "no": "Modus"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Mode changed",
+        "no": "Modus endret"
+      },
+      "insightsTitleFalse": {
+        "en": "Mode changed",
+        "no": "Modus endret"
+      },
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Home",
+            "no": "Hjemme"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Away",
+            "no": "Borte"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Fireplace",
+            "no": "Peismodus"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Boost",
+            "no": "Boost"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Off",
+            "no": "Av"
+          }
+        }
+      ]
     },
     "ecomode_mode": {
       "type": "enum",
