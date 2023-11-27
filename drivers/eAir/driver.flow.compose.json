@@ -1,0 +1,123 @@
+{
+  "actions": [
+    {
+      "id": "ecomode_eAir",
+      "title": {
+        "en": "Set ecomode to ",
+        "no": "Sett økomodus til "
+      },
+      "titleFormatted": {
+        "en": "Set ecomode to [[ecomode]]",
+        "no": "Sett økomodus til [[ecomode]]"
+      },
+      "hint": {
+        "en": "Set ecomode to",
+        "no": "Sett økomodus til"
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "ecomode",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "active",
+                "no": "aktiv"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "inactive",
+                "no": "inaktiv"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "set-temperature_eAir",
+      "title": {
+        "en": "Set temperature",
+        "no": "Sett temperatur"
+      },
+      "titleFormatted": {
+        "en": "Set temperature to [[temperature]]",
+        "no": "Sett temperatur til [[temperature]]"
+      },
+      "hint": {
+        "en": "Set target temperature",
+        "no": "Sett måltemperatur"
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "temperature",
+          "min": 15,
+          "max": 22,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "status-mode_eAir",
+      "title": {
+        "en": "Set mode to ",
+        "no": "Sett modus til "
+      },
+      "titleFormatted": {
+        "en": "Set mode to [[mode]]",
+        "no": "Sett modus til [[mode]]"
+      },
+      "hint": {
+        "en": "Set mode to",
+        "no": "Sett modus til "
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "mode",
+          "values": [
+            {
+              "id": "0",
+              "label": {
+                "en": "Home",
+                "no": "Hjemme"
+              }
+            },
+            {
+              "id": "1",
+              "label": {
+                "en": "Away",
+                "no": "Borte"
+              }
+            },
+            {
+              "id": "2",
+              "label": {
+                "en": "Fireplace",
+                "no": "Peismodus"
+              }
+            },
+            {
+              "id": "3",
+              "label": {
+                "en": "Boost",
+                "no": "Boost"
+              }
+            },
+            {
+              "id": "4",
+              "label": {
+                "en": "Off",
+                "no": "Av"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
