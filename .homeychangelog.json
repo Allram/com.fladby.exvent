@@ -130,5 +130,8 @@
   },
   "2.10.1": {
     "en": "Bugfix. Typingerror on eAir capability."
+  },
+  "2.10.2": {
+    "en": "Bugfix. Typing error on eAir capability."
   }
 }

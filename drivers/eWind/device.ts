@@ -166,11 +166,11 @@ async onInit() {
     if (this.hasCapability('fanspeed_level') === false) {
       await this.addCapability('fanspeed_level');
     }
-    if (this.hasCapability('eWindstatus') === false) {
-      await this.addCapability('eWindstatus');
+    if (this.hasCapability('eAirstatus') === false) {
+      await this.addCapability('eAirstatus');
     }
-    if (this.hasCapability('eWindstatus_mode') === false) {
-      await this.addCapability('eWindstatus_mode');
+    if (this.hasCapability('eAirstatus_mode') === false) {
+      await this.addCapability('eAirstatus_mode');
     }
     if (this.hasCapability('lastPollTime') === false) {
       await this.addCapability('lastPollTime');
