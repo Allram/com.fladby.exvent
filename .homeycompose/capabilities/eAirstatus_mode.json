@@ -1,0 +1,59 @@
+{
+  "type": "enum",
+  "icon": "/assets/statusmode.svg",
+  "title": {
+    "en": "Mode",
+    "no": "Modus"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Mode changed",
+    "no": "Modus endret"
+  },
+  "insightsTitleFalse": {
+    "en": "Mode changed",
+    "no": "Modus endret"
+  },
+  "uiComponent": "picker",
+  "values": [
+    {
+      "id": "0",
+      "title": {
+        "en": "Home",
+        "no": "Hjemme"
+      }
+    },
+    {
+      "id": "1",
+      "title": {
+        "en": "Away",
+        "no": "Borte"
+      }
+    },
+    {
+      "id": "2",
+      "title": {
+        "en": "Fireplace",
+        "no": "Peismodus"
+      }
+    },
+    {
+      "id": "3",
+      "title": {
+        "en": "Boost",
+        "no": "Boost"
+      }
+    },
+    {
+      "id": "4",
+      "title": {
+        "en": "Off",
+        "no": "Av"
+      }
+    }    
+  ]
+}
+
+
