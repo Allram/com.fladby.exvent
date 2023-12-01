@@ -670,19 +670,19 @@
       "uiComponent": "sensor",
       "icon": "/assets/status.svg",
       "title": {
-        "en": "eWind status",
-        "no": "eWind status"
+        "en": "Status",
+        "no": "Status"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "eWind status changed",
-        "no": "eWind status endret"
+        "en": "Status changed",
+        "no": "Status endret"
       },
       "insightsTitleFalse": {
-        "en": "eWind status changed",
-        "no": "eWind status endret"
+        "en": "Status changed",
+        "no": "Status endret"
       },
       "values": [
         {

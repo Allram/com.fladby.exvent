@@ -202,7 +202,7 @@ async onInit() {
   }
 
   registerCapabilityListeners() {
-    this.registerCapabilityListener('eAirdstatus_mode', async (value) => {
+    this.registerCapabilityListener('eAirstatus_mode', async (value) => {
       await this.poll_eAir(); // Wait for polling to finish
       this.log('Changes to :', value);
       this.setEAirValue(value);
