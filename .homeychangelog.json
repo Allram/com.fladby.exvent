@@ -124,5 +124,11 @@
   },
   "2.9.1": {
     "en": "Updated dependencies."
+  },
+  "2.10.0": {
+    "en": "Added support for eAir systems."
+  },
+  "2.10.1": {
+    "en": "Bugfix. Typingerror on eAir capability."
   }
 }

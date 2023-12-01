@@ -1,0 +1,65 @@
+{
+  "type": "enum",
+  "uiComponent": "sensor",
+  "icon": "/assets/status.svg",
+  "title": {
+    "en": "Status",
+    "no": "Status"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Status changed",
+    "no": "Status endret"
+  },
+  "insightsTitleFalse": {
+    "en": "Status changed",
+    "no": "Status endret"
+  },
+  "values": [
+    {
+      "id": "0",
+      "title": {
+        "en": "No heating/cooling",
+        "no": "Ingen varming/kjøling"
+      }
+    },
+    {
+      "id": "1",
+      "title": {
+        "en": "Cooling",
+        "no": "Kjøling"
+      }
+    },
+    {
+      "id": "2",
+      "title": {
+        "en": "Heat recovery",
+        "no": "Varmegjenvinning"
+      }
+    },
+    {
+      "id": "3",
+      "title": {
+        "en": "Heating element active",
+        "no": "Varmeelement aktivt"
+      }
+    },
+    {
+      "id": "4",
+      "title": {
+        "en": "Starting up",
+        "no": "Starter opp"
+      }
+    },
+    {
+      "id": "5",
+      "title": {
+        "en": "Dehumidification",
+        "no": "Avfukting"
+      }
+    }
+  ]
+}
+
