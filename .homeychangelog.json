@@ -136,5 +136,8 @@
   },
   "2.10.3": {
     "en": "Bugfix. Typing error on eAir capability."
+  },
+  "2.11.0": {
+    "en": "Fixing spelling errors on eWind and eAir pairing. Fixed reconnecting if the IP or PORT is changed in Device settings."
   }
 }

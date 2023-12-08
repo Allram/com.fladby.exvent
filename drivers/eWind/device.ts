@@ -241,9 +241,23 @@ async onInit() {
    * @param {string[]} event.changedKeys An array of keys changed since the previous version
    * @returns {Promise<string|void>} return a custom message that will be displayed
    */
-  async onSettings({ oldSettings: {}, newSettings: {}, changedKeys: {} }): Promise<string|void> {
-    this.log('MyeWindDevice settings where changed');
-  }
+  async onSettings({ newSettings }: { newSettings: Record<string, any>; changedKeys: string[] }) {
+    if (newSettings && (newSettings.address || newSettings.port)) {
+        try {
+            this.log('IP address or port changed. Reconnecting...');
+            this.modbusOptions.host = newSettings.address;
+            this.modbusOptions.port = newSettings.port;
+            socket.end();
+            await this.delay(1000); // Add a delay to ensure the socket is closed before reconnecting
+            socket.connect(this.modbusOptions);
+            // Additional logic if needed after reconnecting
+            this.log('Reconnected successfully.');
+        } catch (error: any) {
+            // Explicitly type error as an Error
+            this.error('Error reconnecting:', (error as Error).message);
+        }
+    }
+}
 
   /**
    * onRenamed is called when the user updates the device's name.

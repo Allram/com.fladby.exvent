@@ -4,7 +4,7 @@ Homey.setTitle( __('pair.title') );
 
 $(function() {
 	$('#connect').click(function() {
-    $('.eAir-error').hide();
+    $('.eWind-error').hide();
 
     var inputaddress = $('#address').val();
     var inputport = Number($('#port').val());
@@ -28,17 +28,17 @@ $(function() {
         settings : settings
       }, function(error, result) {
         if (error) {
-            $('.eAir-error').show();
-            $('.eAir-error-msg').html(error.message || error.toString() );
+            $('.eWind-error').show();
+            $('.eWind-error-msg').html(error.message || error.toString() );
         }
-        $('.eAir-error').hide();
+        $('.eWind-error').hide();
 
         Homey.done();
       })
 
     } else {
-        $('.eAir-error').show();
-        $('.eAir-error-msg').html( __('pair.nosettings') );
+        $('.eWind-error').show();
+        $('.eWind-error-msg').html( __('pair.nosettings') );
     }
 
 	});
@@ -54,14 +54,14 @@ $(function() {
   .form-group label {
     display: block;
   }
-  .eAir-status, .eAir-info {
+  .eWind-status, .eWind-info {
 		display: none;
 	}
-  .eAir-info {
+  .eWind-info {
     margin-top: 10px;
     font-size: 12px;
   }
-  .eAir-info .info-label {
+  .eWind-info .info-label {
     min-width: 150px;
     font-weight: 700;
   }
@@ -77,8 +77,8 @@ $(function() {
   }
 </style>
 
-<p data-i18n="pair.intro">Enter the IP address and port of your eAir ModbusUnit. </p>
-<div class="eAir-pairing">
+<p data-i18n="pair.intro">Enter the IP address and port of your eWind ModbusUnit. </p>
+<div class="eWind-pairing">
   <div class="form-group">
     <label for="address" data-i18n="pair.address">IP address</label>
     <input type="text" class="form-control" id="address" placeholder="0.0.0.0" required>
@@ -93,5 +93,5 @@ $(function() {
 </div>
 
 <div class="messages">
-  <p class="eAir-status eAir-error" style="color: #ff6300;"><i class="fa fa-times"></i> <span class="eAir-error-msg"></span></p>
+  <p class="eWind-status eWind-error" style="color: #ff6300;"><i class="fa fa-times"></i> <span class="eWind-error-msg"></span></p>
 </div>
