@@ -132,6 +132,42 @@
         "no": "Filter må byttes"
       },
       "args": []
+    },
+    {
+      "id": "eAirstatus_mode_changed2",
+      "title": {
+        "en": "Mode changed",
+        "no": "Modus endret"
+      },
+      "hint": {
+        "en": "Ventilation changed mode",
+        "no": "Ventilasjon endret status"
+      },
+      "args": []
+    },
+    {
+      "id": "heat_exchanger_mode_changed2",
+      "title": {
+        "en": "Heat exchanger mode changed",
+        "no": "Varmeveksler status"
+      },
+      "hint": {
+        "en": "Heat exchanger mode was changed",
+        "no": "Varmeveksler endret status"
+      },
+      "args": []
+    },
+    {
+      "id": "heater_mode_changed2",
+      "title": {
+        "en": "Heater mode changed",
+        "no": "Varmeelement status"
+      },
+      "hint": {
+        "en": "Heater mode was changed",
+        "no": "Varmeelement endret status"
+      },
+      "args": []
     }
   ]
-}     
+}

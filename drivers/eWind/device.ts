@@ -269,16 +269,35 @@ class MyeWindDevice extends eWind {
         this.registerCapabilityListener('eWindstatus_mode', async (value) => {
             this.log('Changes to :', value);
             await this.setEWindValue(value);
+            await this.homey.flow.getDeviceTriggerCard('eWindstatus_mode_changed').trigger(this)
+            .catch(this.error);
+            await this.poll_eWind();
         });
 
         this.registerCapabilityListener('target_temperature.step', async (value) => {
             this.log('Changes to :', value);
             await this.sendHoldingRequest(135, value * 10);
+            await this.poll_eWind();
         });
 
         this.registerCapabilityListener('ecomode_mode', async (value) => {
             this.log('Changes to :', value);
             await this.sendCoilRequest(40, value === '1');
+            await this.poll_eWind();
+        });
+
+        // Register capability listener for heat_exchanger_mode
+        this.registerCapabilityListener('heat_exchanger_mode', async (value) => {
+          this.log('heat_exchanger_mode changed to:', value);
+          await this.homey.flow.getDeviceTriggerCard('heat_exchanger_mode_changed').trigger(this)
+            .catch(this.error);
+        });
+
+        // Register capability listener for heater_mode
+        this.registerCapabilityListener('heater_mode', async (value) => {
+          this.log('heater_mode changed to:', value);
+          await this.homey.flow.getDeviceTriggerCard('heater_mode_changed').trigger(this)
+            .catch(this.error);
         });
 
         // Register capability listener for alarm_b
