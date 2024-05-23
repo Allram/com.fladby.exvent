@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fladby.exvent",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -54,6 +54,60 @@
         ]
       },
       {
+        "id": "eAirstatus_mode_changed2",
+        "title": {
+          "en": "Mode changed",
+          "no": "Modus endret"
+        },
+        "hint": {
+          "en": "Ventilation changed mode",
+          "no": "Ventilasjon endret status"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "heat_exchanger_mode_changed2",
+        "title": {
+          "en": "Heat exchanger mode changed",
+          "no": "Varmeveksler status"
+        },
+        "hint": {
+          "en": "Heat exchanger mode was changed",
+          "no": "Varmeveksler endret status"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "heater_mode_changed2",
+        "title": {
+          "en": "Heater mode changed",
+          "no": "Varmeelement status"
+        },
+        "hint": {
+          "en": "Heater mode was changed",
+          "no": "Varmeelement endret status"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
         "id": "alarm_b_triggered",
         "title": {
           "en": "Filteralarm",
@@ -62,6 +116,60 @@
         "hint": {
           "en": "Filter needs replacement",
           "no": "Filter må byttes"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "eWindstatus_mode_changed",
+        "title": {
+          "en": "Mode changed",
+          "no": "Modus endret"
+        },
+        "hint": {
+          "en": "Ventilation changed mode",
+          "no": "Ventilasjon endret modus"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "heat_exchanger_mode_changed",
+        "title": {
+          "en": "Heat exchanger mode changed",
+          "no": "Varmeveksler modus"
+        },
+        "hint": {
+          "en": "Heat exchanger mode was changed",
+          "no": "Varmeveksler endret modus"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "heater_mode_changed",
+        "title": {
+          "en": "Heater mode changed",
+          "no": "Varmeelement modus"
+        },
+        "hint": {
+          "en": "Heater mode was changed",
+          "no": "Varmeelement endret modus"
         },
         "args": [
           {
