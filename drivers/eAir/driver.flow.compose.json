@@ -122,7 +122,7 @@
   ],
   "triggers": [
     {
-      "id": "alarm_b_triggered",
+      "id": "alarm_b_triggered2",
       "title": {
         "en": "Filteralarm",
         "no": "Filteralarm"

@@ -286,7 +286,7 @@ class MyeAirDevice extends eAir {
             this.log('Alarm B triggered with value:', value);
             if (value) {
               // Trigger the flow card
-              await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered').trigger(this)
+              await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered2').trigger(this)
                 .catch(this.error);
             }
         });

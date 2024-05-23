@@ -34,6 +34,44 @@
     "url": "https://github.com/Allram/com.fladby.exvent/issues"
   },
   "flow": {
+    "triggers": [
+      {
+        "id": "alarm_b_triggered2",
+        "title": {
+          "en": "Filteralarm",
+          "no": "Filteralarm"
+        },
+        "hint": {
+          "en": "Filter needs replacement",
+          "no": "Filter må byttes"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "alarm_b_triggered",
+        "title": {
+          "en": "Filteralarm",
+          "no": "Filteralarm"
+        },
+        "hint": {
+          "en": "Filter needs replacement",
+          "no": "Filter må byttes"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      }
+    ],
     "actions": [
       {
         "id": "ecomode_eAir",
@@ -300,26 +338,6 @@
                 }
               }
             ]
-          }
-        ]
-      }
-    ],
-    "triggers": [
-      {
-        "id": "alarm_b_triggered",
-        "title": {
-          "en": "Filteralarm",
-          "no": "Filteralarm"
-        },
-        "hint": {
-          "en": "Filter needs replacement",
-          "no": "Filter må byttes"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=eWind"
           }
         ]
       }
