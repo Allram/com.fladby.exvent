@@ -151,5 +151,8 @@
   },
   "2.15.0": {
     "en": "Added trigger cards for Mode change, Heat exchanger and heating element"
+  },
+  "3.0.0": {
+    "en": "Added condition cards for Mode change, Heat exchanger and heating element."
   }
 }
