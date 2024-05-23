@@ -139,5 +139,11 @@
   },
   "2.11.0": {
     "en": "Fixing spelling errors on eWind and eAir pairing. Fixed reconnecting if the IP or PORT is changed in Device settings."
+  },
+  "2.12.0": {
+    "en": "Fixed polling to poll when a new state is set. Fixed the mode-changer to jump to previous value until new polling is done. Fixes crash when device is deleted."
+  },
+  "2.13.0": {
+    "en": "Fixed multiple polling-timers going off at the same time."
   }
 }
