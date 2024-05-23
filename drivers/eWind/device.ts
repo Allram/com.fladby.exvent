@@ -266,6 +266,24 @@ class MyeWindDevice extends eWind {
     registerCapabilityListeners() {
         if (this.capabilityListenersRegistered) return;
 
+        // Condition for eWindstatus_mode
+        this.homey.flow.getConditionCard('eWindstatus_mode_is')
+          .registerRunListener(async (args) => {
+            return this.getCapabilityValue('eWindstatus_mode') === args.mode;
+          });
+
+        // Condition for heat_exchanger_mode
+        this.homey.flow.getConditionCard('heat_exchanger_mode_is')
+          .registerRunListener(async (args) => {
+            return this.getCapabilityValue('heat_exchanger_mode') === args.mode;
+          });
+
+        // Condition for heater_mode
+        this.homey.flow.getConditionCard('heater_mode_is')
+          .registerRunListener(async (args) => {
+            return this.getCapabilityValue('heater_mode') === args.mode;
+          });
+
         this.registerCapabilityListener('eWindstatus_mode', async (value) => {
             this.log('Changes to :', value);
             await this.setEWindValue(value);

@@ -131,43 +131,237 @@
         "en": "Filter needs replacement",
         "no": "Filter må byttes"
       },
-      "args": []
+    "args": []
     },
     {
       "id": "eWindstatus_mode_changed",
       "title": {
-        "en": "Mode changed",
-        "no": "Modus endret"
+        "en": "Mode changed to",
+        "no": "Modus endret til"
       },
       "hint": {
         "en": "Ventilation changed mode",
-        "no": "Ventilasjon endret modus"
+        "no": "Ventilasjon endret status"
       },
-      "args": []
+      "args": [
+        {
+          "name": "mode_title",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "0",
+              "label": {
+                "en": "Home",
+                "no": "Hjemme"
+              }
+            },
+            {
+              "id": "1",
+              "label": {
+                "en": "Away",
+                "no": "Borte"
+              }
+            },
+            {
+              "id": "2",
+              "label": {
+                "en": "Fireplace",
+                "no": "Peismodus"
+              }
+            },
+            {
+              "id": "3",
+              "label": {
+                "en": "Boost",
+                "no": "Boost"
+              }
+            },
+            {
+              "id": "4",
+              "label": {
+                "en": "Off",
+                "no": "Av"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "heat_exchanger_mode_changed",
       "title": {
-        "en": "Heat exchanger mode changed",
-        "no": "Varmeveksler modus"
+        "en": "Heat exchanger changed to",
+        "no": "Varmeveksler endret til"
       },
       "hint": {
         "en": "Heat exchanger mode was changed",
-        "no": "Varmeveksler endret modus"
+        "no": "Varmeveksler endret status"
       },
-      "args": []
+      "args": [
+        {
+          "name": "mode_title",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "On",
+                "no": "På"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "Off",
+                "no": "Av"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "heater_mode_changed",
       "title": {
-        "en": "Heater mode changed",
-        "no": "Varmeelement modus"
+        "en": "Heater changed to",
+        "no": "Varmeelement endret til"
       },
       "hint": {
         "en": "Heater mode was changed",
-        "no": "Varmeelement endret modus"
+        "no": "Varmeelement endret status"
       },
-      "args": []
+      "args": [
+        {
+          "name": "mode_title",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "On",
+                "no": "På"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "Off",
+                "no": "Av"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "eWindstatus_mode_is",
+      "title": {
+        "en": "eWind status mode is",
+        "no": "eWind modus er"
+      },
+      "args": [
+        {
+          "name": "mode",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "home",
+              "label": {
+                "en": "Home",
+                "no": "Hjemme"
+              }
+            },
+            {
+              "id": "away",
+              "label": {
+                "en": "Away",
+                "no": "Borte"
+              }
+            },
+            {
+              "id": "fireplace",
+              "label": {
+                "en": "Fireplace",
+                "no": "Peismodus"
+              }
+            },
+            {
+              "id": "boost",
+              "label": {
+                "en": "Boost",
+                "no": "Boost"
+              }
+            },
+            {
+              "id": "off",
+              "label": {
+                "en": "Off",
+                "no": "Av"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heat_exchanger_mode_is",
+      "title": {
+        "en": "Heat exchanger mode is",
+        "no": "Varmeveksler er"
+      },
+      "args": [
+        {
+          "name": "mode",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "on",
+              "label": {
+                "en": "On",
+                "no": "På"
+              }
+            },
+            {
+              "id": "off",
+              "label": {
+                "en": "Off",
+                "no": "Av"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heater_mode_is",
+      "title": {
+        "en": "Heater mode is",
+        "no": "Varmeelement er"
+      },
+      "args": [
+        {
+          "name": "mode",
+          "type": "dropdown",
+          "values": [
+            {
+              "id": "on",
+              "label": {
+                "en": "On",
+                "no": "På"
+              }
+            },
+            {
+              "id": "off",
+              "label": {
+                "en": "Off",
+                "no": "Av"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
