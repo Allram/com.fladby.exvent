@@ -127,6 +127,10 @@
         "en": "Filteralarm",
         "no": "Filteralarm"
       },
+      "titleFormatted": {
+        "en": "Filter alarm triggered",
+        "no": "Filteralarm utløst"
+      },
       "hint": {
         "en": "Filter needs replacement",
         "no": "Filter må byttes"
@@ -138,6 +142,10 @@
       "title": {
         "en": "Mode changed to",
         "no": "Modus endret til"
+      },
+      "titleFormatted": {
+        "en": "Mode changed to [[mode_title]]",
+        "no": "Modus endret til [[mode_title]]"
       },
       "hint": {
         "en": "Ventilation changed mode",
@@ -193,6 +201,10 @@
         "en": "Heat exchanger changed to",
         "no": "Varmeveksler endret til"
       },
+      "titleFormatted": {
+        "en": "Heat exchanger changed to [[mode_title]]",
+        "no": "Varmeveksler endret til [[mode_title]]"
+      },
       "hint": {
         "en": "Heat exchanger mode was changed",
         "no": "Varmeveksler endret status"
@@ -225,6 +237,10 @@
       "title": {
         "en": "Heater changed to",
         "no": "Varmeelement endret til"
+      },
+      "titleFormatted": {
+        "en": "Heater changed to [[mode_title]]",
+        "no": "Varmeelement endret til [[mode_title]]"
       },
       "hint": {
         "en": "Heater mode was changed",
@@ -260,6 +276,10 @@
       "title": {
         "en": "eWind status mode is",
         "no": "eWind modus er"
+      },
+      "titleFormatted": {
+        "en": "eWind status mode is [[mode]]",
+        "no": "eWind modus er [[mode]]"
       },
       "args": [
         {
@@ -311,6 +331,10 @@
         "en": "Heat exchanger mode is",
         "no": "Varmeveksler er"
       },
+      "titleFormatted": {
+        "en": "Heat exchanger mode is [[mode]]",
+        "no": "Varmeveksler er [[mode]]"
+      },
       "args": [
         {
           "name": "mode",
@@ -339,6 +363,10 @@
       "title": {
         "en": "Heater mode is",
         "no": "Varmeelement er"
+      },
+      "titleFormatted": {
+        "en": "Heating element is [[mode]]",
+        "no": "Varmeelement er [[mode]]"
       },
       "args": [
         {

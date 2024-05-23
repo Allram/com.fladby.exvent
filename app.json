@@ -60,8 +60,8 @@
           "no": "Modus endret"
         },
         "hint": {
-          "en": "Ventilation changed mode",
-          "no": "Ventilasjon endret status"
+          "en": "Ventilation changed to",
+          "no": "Ventilasjon endret til"
         },
         "args": [
           {
@@ -115,8 +115,8 @@
       {
         "id": "heat_exchanger_mode_changed2",
         "title": {
-          "en": "Heat exchanger mode changed",
-          "no": "Varmeveksler status"
+          "en": "Heat exchanger changed to",
+          "no": "Varmeveksler endre til"
         },
         "hint": {
           "en": "Heat exchanger mode was changed",
@@ -153,8 +153,8 @@
       {
         "id": "heater_mode_changed2",
         "title": {
-          "en": "Heater mode changed",
-          "no": "Varmeelement status"
+          "en": "Heater changed to",
+          "no": "Varmeelement endret til"
         },
         "hint": {
           "en": "Heater mode was changed",
@@ -194,6 +194,10 @@
           "en": "Filteralarm",
           "no": "Filteralarm"
         },
+        "titleFormatted": {
+          "en": "Filter alarm triggered",
+          "no": "Filteralarm utløst"
+        },
         "hint": {
           "en": "Filter needs replacement",
           "no": "Filter må byttes"
@@ -209,8 +213,12 @@
       {
         "id": "eWindstatus_mode_changed",
         "title": {
-          "en": "Mode changed",
-          "no": "Modus endret"
+          "en": "Mode changed to",
+          "no": "Modus endret til"
+        },
+        "titleFormatted": {
+          "en": "Mode changed to [[mode_title]]",
+          "no": "Modus endret til [[mode_title]]"
         },
         "hint": {
           "en": "Ventilation changed mode",
@@ -268,8 +276,12 @@
       {
         "id": "heat_exchanger_mode_changed",
         "title": {
-          "en": "Heat exchanger mode changed",
-          "no": "Varmeveksler status"
+          "en": "Heat exchanger changed to",
+          "no": "Varmeveksler endret til"
+        },
+        "titleFormatted": {
+          "en": "Heat exchanger changed to [[mode_title]]",
+          "no": "Varmeveksler endret til [[mode_title]]"
         },
         "hint": {
           "en": "Heat exchanger mode was changed",
@@ -306,8 +318,12 @@
       {
         "id": "heater_mode_changed",
         "title": {
-          "en": "Heater mode changed",
-          "no": "Varmeelement status"
+          "en": "Heater changed to",
+          "no": "Varmeelement endret til"
+        },
+        "titleFormatted": {
+          "en": "Heater changed to [[mode_title]]",
+          "no": "Varmeelement endret til [[mode_title]]"
         },
         "hint": {
           "en": "Heater mode was changed",
@@ -472,6 +488,10 @@
           "en": "eWind status mode is",
           "no": "eWind modus er"
         },
+        "titleFormatted": {
+          "en": "eWind status mode is [[mode]]",
+          "no": "eWind modus er [[mode]]"
+        },
         "args": [
           {
             "type": "device",
@@ -527,6 +547,10 @@
           "en": "Heat exchanger mode is",
           "no": "Varmeveksler er"
         },
+        "titleFormatted": {
+          "en": "Heat exchanger mode is [[mode]]",
+          "no": "Varmeveksler er [[mode]]"
+        },
         "args": [
           {
             "type": "device",
@@ -560,6 +584,10 @@
         "title": {
           "en": "Heater mode is",
           "no": "Varmeelement er"
+        },
+        "titleFormatted": {
+          "en": "Heating element is [[mode]]",
+          "no": "Varmeelement er [[mode]]"
         },
         "args": [
           {
