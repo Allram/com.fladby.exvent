@@ -145,5 +145,8 @@
   },
   "2.13.0": {
     "en": "Fixed multiple polling-timers going off at the same time."
+  },
+  "2.14.0": {
+    "en": "Added trigger card for Filteralarm."
   }
 }

@@ -281,6 +281,16 @@ class MyeWindDevice extends eWind {
             await this.sendCoilRequest(40, value === '1');
         });
 
+        // Register capability listener for alarm_b
+        this.registerCapabilityListener('alarm_b', async (value) => {
+          this.log('Alarm B triggered with value:', value);
+          if (value) {
+            // Trigger the flow card
+            await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered').trigger(this)
+              .catch(this.error);
+          }
+        });
+
         // Mark capability listeners as registered
         this.capabilityListenersRegistered = true;
     }

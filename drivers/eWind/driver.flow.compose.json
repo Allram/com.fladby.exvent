@@ -119,5 +119,19 @@
         }
       ]
     }
+  ],
+  "triggers": [
+    {
+      "id": "alarm_b_triggered",
+      "title": {
+        "en": "Filteralarm",
+        "no": "Filteralarm"
+      },
+      "hint": {
+        "en": "Filter needs replacement",
+        "no": "Filter må byttes"
+      },
+      "args": []
+    }
   ]
-}
+}     
