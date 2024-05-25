@@ -141,17 +141,11 @@ class MyeAirDevice extends eAir {
             default:
                 break;
         }
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
-        await this.poll_eAir(); // Poll once immediately after setting the value
-        this.skipNextIntervalPoll = true; // Skip the next interval poll
     }
 
     async sendHoldingRequest(register: number, value: number) {
         try {
             await client.writeSingleRegister(register, value);
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
-            await this.poll_eAir(); // Poll once immediately after sending the request
-            this.skipNextIntervalPoll = true; // Skip the next interval poll
         } catch (error) {
             console.error('Error sending holding request:', error);
             if (this.isActive) {
@@ -163,9 +157,6 @@ class MyeAirDevice extends eAir {
     async sendCoilRequest(register: number, value: boolean) {
         try {
             await client.writeSingleCoil(register, value);
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
-            await this.poll_eAir(); // Poll once immediately after sending the request
-            this.skipNextIntervalPoll = true; // Skip the next interval poll
         } catch (error) {
             console.error('Error sending coil request:', error);
             if (this.isActive) {
@@ -290,19 +281,16 @@ class MyeAirDevice extends eAir {
             await this.seteAirValue(value);
             await this.homey.flow.getDeviceTriggerCard('eAirstatus_mode_changed').trigger(this)
             .catch(this.error);
-            await this.poll_eAir();
         });
 
         this.registerCapabilityListener('target_temperature.step', async (value) => {
             this.log('Changes to :', value);
             await this.sendHoldingRequest(135, value * 10);
-            await this.poll_eAir();
         });
 
         this.registerCapabilityListener('ecomode_mode', async (value) => {
             this.log('Changes to :', value);
             await this.sendCoilRequest(40, value === '1');
-            await this.poll_eAir();
         });
 
         // Register capability listener for heat_exchanger_mode
