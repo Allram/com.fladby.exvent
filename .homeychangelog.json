@@ -157,5 +157,8 @@
   },
   "3.0.1": {
     "en": "Fixed some more polling issues."
+  },
+  "3.0.2": {
+    "en": "Updated packages, Added debounce for polling, new reconnect logic and try to fix polling to work consistent."
   }
 }
