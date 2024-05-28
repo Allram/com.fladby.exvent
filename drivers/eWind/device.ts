@@ -162,29 +162,39 @@ class MyeWindDevice extends eWind {
         if (this.pollDebounceTimeout) {
             clearTimeout(this.pollDebounceTimeout);
         }
-
+    
         this.pollDebounceTimeout = setTimeout(async () => {
             await this.ensureConnected();
+            const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    
             try {
                 switch (value) {
                     case "0":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(1, false);
+                        await delay(1000);
                         await this.sendCoilRequest(3, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, false);
                         break;
                     case "1":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, false);
+                        await delay(1000);
                         await this.sendCoilRequest(1, true);
                         break;
                     case "2":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, false);
+                        await delay(1000);
                         await this.sendCoilRequest(3, true);
                         break;
                     case "3":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, true);
                         break;
                     case "4":
@@ -194,15 +204,16 @@ class MyeWindDevice extends eWind {
                         break;
                 }
                 // Update the capability value after sending the command
-                this.setCapabilityValue('eWindstatus_mode', value);
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
+                await delay(10000); // Wait for 10 seconds
                 await this.poll_eWind(); // Poll once immediately after setting the value
                 this.skipNextIntervalPoll = true; // Skip the next interval poll
+                this.setCapabilityValue('eWindstatus_mode', value);
             } catch (error) {
                 console.error('Error setting eWind value:', error);
             }
         }, 1000);
     }
+    
 
     async sendHoldingRequest(register: number, value: number) {
         if (this.pollDebounceTimeout) {
