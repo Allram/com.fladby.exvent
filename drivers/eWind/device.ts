@@ -8,6 +8,7 @@ const socket = new net.Socket();
 const client = new Modbus.client.TCP(socket, 255);
 const RETRY_INTERVAL = 60 * 1000;
 const CONNECTION_RETRY_INTERVAL = 30000; // Retry connection every 30 seconds if it fails
+const POLL_DEBOUNCE_DELAY = 10000; // Debounce delay for polling after setting a value
 
 const shutdown = () => {
     if (currentDevice) {
@@ -40,7 +41,7 @@ class MyeWindDevice extends eWind {
     private pollingInProgress: boolean = false;
     private isActive: boolean = true;
     private skipNextIntervalPoll: boolean = false;
-    private pollDebounceTimeout: NodeJS.Timeout | null = null;
+    private pollDebounceTimeout: NodeJS.Timeout | undefined;
     private isConnected: boolean = false;
     private isConnecting: boolean = false;
 
@@ -56,6 +57,7 @@ class MyeWindDevice extends eWind {
         socket.on('end', () => {
             this.log('Socket ended');
             this.isConnected = false;
+            this.retryConnection();
         });
         socket.on('timeout', () => {
             this.log('Socket timeout');
@@ -104,6 +106,7 @@ class MyeWindDevice extends eWind {
         socket.connect(this.modbusOptions, () => {
             this.log('Connected to Modbus server');
             this.isConnecting = false;
+            this.isConnected = true;
             if (this.connectionRetryId) {
                 clearTimeout(this.connectionRetryId);
                 this.connectionRetryId = null;
@@ -163,39 +166,29 @@ class MyeWindDevice extends eWind {
         if (this.pollDebounceTimeout) {
             clearTimeout(this.pollDebounceTimeout);
         }
-    
+
         this.pollDebounceTimeout = setTimeout(async () => {
             await this.ensureConnected();
-            const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-    
             try {
                 switch (value) {
                     case "0":
                         await this.sendCoilRequest(0, false);
-                        await delay(1000);
                         await this.sendCoilRequest(1, false);
-                        await delay(1000);
                         await this.sendCoilRequest(3, false);
-                        await delay(1000);
                         await this.sendCoilRequest(10, false);
                         break;
                     case "1":
                         await this.sendCoilRequest(0, false);
-                        await delay(1000);
                         await this.sendCoilRequest(10, false);
-                        await delay(1000);
                         await this.sendCoilRequest(1, true);
                         break;
                     case "2":
                         await this.sendCoilRequest(0, false);
-                        await delay(1000);
                         await this.sendCoilRequest(10, false);
-                        await delay(1000);
                         await this.sendCoilRequest(3, true);
                         break;
                     case "3":
                         await this.sendCoilRequest(0, false);
-                        await delay(1000);
                         await this.sendCoilRequest(10, true);
                         break;
                     case "4":
@@ -205,16 +198,18 @@ class MyeWindDevice extends eWind {
                         break;
                 }
                 // Update the capability value after sending the command
-                await delay(10000); // Wait for 10 seconds
-                await this.poll_eWind(); // Poll once immediately after setting the value
-                this.skipNextIntervalPoll = true; // Skip the next interval poll
                 this.setCapabilityValue('eWindstatus_mode', value);
+                this.skipNextIntervalPoll = true; // Skip the next interval poll
+                // Debounce polling
+                clearTimeout(this.pollDebounceTimeout);
+                this.pollDebounceTimeout = setTimeout(async () => {
+                    await this.poll_eWind();
+                }, POLL_DEBOUNCE_DELAY);
             } catch (error) {
                 console.error('Error setting eWind value:', error);
             }
         }, 1000);
     }
-    
 
     async sendHoldingRequest(register: number, value: number) {
         if (this.pollDebounceTimeout) {
@@ -225,9 +220,12 @@ class MyeWindDevice extends eWind {
             await this.ensureConnected();
             try {
                 await client.writeSingleRegister(register, value);
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
-                await this.poll_eWind(); // Poll once immediately after sending the request
                 this.skipNextIntervalPoll = true; // Skip the next interval poll
+                // Debounce polling
+                clearTimeout(this.pollDebounceTimeout);
+                this.pollDebounceTimeout = setTimeout(async () => {
+                    await this.poll_eWind();
+                }, POLL_DEBOUNCE_DELAY);
             } catch (error) {
                 console.error('Error sending holding request:', error);
                 if (this.isActive) {
@@ -246,9 +244,12 @@ class MyeWindDevice extends eWind {
             await this.ensureConnected();
             try {
                 await client.writeSingleCoil(register, value);
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
-                await this.poll_eWind(); // Poll once immediately after sending the request
                 this.skipNextIntervalPoll = true; // Skip the next interval poll
+                // Debounce polling
+                clearTimeout(this.pollDebounceTimeout);
+                this.pollDebounceTimeout = setTimeout(async () => {
+                    await this.poll_eWind();
+                }, POLL_DEBOUNCE_DELAY);
             } catch (error) {
                 console.error('Error sending coil request:', error);
                 if (this.isActive) {
@@ -368,7 +369,6 @@ class MyeWindDevice extends eWind {
             await this.setEWindValue(value);
             await this.homey.flow.getDeviceTriggerCard('eWindstatus_mode_changed').trigger(this)
                 .catch(this.error);
-            await this.poll_eWind();
         });
 
         this.registerCapabilityListener('target_temperature.step', async (value) => {
@@ -414,7 +414,7 @@ class MyeWindDevice extends eWind {
         }
         if (this.pollDebounceTimeout) {
             clearTimeout(this.pollDebounceTimeout);
-            this.pollDebounceTimeout = null;
+            this.pollDebounceTimeout = undefined;
         }
         if (this.connectionRetryId) {
             clearTimeout(this.connectionRetryId);
