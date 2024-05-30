@@ -166,5 +166,8 @@
   },
   "3.0.4": {
     "en": "Added autoReconnect."
+  },
+  "3.0.5": {
+    "en": "Fix autoReconnect."
   }
 }

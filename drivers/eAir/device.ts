@@ -8,7 +8,6 @@ const socket = new net.Socket();
 const client = new Modbus.client.TCP(socket, 255);
 const RETRY_INTERVAL = 60 * 1000;
 const CONNECTION_RETRY_INTERVAL = 30000; // Retry connection every 30 seconds if it fails
-const POLL_DEBOUNCE_DELAY = 10000; // Debounce delay for polling after setting a value
 
 const shutdown = () => {
     if (currentDevice) {
@@ -41,7 +40,7 @@ class MyeAirDevice extends eAir {
     private pollingInProgress: boolean = false;
     private isActive: boolean = true;
     private skipNextIntervalPoll: boolean = false;
-    private pollDebounceTimeout: NodeJS.Timeout | undefined;
+    private pollDebounceTimeout: NodeJS.Timeout | null = null;
     private isConnected: boolean = false;
     private isConnecting: boolean = false;
 
@@ -57,7 +56,6 @@ class MyeAirDevice extends eAir {
         socket.on('end', () => {
             this.log('Socket ended');
             this.isConnected = false;
-            this.retryConnection();
         });
         socket.on('timeout', () => {
             this.log('Socket timeout');
@@ -106,7 +104,6 @@ class MyeAirDevice extends eAir {
         socket.connect(this.modbusOptions, () => {
             this.log('Connected to Modbus server');
             this.isConnecting = false;
-            this.isConnected = true;
             if (this.connectionRetryId) {
                 clearTimeout(this.connectionRetryId);
                 this.connectionRetryId = null;
@@ -166,29 +163,39 @@ class MyeAirDevice extends eAir {
         if (this.pollDebounceTimeout) {
             clearTimeout(this.pollDebounceTimeout);
         }
-
+    
         this.pollDebounceTimeout = setTimeout(async () => {
             await this.ensureConnected();
+            const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    
             try {
                 switch (value) {
                     case "0":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(1, false);
+                        await delay(1000);
                         await this.sendCoilRequest(3, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, false);
                         break;
                     case "1":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, false);
+                        await delay(1000);
                         await this.sendCoilRequest(1, true);
                         break;
                     case "2":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, false);
+                        await delay(1000);
                         await this.sendCoilRequest(3, true);
                         break;
                     case "3":
                         await this.sendCoilRequest(0, false);
+                        await delay(1000);
                         await this.sendCoilRequest(10, true);
                         break;
                     case "4":
@@ -198,18 +205,16 @@ class MyeAirDevice extends eAir {
                         break;
                 }
                 // Update the capability value after sending the command
-                this.setCapabilityValue('eAirstatus_mode', value);
+                await delay(10000); // Wait for 10 seconds
+                await this.poll_eAir(); // Poll once immediately after setting the value
                 this.skipNextIntervalPoll = true; // Skip the next interval poll
-                // Debounce polling
-                clearTimeout(this.pollDebounceTimeout);
-                this.pollDebounceTimeout = setTimeout(async () => {
-                    await this.poll_eAir();
-                }, POLL_DEBOUNCE_DELAY);
+                this.setCapabilityValue('eAirstatus_mode', value);
             } catch (error) {
                 console.error('Error setting eAir value:', error);
             }
         }, 1000);
     }
+    
 
     async sendHoldingRequest(register: number, value: number) {
         if (this.pollDebounceTimeout) {
@@ -220,12 +225,9 @@ class MyeAirDevice extends eAir {
             await this.ensureConnected();
             try {
                 await client.writeSingleRegister(register, value);
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
+                await this.poll_eAir(); // Poll once immediately after sending the request
                 this.skipNextIntervalPoll = true; // Skip the next interval poll
-                // Debounce polling
-                clearTimeout(this.pollDebounceTimeout);
-                this.pollDebounceTimeout = setTimeout(async () => {
-                    await this.poll_eAir();
-                }, POLL_DEBOUNCE_DELAY);
             } catch (error) {
                 console.error('Error sending holding request:', error);
                 if (this.isActive) {
@@ -244,12 +246,9 @@ class MyeAirDevice extends eAir {
             await this.ensureConnected();
             try {
                 await client.writeSingleCoil(register, value);
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
+                await this.poll_eAir(); // Poll once immediately after sending the request
                 this.skipNextIntervalPoll = true; // Skip the next interval poll
-                // Debounce polling
-                clearTimeout(this.pollDebounceTimeout);
-                this.pollDebounceTimeout = setTimeout(async () => {
-                    await this.poll_eAir();
-                }, POLL_DEBOUNCE_DELAY);
             } catch (error) {
                 console.error('Error sending coil request:', error);
                 if (this.isActive) {
@@ -369,6 +368,7 @@ class MyeAirDevice extends eAir {
             await this.seteAirValue(value);
             await this.homey.flow.getDeviceTriggerCard('eAirstatus_mode_changed').trigger(this)
                 .catch(this.error);
+            await this.poll_eAir();
         });
 
         this.registerCapabilityListener('target_temperature.step', async (value) => {
@@ -414,7 +414,7 @@ class MyeAirDevice extends eAir {
         }
         if (this.pollDebounceTimeout) {
             clearTimeout(this.pollDebounceTimeout);
-            this.pollDebounceTimeout = undefined;
+            this.pollDebounceTimeout = null;
         }
         if (this.connectionRetryId) {
             clearTimeout(this.connectionRetryId);
