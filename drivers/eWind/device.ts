@@ -7,8 +7,7 @@ import { checkCoils } from '../response_coil';
 const socket = new net.Socket();
 const client = new Modbus.client.TCP(socket, 255);
 const RETRY_INTERVAL = 60 * 1000;
-const CONNECTION_RETRY_INTERVAL = 55 * 1000; // Retry connection every 55 seconds if it fails
-const POLL_DEBOUNCE_DELAY = 10000; // Debounce delay for polling after setting a value
+const CONNECTION_RETRY_INTERVAL = 30000; // Retry connection every 30 seconds if it fails
 
 const shutdown = () => {
     if (currentDevice) {
@@ -28,6 +27,7 @@ class MyeWindDevice extends eWind {
         port: this.getSetting('port'),
         unitId: this.getSetting('id'),
         timeout: 5,
+        autoReconnect: true,
         logLabel: 'eWind',
         logLevel: 'error',
         logEnabled: true,
