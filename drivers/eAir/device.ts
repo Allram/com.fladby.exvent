@@ -385,20 +385,20 @@ class MyeAirDevice extends eAir {
 
         this.registerCapabilityListener('heat_exchanger_mode', async (value) => {
             this.log('heat_exchanger_mode changed to:', value);
-            await this.homey.flow.getDeviceTriggerCard('heat_exchanger_mode_changed').trigger(this)
+            await this.homey.flow.getDeviceTriggerCard('heat_exchanger_mode_changed2').trigger(this)
                 .catch(this.error);
         });
 
         this.registerCapabilityListener('heater_mode', async (value) => {
             this.log('heater_mode changed to:', value);
-            await this.homey.flow.getDeviceTriggerCard('heater_mode_changed').trigger(this)
+            await this.homey.flow.getDeviceTriggerCard('heater_mode_changed2').trigger(this)
                 .catch(this.error);
         });
 
         this.registerCapabilityListener('alarm_b', async (value) => {
             this.log('Alarm B triggered with value:', value);
             if (value) {
-                await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered').trigger(this)
+                await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered2').trigger(this)
                     .catch(this.error);
             }
         });
