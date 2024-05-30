@@ -7,7 +7,7 @@ import { checkCoils } from '../response_coil';
 const socket = new net.Socket();
 const client = new Modbus.client.TCP(socket, 255);
 const RETRY_INTERVAL = 60 * 1000;
-const CONNECTION_RETRY_INTERVAL = 5000; // Retry connection every 5 seconds if it fails
+const CONNECTION_RETRY_INTERVAL = 55 * 1000; // Retry connection every 55 seconds if it fails
 const POLL_DEBOUNCE_DELAY = 10000; // Debounce delay for polling after setting a value
 
 const shutdown = () => {

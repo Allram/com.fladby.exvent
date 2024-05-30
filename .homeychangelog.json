@@ -150,7 +150,7 @@
     "en": "Added trigger card for Filteralarm."
   },
   "2.15.0": {
-    "en": "Added trigger cards for Mode change, Heat exchanger and heating element"
+    "en": "Added trigger cards for Mode change, Heat exchanger and heating element."
   },
   "3.0.0": {
     "en": "Added condition cards for Mode change, Heat exchanger and heating element."
@@ -160,5 +160,8 @@
   },
   "3.0.2": {
     "en": "Updated packages, Added debounce for polling, new reconnect logic and try to fix polling to work consistent."
+  },
+  "3.0.3": {
+    "en": "Refactor the reconnection mechanic. Updated packages."
   }
 }
