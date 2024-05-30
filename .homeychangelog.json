@@ -169,5 +169,8 @@
   },
   "3.0.5": {
     "en": "Fix autoReconnect."
+  },
+  "3.0.6": {
+    "en": "Fix flowcards for eAir."
   }
 }
