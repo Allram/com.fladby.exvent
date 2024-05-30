@@ -8,6 +8,7 @@ const socket = new net.Socket();
 const client = new Modbus.client.TCP(socket, 255);
 const RETRY_INTERVAL = 60 * 1000;
 const CONNECTION_RETRY_INTERVAL = 30000; // Retry connection every 30 seconds if it fails
+const POLL_DEBOUNCE_DELAY = 10000; // Debounce delay for polling after setting a value
 
 const shutdown = () => {
     if (currentDevice) {
