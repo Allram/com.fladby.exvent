@@ -76,6 +76,8 @@ class MyeAirDevice extends eAir {
             this.log('Socket connected');
             this.isConnected = true;
             this.isConnecting = false;
+            this.clearRetryConnection();
+
         });
         socket.on('data', () => {
             if (this.isActive) {
@@ -104,6 +106,7 @@ class MyeAirDevice extends eAir {
         socket.connect(this.modbusOptions, () => {
             this.log('Connected to Modbus server');
             this.isConnecting = false;
+            this.pollingInProgress = false;
             if (this.connectionRetryId) {
                 clearTimeout(this.connectionRetryId);
                 this.connectionRetryId = null;
@@ -113,10 +116,17 @@ class MyeAirDevice extends eAir {
 
     retryConnection() {
         if (this.connectionRetryId || this.isConnecting) return; // Already retrying or connecting
+        this.log('Retrying connection to Modbus server...');
         this.connectionRetryId = setTimeout(() => {
-            this.log('Retrying connection to Modbus server...');
             this.connectSocket();
         }, CONNECTION_RETRY_INTERVAL);
+    }
+
+    clearRetryConnection() {
+        if (this.connectionRetryId) {
+            clearTimeout(this.connectionRetryId);
+            this.connectionRetryId = null;
+        }
     }
 
     async onUninit() {
@@ -448,7 +458,7 @@ class MyeAirDevice extends eAir {
                 socket.end();
                 await this.delay(1000);
                 this.connectSocket();
-                this.log('Reconnected successfully.');
+                //this.log('Reconnected successfully.');
             } catch (error: any) {
                 this.error('Error reconnecting:', (error as Error).message);
                 if (this.isActive) {

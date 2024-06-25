@@ -175,5 +175,8 @@
   },
   "3.0.7": {
     "en": "Fix flowcards for eAir."
+  },
+  "3.0.8": {
+    "en": "Another attempt at fixing reconnection logic without spamming the Exvent device with connection attempts."
   }
 }
