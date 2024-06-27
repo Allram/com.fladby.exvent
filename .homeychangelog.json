@@ -178,5 +178,8 @@
   },
   "3.0.8": {
     "en": "Another attempt at fixing reconnection logic without spamming the Exvent device with connection attempts."
+  },
+  "3.0.9": {
+    "en": "Added more logging when app crashes."
   }
 }
