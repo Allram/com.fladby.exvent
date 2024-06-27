@@ -54,30 +54,49 @@ class MyeAirDevice extends eAir {
         this.registerFlowListeners();
         this.registerCapabilityListeners();
         socket.on('end', () => {
+            try {
             this.log('Socket ended');
             this.isConnected = false;
+        } catch (error) {
+            this.log('Error socket end:', error);
+        }
         });
         socket.on('timeout', () => {
+            try {
             this.log('Socket timeout');
             this.isConnected = false;
             this.retryConnection();
+        } catch (error) {
+            this.log('Error timeout:', error);
+        }
         });
         socket.on('error', (err: any) => {
+            try {
             this.log('Socket error:', err);
             this.isConnected = false;
             this.retryConnection();
+        } catch (error) {
+            this.log('Error socket error:', error);
+        }
         });
         socket.on('close', (err: any) => {
+            try {
             this.log('Socket closed');
             this.isConnected = false;
             this.retryConnection();
+        } catch (error) {
+            this.log('Error socket closed:', error);
+        }
         });
         socket.on('connect', () => {
+            try {
             this.log('Socket connected');
             this.isConnected = true;
             this.isConnecting = false;
             this.clearRetryConnection();
-
+            } catch (error) {
+                this.log('Error socket on data:', error);
+            }
         });
         socket.on('data', () => {
             if (this.isActive) {
@@ -85,7 +104,6 @@ class MyeAirDevice extends eAir {
                     this.setCapabilityValue('lastPollTime', new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false }));
                 } catch (error) {
                     this.log('Error setting capability value:', error);
-                    this.setCapabilityValue('lastPollTime', 'No connection');
                 }
             }
         });
