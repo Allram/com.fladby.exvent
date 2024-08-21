@@ -57,6 +57,7 @@ class MyeAirDevice extends eAir {
             try {
             this.log('Socket ended');
             this.isConnected = false;
+            this.retryConnection();
         } catch (error) {
             this.log('Error socket end:', error);
         }

@@ -181,5 +181,8 @@
   },
   "3.0.9": {
     "en": "Added more logging when app crashes."
+  },
+  "3.0.10": {
+    "en": "Retry connection also when socket is ended as that happens when t.ex wifi router is updated."
   }
 }

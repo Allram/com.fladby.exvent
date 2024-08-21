@@ -57,6 +57,7 @@ class MyeWindDevice extends eWind {
             try {
             this.log('Socket ended');
             this.isConnected = false;
+            this.retryConnection();
             } catch (error) {
                 this.log('Error socket end:', error);
             }
