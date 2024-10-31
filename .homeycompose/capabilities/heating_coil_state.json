@@ -1,0 +1,36 @@
+{
+    "type": "enum",
+      "title": {
+        "en": "Heatingcoil",
+        "no": "Varmespole"
+      },
+      "desc": {
+        "en": "Heatingcoil on or off",
+        "no": "Varmespole av eller på"
+      },
+    
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Heatingcoil changed",
+        "no": "Varmespole endret"
+      },
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "1",
+          "title": {
+            "en": "On",
+            "no": "På"
+          }
+        },
+        {
+          "id": "0",
+          "title": {
+            "en": "Off",
+            "no": "Av"
+          }
+        }
+      ]
+    }

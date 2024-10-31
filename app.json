@@ -1113,7 +1113,8 @@
         "fanspeed_level",
         "eWindstatus",
         "eWindstatus_mode",
-        "lastPollTime"
+        "lastPollTime",
+        "heating_coil_state"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -1174,6 +1175,12 @@
           "title": {
             "en": "Heat exchanger",
             "no": "Varmeveksler"
+          }
+        },
+        "heating_coil_state": {
+          "title": {
+            "en": "Heatingcoil",
+            "no": "Varmespole"
           }
         },
         "alarm_b.desc": {
@@ -1677,6 +1684,41 @@
           "title": {
             "en": "Active",
             "no": "Aktivt"
+          }
+        }
+      ]
+    },
+    "heating_coil_state": {
+      "type": "enum",
+      "title": {
+        "en": "Heatingcoil",
+        "no": "Varmespole"
+      },
+      "desc": {
+        "en": "Heatingcoil on or off",
+        "no": "Varmespole av eller på"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Heatingcoil changed",
+        "no": "Varmespole endret"
+      },
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "1",
+          "title": {
+            "en": "On",
+            "no": "På"
+          }
+        },
+        {
+          "id": "0",
+          "title": {
+            "en": "Off",
+            "no": "Av"
           }
         }
       ]

@@ -20,7 +20,8 @@
     "fanspeed_level",
     "eWindstatus",
     "eWindstatus_mode",
-    "lastPollTime"
+    "lastPollTime",
+    "heating_coil_state"
   ],
   "capabilitiesOptions": {
       "measure_temperature.exhaustAir": {
@@ -83,6 +84,12 @@
          "no": "Varmeveksler"
        }
       },
+      "heating_coil_state": {
+        "title": {
+          "en": "Heatingcoil",
+          "no": "Varmespole"
+        }
+       },
       "alarm_b.desc": {
        "title": {
          "en": "Filteralarm",
