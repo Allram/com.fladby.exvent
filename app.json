@@ -824,6 +824,48 @@
         ]
       },
       {
+        "id": "heatingcoil",
+        "title": {
+          "en": "Set heatingcoil to",
+          "no": "Sett varmekolbe til"
+        },
+        "titleFormatted": {
+          "en": "Set heatingcoil to [[heatingcoil]]",
+          "no": "Sett varmekolbe til [[heatingcoil]]"
+        },
+        "hint": {
+          "en": "Set heatingcoil to",
+          "no": "Sett varmekolbe til"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "heatingcoil",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "active",
+                  "no": "aktiv"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "inactive",
+                  "no": "inaktiv"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "set-temperature",
         "title": {
           "en": "Set temperature",
@@ -1710,15 +1752,15 @@
         {
           "id": "1",
           "title": {
-            "en": "On",
-            "no": "På"
+            "en": "Active",
+            "no": "Aktiv"
           }
         },
         {
           "id": "0",
           "title": {
-            "en": "Off",
-            "no": "Av"
+            "en": "Inactive",
+            "no": "Inaktiv"
           }
         }
       ]

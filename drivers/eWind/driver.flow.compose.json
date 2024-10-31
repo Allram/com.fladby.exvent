@@ -44,8 +44,8 @@
         "no": "Sett varmekolbe til"
       },
       "titleFormatted": {
-        "en": "Set heatingcoil to [[ecomode]]",
-        "no": "Sett varmekolbe til [[ecomode]]"
+        "en": "Set heatingcoil to [[heatingcoil]]",
+        "no": "Sett varmekolbe til [[heatingcoil]]"
       },
       "hint": {
         "en": "Set heatingcoil to",
