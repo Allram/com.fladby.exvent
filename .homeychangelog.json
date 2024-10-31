@@ -184,5 +184,8 @@
   },
   "3.0.10": {
     "en": "Retry connection also when socket is ended as that happens when t.ex wifi router is updated."
+  },
+  "3.1.0": {
+    "en": "Added the possibility to control the heating coil on or off."
   }
 }
