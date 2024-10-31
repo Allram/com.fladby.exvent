@@ -321,6 +321,9 @@ class MyeWindDevice extends eWind {
         if (this.hasCapability('heater_mode') === false) {
             await this.addCapability('heater_mode');
         }
+        if (this.hasCapability('heating_coil_state') === false) {
+            await this.addCapability('heating_coil_state');
+        }
         if (this.hasCapability('heat_exchanger_mode') === false) {
             await this.addCapability('heat_exchanger_mode');
         }

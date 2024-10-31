@@ -321,6 +321,9 @@ class MyeAirDevice extends eAir {
         if (this.hasCapability('heater_mode') === false) {
             await this.addCapability('heater_mode');
         }
+        if (this.hasCapability('heating_coil_state') === false) {
+            await this.addCapability('heating_coil_state');
+        }
         if (this.hasCapability('heat_exchanger_mode') === false) {
             await this.addCapability('heat_exchanger_mode');
         }
@@ -365,7 +368,7 @@ class MyeAirDevice extends eAir {
             await this.seteAirValue(args.mode);
         });
 
-        const HeatingCoilCardeAir = this.homey.flow.getActionCard('heatingcoil');
+        const HeatingCoilCardeAir = this.homey.flow.getActionCard('heatingcoil_eAir');
         HeatingCoilCardeAir.registerRunListener(async (args) => {
             args.device.setMode('heating_coil_state', args.ecomode);
             await this.sendCoilRequest(54, args.ecomode === '1');

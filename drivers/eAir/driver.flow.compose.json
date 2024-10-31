@@ -38,14 +38,14 @@
       ]
     },
     {
-      "id": "heatingcoil",
+      "id": "heatingcoil_eAir",
       "title": {
         "en": "Set heatingcoil to",
         "no": "Sett varmekolbe til"
       },
       "titleFormatted": {
-        "en": "Set heatingcoil to [[heatingcoil]]",
-        "no": "Sett varmekolbe til [[heatingcoil]]"
+        "en": "Set heatingcoil to [[heatingcoil_eAir]]",
+        "no": "Sett varmekolbe til [[heatingcoil_eAir]]"
       },
       "hint": {
         "en": "Set heatingcoil to",
@@ -54,7 +54,7 @@
       "args": [
         {
           "type": "dropdown",
-          "name": "heatingcoil",
+          "name": "heatingcoil_eAir",
           "values": [
             {
               "id": "1",

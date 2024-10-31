@@ -690,6 +690,48 @@
         ]
       },
       {
+        "id": "heatingcoil_eAir",
+        "title": {
+          "en": "Set heatingcoil to",
+          "no": "Sett varmekolbe til"
+        },
+        "titleFormatted": {
+          "en": "Set heatingcoil to [[heatingcoil_eAir]]",
+          "no": "Sett varmekolbe til [[heatingcoil_eAir]]"
+        },
+        "hint": {
+          "en": "Set heatingcoil to",
+          "no": "Sett varmekolbe til"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "dropdown",
+            "name": "heatingcoil_eAir",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "active",
+                  "no": "aktiv"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "inactive",
+                  "no": "inaktiv"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "set-temperature_eAir",
         "title": {
           "en": "Set temperature",
@@ -982,7 +1024,8 @@
         "fanspeed_level",
         "eAirstatus",
         "eAirstatus_mode",
-        "lastPollTime"
+        "lastPollTime",
+        "heating_coil_state"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -1043,6 +1086,12 @@
           "title": {
             "en": "Heat exchanger",
             "no": "Varmeveksler"
+          }
+        },
+        "heating_coil_state": {
+          "title": {
+            "en": "Heatingcoil",
+            "no": "Varmespole"
           }
         },
         "alarm_b.desc": {
