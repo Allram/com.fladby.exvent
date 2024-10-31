@@ -431,6 +431,22 @@ class MyeWindDevice extends eWind {
                     .catch(this.error);
             }
         });
+        
+        this.registerCapabilityListener('heating_coil_state', async (value) => {
+            this.log('Heater changed to :', value);
+            
+            // Convert different types of values to boolean: true, "1", "true" => true; false, "0", "false" => false
+            const coilValue = (value === true || value === '1' || value === 'true') ? true : 
+                              (value === false || value === '0' || value === 'false') ? false : null;
+        
+            if (coilValue !== null) {
+                await this.sendCoilRequest(54, coilValue);
+            } else {
+                this.log('Invalid heater value:', value);
+            }
+            
+            await this.poll_eWind();
+        });
 
         this.capabilityListenersRegistered = true;
     }
