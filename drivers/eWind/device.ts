@@ -359,6 +359,12 @@ class MyeWindDevice extends eWind {
             await this.sendCoilRequest(40, args.ecomode === '1');
         });
 
+        const HeatingCoilCard = this.homey.flow.getActionCard('heatingcoil');
+        ecomodeCard.registerRunListener(async (args) => {
+            args.device.setMode('heating_coil_state', args.ecomode);
+            await this.sendCoilRequest(54, args.ecomode === '1');
+        });
+
         const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
         eWindStatusCard.registerRunListener(async (args) => {
             args.device.setMode('eWindstatus_mode', args.mode);
@@ -431,7 +437,7 @@ class MyeWindDevice extends eWind {
                     .catch(this.error);
             }
         });
-        
+
         this.registerCapabilityListener('heating_coil_state', async (value) => {
             this.log('Heater changed to :', value);
             

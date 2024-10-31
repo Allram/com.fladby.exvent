@@ -38,6 +38,43 @@
       ]
     },
     {
+      "id": "heatingcoil",
+      "title": {
+        "en": "Set heatingcoil to",
+        "no": "Sett varmekolbe til"
+      },
+      "titleFormatted": {
+        "en": "Set heatingcoil to [[ecomode]]",
+        "no": "Sett varmekolbe til [[ecomode]]"
+      },
+      "hint": {
+        "en": "Set heatingcoil to",
+        "no": "Sett varmekolbe til"
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "heatingcoil",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "active",
+                "no": "aktiv"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "inactive",
+                "no": "inaktiv"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "set-temperature",
       "title": {
         "en": "Set temperature",

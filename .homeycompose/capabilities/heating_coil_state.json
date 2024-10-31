@@ -21,15 +21,15 @@
         {
           "id": "1",
           "title": {
-            "en": "On",
-            "no": "På"
+            "en": "Active",
+            "no": "Aktiv"
           }
         },
         {
           "id": "0",
           "title": {
-            "en": "Off",
-            "no": "Av"
+            "en": "Inactive",
+            "no": "Inaktiv"
           }
         }
       ]
