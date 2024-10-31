@@ -28,6 +28,7 @@ export class eAir extends Homey.Device {
         "alarm_b_desc": [42, 1, 'UINT32', "Alarm B description"], 
         "heater_status": [32, 1, 'UINT32', "After-heater On/Off"], 
         "heat_exchanger_state": [30, 1, 'UINT32', "State of Heat exchanger On/Off"], 
+        "heating_coil": [54, 1, 'UINT32', "State of Heater coil On/Off"], 
     };
 
     processResult(result: Record<string, Measurement>) {
@@ -140,6 +141,14 @@ export class eAir extends Homey.Device {
                 this.setCapabilityValue('heat_exchanger_mode', "0");
             } else if (statusValue === "1" ) {
                 this.setCapabilityValue('heat_exchanger_mode', "1");
+            }
+        }
+        if (result['heating_coil'] && result['heating_coil'].value !== 'xxx') {
+            let statusValue = result['heating_coil'].value;
+            if (statusValue === "0") { 
+                this.setCapabilityValue('heating_coil_state', '0');
+            } else if (statusValue === "1" ) {
+                this.setCapabilityValue('heating_coil_state', '1');
             }
         }
         if (result['alarm_b_desc'] && result['alarm_b_desc'].value !== 'xxx') {

@@ -360,7 +360,7 @@ class MyeWindDevice extends eWind {
         });
 
         const HeatingCoilCard = this.homey.flow.getActionCard('heatingcoil');
-        ecomodeCard.registerRunListener(async (args) => {
+        HeatingCoilCard.registerRunListener(async (args) => {
             args.device.setMode('heating_coil_state', args.ecomode);
             await this.sendCoilRequest(54, args.ecomode === '1');
         });

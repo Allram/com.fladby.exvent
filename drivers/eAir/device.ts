@@ -365,6 +365,12 @@ class MyeAirDevice extends eAir {
             await this.seteAirValue(args.mode);
         });
 
+        const HeatingCoilCardeAir = this.homey.flow.getActionCard('heatingcoil');
+        HeatingCoilCardeAir.registerRunListener(async (args) => {
+            args.device.setMode('heating_coil_state', args.ecomode);
+            await this.sendCoilRequest(54, args.ecomode === '1');
+        });
+
         const SetTemperatureCard = this.homey.flow.getActionCard('set-temperature');
         SetTemperatureCard.registerRunListener(async (args) => {
             this.setCapabilityValue('target_temperature.step', args.temperature);
@@ -430,6 +436,23 @@ class MyeAirDevice extends eAir {
                 await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered2').trigger(this)
                     .catch(this.error);
             }
+        });
+
+        
+        this.registerCapabilityListener('heating_coil_state', async (value) => {
+            this.log('Heater changed to :', value);
+            
+            // Convert different types of values to boolean: true, "1", "true" => true; false, "0", "false" => false
+            const coilValue = (value === true || value === '1' || value === 'true') ? true : 
+                              (value === false || value === '0' || value === 'false') ? false : null;
+        
+            if (coilValue !== null) {
+                await this.sendCoilRequest(54, coilValue);
+            } else {
+                this.log('Invalid heater value:', value);
+            }
+            
+            await this.poll_eAir();
         });
 
         this.capabilityListenersRegistered = true;
