@@ -362,7 +362,7 @@ class MyeAirDevice extends eAir {
             await this.sendCoilRequest(40, args.ecomode === '1');
         });
 
-        const eAirStatusCard = this.homey.flow.getActionCard('status-mode');
+        const eAirStatusCard = this.homey.flow.getActionCard('status-mode_eAir');
         eAirStatusCard.registerRunListener(async (args) => {
             args.device.setMode('eAirstatus_mode', args.mode);
             await this.seteAirValue(args.mode);
