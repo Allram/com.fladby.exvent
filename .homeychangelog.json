@@ -187,5 +187,8 @@
   },
   "3.1.0": {
     "en": "Added the possibility to control the heating coil on or off."
+  },
+  "3.1.1": {
+    "en": "Bugfix: Flowcard for setting mode on eAir had a typo that preventet it from running."
   }
 }
