@@ -15,6 +15,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@tsconfig/node18": "^18.2.4",
     "jsmodbus": "^4.0.10",
     "net": "^1.0.2",
     "node.js": "^0.0.1-security",

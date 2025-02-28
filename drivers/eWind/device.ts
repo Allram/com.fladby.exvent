@@ -109,6 +109,10 @@ class MyeWindDevice extends eWind {
             }
         });
         await this.poll_eWind();
+        if (!this.getData() || !this.getData().id) {
+            this.log('Device not found, stopping polling');
+            return;
+        }
         this.intervalId = setInterval(async () => {
             if (this.skipNextIntervalPoll) {
                 this.skipNextIntervalPoll = false;
@@ -180,8 +184,10 @@ class MyeWindDevice extends eWind {
             }
         } catch (error) {
             console.error('Polling error:', error);
-            if (this.isActive) {
-                this.setCapabilityValue('lastPollTime', 'No connection');
+            if (this.getAvailable()) {
+                this.setCapabilityValue('lastPollTime', new Date().toLocaleString());
+            } else {
+                this.log('Device unavailable, skipping capability update');
             }
         } finally {
             this.pollingInProgress = false;
