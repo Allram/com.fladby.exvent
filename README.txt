@@ -7,5 +7,3 @@ Supported devices
 Following devices are supported
 - Exvent eWind systems
 - Exvent eAir systems
-
-NOT SUPPORTED: The new iSLa app from Exvent. Modbus is not working on that app/firmware.

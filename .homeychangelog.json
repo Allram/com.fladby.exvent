@@ -193,5 +193,8 @@
   },
   "3.1.2": {
     "en": "Bugfix: Flowcard for setting mode on eAir had a typo that preventet it from running."
+  },
+  "3.2.0": {
+    "en": "Refactor reconnection logic for both drivers. Support with the new Isla app is now confirmed.."
   }
 }
