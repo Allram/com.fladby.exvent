@@ -1,4 +1,4 @@
-import net from 'net';
+import * as net from 'net';
 import * as Modbus from 'jsmodbus';
 import { eAir } from '../eAir';
 import { checkRegister } from '../response';
