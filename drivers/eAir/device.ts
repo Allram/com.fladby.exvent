@@ -22,16 +22,15 @@ process.on('SIGINT', shutdown);
 let currentDevice: MyeAirDevice | null = null;
 
 class MyeAirDevice extends eAir {
-    // Using instance properties so that we can reinitialize if needed
+    // Instance properties for socket and client
     socket: net.Socket | null = null;
     client: any = null;
 
-    // Note: The original code used a unitId of 255 – adjust if needed.
     modbusOptions = {
         host: this.getSetting('address'),
         port: this.getSetting('port'),
         unitId: this.getSetting('id') || 255,
-        timeout: 5000, // 5000 ms timeout (as opposed to 5 ms)
+        timeout: 5000, // 5000 ms timeout
         autoReconnect: true,
         logLabel: 'eAir',
         logLevel: 'error',
@@ -64,6 +63,7 @@ class MyeAirDevice extends eAir {
             return;
         }
         this.intervalId = setInterval(async () => {
+            if (!this.isActive) return;
             if (this.skipNextIntervalPoll) {
                 this.skipNextIntervalPoll = false;
                 return;
@@ -75,26 +75,31 @@ class MyeAirDevice extends eAir {
     attachSocketListeners(socket: net.Socket) {
         socket.setKeepAlive(true);
         socket.on('end', () => {
+            if (!this.isActive) return;
             this.log('Socket ended');
             this.isConnected = false;
             this.retryConnection();
         });
         socket.on('timeout', () => {
+            if (!this.isActive) return;
             this.log('Socket timeout');
             this.isConnected = false;
             this.retryConnection();
         });
         socket.on('error', (err: any) => {
+            if (!this.isActive) return;
             this.log('Socket error:', err);
             this.isConnected = false;
             this.retryConnection();
         });
         socket.on('close', () => {
+            if (!this.isActive) return;
             this.log('Socket closed');
             this.isConnected = false;
             this.retryConnection();
         });
         socket.on('connect', () => {
+            if (!this.isActive) return;
             this.log('Socket connected');
             this.isConnected = true;
             this.isConnecting = false;
@@ -102,10 +107,14 @@ class MyeAirDevice extends eAir {
         });
         socket.on('data', () => {
             if (this.isActive) {
-                this.setCapabilityValue(
-                    'lastPollTime',
-                    new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false })
-                );
+                try {
+                    this.setCapabilityValue(
+                        'lastPollTime',
+                        new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false })
+                    );
+                } catch (err) {
+                    // Ignore errors if device is deleted
+                }
             }
         });
     }
@@ -126,6 +135,7 @@ class MyeAirDevice extends eAir {
                 port: this.modbusOptions.port,
             },
             () => {
+                if (!this.isActive) return;
                 this.log('Connected to Modbus server');
                 this.isConnecting = false;
                 this.pollingInProgress = false;
@@ -138,9 +148,11 @@ class MyeAirDevice extends eAir {
     }
 
     retryConnection() {
+        if (!this.isActive) return; // Do not retry if device has been deleted
         if (this.connectionRetryId || this.isConnecting) return;
         this.log('Retrying connection to Modbus server...');
         this.connectionRetryId = setTimeout(() => {
+            if (!this.isActive) return;
             this.connectSocket();
         }, CONNECTION_RETRY_INTERVAL);
     }
@@ -165,9 +177,15 @@ class MyeAirDevice extends eAir {
     }
 
     async poll_eAir() {
+        if (!this.isActive) return;
         if (this.pollingInProgress) return;
         this.pollingInProgress = true;
-        await this.ensureConnected();
+
+        if (!this.isActive) {
+            this.pollingInProgress = false;
+            return;
+        }
+
         this.log('Polling eAir...');
         try {
             const checkRegisterRes = await checkRegister(this.registers, this.client);
@@ -175,15 +193,23 @@ class MyeAirDevice extends eAir {
             const checkCoilsRes = await checkCoils(this.coilRegisters, this.client);
             this.processResult({ ...checkCoilsRes });
             if (this.isActive) {
-                this.setCapabilityValue(
-                    'lastPollTime',
-                    new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false })
-                );
+                try {
+                    this.setCapabilityValue(
+                        'lastPollTime',
+                        new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false })
+                    );
+                } catch (err) {
+                    // Ignore errors if device is deleted
+                }
             }
         } catch (error) {
             this.log('Polling error:', error);
             if (this.getAvailable()) {
-                this.setCapabilityValue('lastPollTime', new Date().toLocaleString());
+                try {
+                    this.setCapabilityValue('lastPollTime', new Date().toLocaleString());
+                } catch (err) {
+                    // Ignore errors if device is deleted
+                }
             } else {
                 this.log('Device unavailable, skipping capability update');
             }
@@ -196,10 +222,10 @@ class MyeAirDevice extends eAir {
         if (this.pollDebounceTimeout) clearTimeout(this.pollDebounceTimeout);
     
         this.pollDebounceTimeout = setTimeout(async () => {
+            if (!this.isActive) return;
             await this.ensureConnected();
             const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
             try {
-                // Use the same sequence and delays as your original code
                 switch (value) {
                     case "0":
                         await this.sendCoilRequest(0, false);
@@ -235,8 +261,9 @@ class MyeAirDevice extends eAir {
                     default:
                         break;
                 }
-                // Update the capability value without forcing an immediate poll
-                this.setCapabilityValue('eAirstatus_mode', value);
+                if (this.isActive) {
+                    this.setCapabilityValue('eAirstatus_mode', value);
+                }
             } catch (error) {
                 this.log('Error setting eAir value:', error);
             }
@@ -247,10 +274,10 @@ class MyeAirDevice extends eAir {
         if (this.pollDebounceTimeout) clearTimeout(this.pollDebounceTimeout);
     
         this.pollDebounceTimeout = setTimeout(async () => {
+            if (!this.isActive) return;
             await this.ensureConnected();
             try {
                 await this.client.writeSingleRegister(register, value);
-                // Rely on the regular polling interval for updates
             } catch (error) {
                 this.log('Error sending holding request:', error);
                 if (this.isActive) this.setCapabilityValue('lastPollTime', 'No connection');
@@ -262,10 +289,10 @@ class MyeAirDevice extends eAir {
         if (this.pollDebounceTimeout) clearTimeout(this.pollDebounceTimeout);
     
         this.pollDebounceTimeout = setTimeout(async () => {
+            if (!this.isActive) return;
             await this.ensureConnected();
             try {
                 await this.client.writeSingleCoil(register, value);
-                // Rely on the regular poll for updating values
             } catch (error) {
                 this.log('Error sending coil request:', error);
                 if (this.isActive) this.setCapabilityValue('lastPollTime', 'No connection');
@@ -393,7 +420,6 @@ class MyeAirDevice extends eAir {
             await this.homey.flow.getDeviceTriggerCard('eAirstatus_mode_changed')
                 .trigger(this)
                 .catch(this.error);
-            // Rely on the regular poll for updates
         });
     
         this.registerCapabilityListener('target_temperature.step', async (value) => {
@@ -431,7 +457,6 @@ class MyeAirDevice extends eAir {
     
         this.registerCapabilityListener('heating_coil_state', async (value) => {
             this.log('Heater changed to :', value);
-            // Convert value to boolean as needed
             const coilValue = (value === true || value === '1' || value === 'true')
                 ? true
                 : (value === false || value === '0' || value === 'false')
@@ -478,7 +503,7 @@ class MyeAirDevice extends eAir {
     async onAdded() {
         this.log('MyeAirDevice has been added');
         setTimeout(async () => {
-            await this.poll_eAir();
+            if (this.isActive) await this.poll_eAir();
         }, 10000);
     }
     
