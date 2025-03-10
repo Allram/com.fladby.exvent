@@ -196,5 +196,8 @@
   },
   "3.2.0": {
     "en": "Refactor reconnection logic for both drivers. Support with the new Isla app is now confirmed.."
+  },
+  "3.2.1": {
+    "en": "Fixed a bug in eAir status mode flow card."
   }
 }
