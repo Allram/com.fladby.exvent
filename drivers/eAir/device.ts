@@ -399,17 +399,17 @@ class MyeAirDevice extends eAir {
     registerCapabilityListeners() {
         if (this.capabilityListenersRegistered) return;
     
-        this.homey.flow.getConditionCard('eAirstatus_mode_is')
+        this.homey.flow.getConditionCard('eAirstatus_mode_is2')
             .registerRunListener(async (args) => {
                 return this.getCapabilityValue('eAirstatus_mode') === args.mode;
             });
     
-        this.homey.flow.getConditionCard('heat_exchanger_mode_is')
+        this.homey.flow.getConditionCard('heat_exchanger_mode_is2')
             .registerRunListener(async (args) => {
                 return this.getCapabilityValue('heat_exchanger_mode') === args.mode;
             });
     
-        this.homey.flow.getConditionCard('heater_mode_is')
+        this.homey.flow.getConditionCard('heater_mode_is2')
             .registerRunListener(async (args) => {
                 return this.getCapabilityValue('heater_mode') === args.mode;
             });
