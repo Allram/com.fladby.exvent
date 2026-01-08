@@ -205,5 +205,8 @@
   },
   "3.2.3": {
     "en": "Further Bugfix for eAir Trigger Flow card."
+  },
+  "3.2.4": {
+    "en": "Fixing reconnection problems."
   }
 }

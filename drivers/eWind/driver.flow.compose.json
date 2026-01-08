@@ -324,35 +324,35 @@
           "type": "dropdown",
           "values": [
             {
-              "id": "home",
+              "id": "0",
               "label": {
                 "en": "Home",
                 "no": "Hjemme"
               }
             },
             {
-              "id": "away",
+              "id": "1",
               "label": {
                 "en": "Away",
                 "no": "Borte"
               }
             },
             {
-              "id": "fireplace",
+              "id": "2",
               "label": {
                 "en": "Fireplace",
                 "no": "Peismodus"
               }
             },
             {
-              "id": "boost",
+              "id": "3",
               "label": {
                 "en": "Boost",
                 "no": "Boost"
               }
             },
             {
-              "id": "off",
+              "id": "4",
               "label": {
                 "en": "Off",
                 "no": "Av"
@@ -378,14 +378,14 @@
           "type": "dropdown",
           "values": [
             {
-              "id": "on",
+              "id": "1",
               "label": {
                 "en": "On",
                 "no": "På"
               }
             },
             {
-              "id": "off",
+              "id": "0",
               "label": {
                 "en": "Off",
                 "no": "Av"
@@ -411,14 +411,14 @@
           "type": "dropdown",
           "values": [
             {
-              "id": "on",
+              "id": "1",
               "label": {
                 "en": "On",
                 "no": "På"
               }
             },
             {
-              "id": "off",
+              "id": "0",
               "label": {
                 "en": "Off",
                 "no": "Av"

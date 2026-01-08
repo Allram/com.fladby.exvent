@@ -5,7 +5,10 @@ import { checkRegister } from '../response';
 import { checkCoils } from '../response_coil';
 
 const RETRY_INTERVAL = 60 * 1000;
-const CONNECTION_RETRY_INTERVAL = 30000; // Retry connection every 30 seconds if it fails
+const CONNECTION_RETRY_MIN = 5000;
+const CONNECTION_RETRY_MAX = 30000;
+const WAIT_FOR_CONNECT_TIMEOUT = 10000;
+const SOCKET_IDLE_TIMEOUT = 7000;
 
 const shutdown = () => {
     if (currentDevice) {
@@ -47,6 +50,8 @@ class MyeWindDevice extends eWind {
     private pollDebounceTimeout: NodeJS.Timeout | null = null;
     private isConnected: boolean = false;
     private isConnecting: boolean = false;
+    private connectingPromise: Promise<void> | null = null;
+    private connectionRetryDelay: number = CONNECTION_RETRY_MIN;
 
     async onInit() {
         this.log('MyeWindDevice has been initialized');
@@ -74,28 +79,37 @@ class MyeWindDevice extends eWind {
 
     attachSocketListeners(socket: net.Socket) {
         socket.setKeepAlive(true);
+        socket.setTimeout(SOCKET_IDLE_TIMEOUT);
         socket.on('end', () => {
             if (!this.isActive) return;
             this.log('Socket ended');
             this.isConnected = false;
+            this.isConnecting = false;
+            this.teardownSocket();
             this.retryConnection();
         });
         socket.on('timeout', () => {
             if (!this.isActive) return;
             this.log('Socket timeout');
             this.isConnected = false;
+            this.isConnecting = false;
+            this.teardownSocket();
             this.retryConnection();
         });
         socket.on('error', (err: any) => {
             if (!this.isActive) return;
             this.log('Socket error:', err);
             this.isConnected = false;
+            this.isConnecting = false;
+            this.teardownSocket();
             this.retryConnection();
         });
         socket.on('close', () => {
             if (!this.isActive) return;
             this.log('Socket closed');
             this.isConnected = false;
+            this.isConnecting = false;
+            this.teardownSocket();
             this.retryConnection();
         });
         socket.on('connect', () => {
@@ -103,48 +117,47 @@ class MyeWindDevice extends eWind {
             this.log('Socket connected');
             this.isConnected = true;
             this.isConnecting = false;
+            this.connectionRetryDelay = CONNECTION_RETRY_MIN;
             this.clearRetryConnection();
         });
-        socket.on('data', () => {
-            if (this.isActive) {
-                try {
-                    this.setCapabilityValue(
-                        'lastPollTime',
-                        new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false })
-                    );
-                } catch (err) {
-                    // Ignore errors if device is deleted
-                }
-            }
-        });
+        // Only successful poll should update lastPollTime; raw socket data is ignored.
+        socket.on('data', () => {});
     }
 
     connectSocket() {
-        if (this.isConnecting) return;
+        if (this.isConnecting && this.connectingPromise) return;
         this.isConnecting = true;
         this.log('Attempting to connect to Modbus server...');
-        // Create a new socket and attach listeners
+        this.teardownSocket();
         this.socket = new net.Socket();
         this.attachSocketListeners(this.socket);
-        // Create a new Modbus client using the new socket
         this.client = new Modbus.client.TCP(this.socket, this.modbusOptions.unitId);
 
-        this.socket.connect(
-            {
+        this.connectingPromise = new Promise<void>((resolve, reject) => {
+            const onConnect = () => {
+                resolve();
+            };
+            const onError = (err: any) => {
+                reject(err);
+            };
+            if (!this.socket) {
+                reject(new Error('Socket missing'));
+                return;
+            }
+            this.socket.once('connect', onConnect);
+            this.socket.once('error', onError);
+            this.socket.connect({
                 host: this.modbusOptions.host,
                 port: this.modbusOptions.port,
-            },
-            () => {
-                if (!this.isActive) return;
-                this.log('Connected to Modbus server');
+            });
+        })
+            .catch(() => {
+                // Error handled by socket listeners
+            })
+            .finally(() => {
                 this.isConnecting = false;
-                this.pollingInProgress = false;
-                if (this.connectionRetryId) {
-                    clearTimeout(this.connectionRetryId);
-                    this.connectionRetryId = null;
-                }
-            }
-        );
+                this.connectingPromise = null;
+            });
     }
 
     retryConnection() {
@@ -154,7 +167,8 @@ class MyeWindDevice extends eWind {
         this.connectionRetryId = setTimeout(() => {
             if (!this.isActive) return;
             this.connectSocket();
-        }, CONNECTION_RETRY_INTERVAL);
+            this.connectionRetryDelay = Math.min(CONNECTION_RETRY_MAX, this.connectionRetryDelay * 2 || CONNECTION_RETRY_MIN);
+        }, this.connectionRetryDelay);
     }
 
     clearRetryConnection() {
@@ -164,13 +178,34 @@ class MyeWindDevice extends eWind {
         }
     }
 
+    teardownSocket() {
+        if (this.socket) {
+            this.socket.removeAllListeners();
+            this.socket.end();
+            this.socket.destroy();
+        }
+        this.socket = null;
+        this.client = null;
+    }
+
     async ensureConnected() {
-        if (this.isConnected) return;
-        return new Promise<void>((resolve) => {
+        if (!this.isConnected && !this.isConnecting) {
+            this.connectSocket();
+        }
+
+        if (this.connectingPromise) {
+            return this.connectingPromise;
+        }
+
+        return new Promise<void>((resolve, reject) => {
+            const start = Date.now();
             const checkInterval = setInterval(() => {
                 if (this.isConnected) {
                     clearInterval(checkInterval);
                     resolve();
+                } else if (!this.isActive || Date.now() - start > WAIT_FOR_CONNECT_TIMEOUT) {
+                    clearInterval(checkInterval);
+                    reject(new Error('Connection timeout'));
                 }
             }, 500);
         });
@@ -184,6 +219,24 @@ class MyeWindDevice extends eWind {
         if (!this.isActive) {
             this.pollingInProgress = false;
             return;
+        }
+
+        if (!this.isConnected) {
+            this.connectSocket();
+            try {
+                await this.ensureConnected();
+            } catch (err) {
+                this.log('Polling skipped, no connection');
+                try {
+                    if (this.getAvailable()) {
+                        this.setCapabilityValue('lastPollTime', 'No connection');
+                    }
+                } catch (capErr) {
+                    // Ignore capability errors
+                }
+                this.pollingInProgress = false;
+                return;
+            }
         }
 
         this.log('Polling eWind...');
@@ -206,7 +259,7 @@ class MyeWindDevice extends eWind {
             this.log('Polling error:', error);
             if (this.getAvailable()) {
                 try {
-                    this.setCapabilityValue('lastPollTime', new Date().toLocaleString());
+                    this.setCapabilityValue('lastPollTime', 'No connection');
                 } catch (err) {
                     // Ignore errors if device is deleted
                 }
@@ -223,9 +276,9 @@ class MyeWindDevice extends eWind {
     
         this.pollDebounceTimeout = setTimeout(async () => {
             if (!this.isActive) return;
-            await this.ensureConnected();
-            const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
             try {
+                await this.ensureConnected();
+                const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
                 switch (value) {
                     case "0":
                         await this.sendCoilRequest(0, false);
@@ -275,8 +328,8 @@ class MyeWindDevice extends eWind {
     
         this.pollDebounceTimeout = setTimeout(async () => {
             if (!this.isActive) return;
-            await this.ensureConnected();
             try {
+                await this.ensureConnected();
                 await this.client.writeSingleRegister(register, value);
             } catch (error) {
                 this.log('Error sending holding request:', error);
@@ -290,8 +343,8 @@ class MyeWindDevice extends eWind {
     
         this.pollDebounceTimeout = setTimeout(async () => {
             if (!this.isActive) return;
-            await this.ensureConnected();
             try {
+                await this.ensureConnected();
                 await this.client.writeSingleCoil(register, value);
             } catch (error) {
                 this.log('Error sending coil request:', error);
@@ -377,8 +430,8 @@ class MyeWindDevice extends eWind {
     
         const HeatingCoilCard = this.homey.flow.getActionCard('heatingcoil');
         HeatingCoilCard.registerRunListener(async (args) => {
-            args.device.setMode('heating_coil_state', args.ecomode);
-            await this.sendCoilRequest(54, args.ecomode === '1');
+            args.device.setMode('heating_coil_state', args.heatingcoil);
+            await this.sendCoilRequest(54, args.heatingcoil === '1');
         });
     
         const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
@@ -488,11 +541,7 @@ class MyeWindDevice extends eWind {
         }
         this.flowListenersRegistered = false;
         this.capabilityListenersRegistered = false;
-        if (this.socket) {
-            this.socket.end();
-            this.socket.destroy();
-            this.socket = null;
-        }
+        this.teardownSocket();
     }
     
     async setMode(mode: string, value: string): Promise<void> {
@@ -513,11 +562,7 @@ class MyeWindDevice extends eWind {
                 this.log('IP address or port changed. Reconnecting...');
                 this.modbusOptions.host = newSettings.address;
                 this.modbusOptions.port = newSettings.port;
-                if (this.socket) {
-                    this.socket.end();
-                    this.socket.destroy();
-                    this.socket = null;
-                }
+                this.teardownSocket();
                 await this.delay(1000);
                 this.connectSocket();
             } catch (error: any) {
