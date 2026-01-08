@@ -52,6 +52,34 @@ class MyeWindDevice extends eWind {
     private isConnecting: boolean = false;
     private connectingPromise: Promise<void> | null = null;
     private connectionRetryDelay: number = CONNECTION_RETRY_MIN;
+    private debouncedAction: NodeJS.Timeout | null = null;
+
+    /**
+     * Guard against acting on stale/deleted devices; Homey returns 404 when a
+     * flow or capability change targets a missing device entry.
+     */
+    private isUsable(): boolean {
+        return this.isActive && this.getAvailable();
+    }
+
+    private scheduleAction(action: () => Promise<void>, delayMs: number = 1000) {
+        if (this.debouncedAction) clearTimeout(this.debouncedAction);
+        this.debouncedAction = setTimeout(async () => {
+            if (!this.isActive) return;
+            try {
+                await action();
+            } catch (err) {
+                this.log('Action error:', err);
+                if (this.isActive) {
+                    try {
+                        await this.setCapabilityValue('lastPollTime', 'No connection');
+                    } catch (_) {
+                        // ignore capability write errors
+                    }
+                }
+            }
+        }, delayMs);
+    }
 
     async onInit() {
         this.log('MyeWindDevice has been initialized');
@@ -242,12 +270,12 @@ class MyeWindDevice extends eWind {
         this.log('Polling eWind...');
         try {
             const checkRegisterRes = await checkRegister(this.registers, this.client);
-            this.processResult({ ...checkRegisterRes });
+            await this.processResult({ ...checkRegisterRes });
             const checkCoilsRes = await checkCoils(this.coilRegisters, this.client);
-            this.processResult({ ...checkCoilsRes });
+            await this.processResult({ ...checkCoilsRes });
             if (this.isActive) {
                 try {
-                    this.setCapabilityValue(
+                    await this.setCapabilityValue(
                         'lastPollTime',
                         new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false })
                     );
@@ -259,7 +287,7 @@ class MyeWindDevice extends eWind {
             this.log('Polling error:', error);
             if (this.getAvailable()) {
                 try {
-                    this.setCapabilityValue('lastPollTime', 'No connection');
+                    await this.setCapabilityValue('lastPollTime', 'No connection');
                 } catch (err) {
                     // Ignore errors if device is deleted
                 }
@@ -272,85 +300,62 @@ class MyeWindDevice extends eWind {
     }
 
     async setEWindValue(value: string) {
-        if (this.pollDebounceTimeout) clearTimeout(this.pollDebounceTimeout);
-    
-        this.pollDebounceTimeout = setTimeout(async () => {
-            if (!this.isActive) return;
-            try {
-                await this.ensureConnected();
-                const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-                switch (value) {
-                    case "0":
-                        await this.sendCoilRequest(0, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(1, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(3, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(10, false);
-                        break;
-                    case "1":
-                        await this.sendCoilRequest(0, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(10, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(1, true);
-                        break;
-                    case "2":
-                        await this.sendCoilRequest(0, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(10, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(3, true);
-                        break;
-                    case "3":
-                        await this.sendCoilRequest(0, false);
-                        await delay(1000);
-                        await this.sendCoilRequest(10, true);
-                        break;
-                    case "4":
-                        await this.sendCoilRequest(0, true);
-                        break;
-                    default:
-                        break;
-                }
-                if (this.isActive) {
-                    this.setCapabilityValue('eWindstatus_mode', value);
-                }
-            } catch (error) {
-                this.log('Error setting eWind value:', error);
+        this.scheduleAction(async () => {
+            await this.ensureConnected();
+            const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+            switch (value) {
+                case "0":
+                    await this.sendCoilRequest(0, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(1, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(3, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(10, false);
+                    break;
+                case "1":
+                    await this.sendCoilRequest(0, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(10, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(1, true);
+                    break;
+                case "2":
+                    await this.sendCoilRequest(0, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(10, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(3, true);
+                    break;
+                case "3":
+                    await this.sendCoilRequest(0, false);
+                    await delay(1000);
+                    await this.sendCoilRequest(10, true);
+                    break;
+                case "4":
+                    await this.sendCoilRequest(0, true);
+                    break;
+                default:
+                    break;
             }
-        }, 1000);
+            if (this.isActive) {
+                await this.setCapabilityValue('eWindstatus_mode', value);
+            }
+        });
     }
     
     async sendHoldingRequest(register: number, value: number) {
-        if (this.pollDebounceTimeout) clearTimeout(this.pollDebounceTimeout);
-    
-        this.pollDebounceTimeout = setTimeout(async () => {
-            if (!this.isActive) return;
-            try {
-                await this.ensureConnected();
-                await this.client.writeSingleRegister(register, value);
-            } catch (error) {
-                this.log('Error sending holding request:', error);
-                if (this.isActive) this.setCapabilityValue('lastPollTime', 'No connection');
-            }
-        }, 1000);
+        this.scheduleAction(async () => {
+            await this.ensureConnected();
+            await this.client.writeSingleRegister(register, value);
+        });
     }
     
     async sendCoilRequest(register: number, value: boolean) {
-        if (this.pollDebounceTimeout) clearTimeout(this.pollDebounceTimeout);
-    
-        this.pollDebounceTimeout = setTimeout(async () => {
-            if (!this.isActive) return;
-            try {
-                await this.ensureConnected();
-                await this.client.writeSingleCoil(register, value);
-            } catch (error) {
-                this.log('Error sending coil request:', error);
-                if (this.isActive) this.setCapabilityValue('lastPollTime', 'No connection');
-            }
-        }, 1000);
+        this.scheduleAction(async () => {
+            await this.ensureConnected();
+            await this.client.writeSingleCoil(register, value);
+        });
     }
     
     async setCapabilities() {
@@ -423,26 +428,30 @@ class MyeWindDevice extends eWind {
         if (this.flowListenersRegistered) return;
     
         const ecomodeCard = this.homey.flow.getActionCard('ecomode');
-        ecomodeCard.registerRunListener(async (args) => {
-            args.device.setMode('ecomode_mode', args.ecomode);
+        ecomodeCard.registerRunListener(async (args: any) => {
+            if (!this.isUsable()) return false;
+            await args.device.setMode('ecomode_mode', args.ecomode);
             await this.sendCoilRequest(40, args.ecomode === '1');
         });
     
         const HeatingCoilCard = this.homey.flow.getActionCard('heatingcoil');
-        HeatingCoilCard.registerRunListener(async (args) => {
-            args.device.setMode('heating_coil_state', args.heatingcoil);
+        HeatingCoilCard.registerRunListener(async (args: any) => {
+            if (!this.isUsable()) return false;
+            await args.device.setMode('heating_coil_state', args.heatingcoil);
             await this.sendCoilRequest(54, args.heatingcoil === '1');
         });
     
         const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
-        eWindStatusCard.registerRunListener(async (args) => {
-            args.device.setMode('eWindstatus_mode', args.mode);
+        eWindStatusCard.registerRunListener(async (args: any) => {
+            if (!this.isUsable()) return false;
+            await args.device.setMode('eWindstatus_mode', args.mode);
             await this.setEWindValue(args.mode);
         });
     
         const SetTemperatureCard = this.homey.flow.getActionCard('set-temperature');
-        SetTemperatureCard.registerRunListener(async (args) => {
-            this.setCapabilityValue('target_temperature.step', args.temperature);
+        SetTemperatureCard.registerRunListener(async (args: any) => {
+            if (!this.isUsable()) return false;
+            await this.setCapabilityValue('target_temperature.step', args.temperature);
             await this.sendHoldingRequest(135, args.temperature * 10);
         });
     
@@ -453,21 +462,22 @@ class MyeWindDevice extends eWind {
         if (this.capabilityListenersRegistered) return;
     
         this.homey.flow.getConditionCard('eWindstatus_mode_is')
-            .registerRunListener(async (args) => {
+            .registerRunListener(async (args: any) => {
                 return this.getCapabilityValue('eWindstatus_mode') === args.mode;
             });
     
         this.homey.flow.getConditionCard('heat_exchanger_mode_is')
-            .registerRunListener(async (args) => {
+            .registerRunListener(async (args: any) => {
                 return this.getCapabilityValue('heat_exchanger_mode') === args.mode;
             });
     
         this.homey.flow.getConditionCard('heater_mode_is')
-            .registerRunListener(async (args) => {
+            .registerRunListener(async (args: any) => {
                 return this.getCapabilityValue('heater_mode') === args.mode;
             });
     
         this.registerCapabilityListener('eWindstatus_mode', async (value) => {
+            if (!this.isUsable()) return;
             this.log('Changes to :', value);
             await this.setEWindValue(value);
             await this.homey.flow.getDeviceTriggerCard('eWindstatus_mode_changed')
@@ -476,16 +486,19 @@ class MyeWindDevice extends eWind {
         });
     
         this.registerCapabilityListener('target_temperature.step', async (value) => {
+            if (!this.isUsable()) return;
             this.log('Changes to :', value);
             await this.sendHoldingRequest(135, value * 10);
         });
     
         this.registerCapabilityListener('ecomode_mode', async (value) => {
+            if (!this.isUsable()) return;
             this.log('Changes to :', value);
             await this.sendCoilRequest(40, value === '1');
         });
     
         this.registerCapabilityListener('heat_exchanger_mode', async (value) => {
+            if (!this.isUsable()) return;
             this.log('heat_exchanger_mode changed to:', value);
             await this.homey.flow.getDeviceTriggerCard('heat_exchanger_mode_changed')
                 .trigger(this)
@@ -493,6 +506,7 @@ class MyeWindDevice extends eWind {
         });
     
         this.registerCapabilityListener('heater_mode', async (value) => {
+            if (!this.isUsable()) return;
             this.log('heater_mode changed to:', value);
             await this.homey.flow.getDeviceTriggerCard('heater_mode_changed')
                 .trigger(this)
@@ -500,6 +514,7 @@ class MyeWindDevice extends eWind {
         });
     
         this.registerCapabilityListener('alarm_b', async (value) => {
+            if (!this.isUsable()) return;
             this.log('Alarm B triggered with value:', value);
             if (value) {
                 await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered')
@@ -509,6 +524,7 @@ class MyeWindDevice extends eWind {
         });
     
         this.registerCapabilityListener('heating_coil_state', async (value) => {
+            if (!this.isUsable()) return;
             this.log('Heater changed to :', value);
             const coilValue = (value === true || value === '1' || value === 'true')
                 ? true
@@ -535,10 +551,15 @@ class MyeWindDevice extends eWind {
             clearTimeout(this.pollDebounceTimeout);
             this.pollDebounceTimeout = null;
         }
+        if (this.debouncedAction) {
+            clearTimeout(this.debouncedAction);
+            this.debouncedAction = null;
+        }
         if (this.connectionRetryId) {
             clearTimeout(this.connectionRetryId);
             this.connectionRetryId = null;
         }
+        this.connectingPromise = null;
         this.flowListenersRegistered = false;
         this.capabilityListenersRegistered = false;
         this.teardownSocket();
@@ -546,7 +567,7 @@ class MyeWindDevice extends eWind {
     
     async setMode(mode: string, value: string): Promise<void> {
         if (!this.getAvailable()) return;
-        this.setCapabilityValue(mode, value);
+        await this.setCapabilityValue(mode, value);
     }
     
     async onAdded() {
@@ -563,12 +584,15 @@ class MyeWindDevice extends eWind {
                 this.modbusOptions.host = newSettings.address;
                 this.modbusOptions.port = newSettings.port;
                 this.teardownSocket();
+                this.connectionRetryDelay = CONNECTION_RETRY_MIN;
                 await this.delay(1000);
                 this.connectSocket();
+                await this.ensureConnected();
+                await this.poll_eWind();
             } catch (error: any) {
                 this.error('Error reconnecting:', error.message);
                 if (this.isActive) {
-                    this.setCapabilityValue('lastPollTime', 'No connection');
+                    await this.setCapabilityValue('lastPollTime', 'No connection');
                 }
             }
         }

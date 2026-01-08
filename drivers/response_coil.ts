@@ -3,6 +3,7 @@ import { Measurement } from './eWind';
 
 export async function checkCoils(coilRegisters: Object, client: InstanceType<typeof Modbus.client.TCP>) {
     let result: Record<string, Measurement> = {};
+    let successCount = 0;
     for (const [key, value] of Object.entries(coilRegisters)) {
         try {
             const res = client.readCoils(value[0], value[1])
@@ -51,6 +52,7 @@ export async function checkCoils(coilRegisters: Object, client: InstanceType<typ
             }
             measurement.value = resultValue;
             result[key] = measurement;
+            successCount++;
 
         } catch (err) {
             //console.log("error with key: " + key);
@@ -58,7 +60,10 @@ export async function checkCoils(coilRegisters: Object, client: InstanceType<typ
         }
     }
 
-    // console.log('checkRegister result');
+    if (successCount === 0) {
+        throw new Error('No coils responded');
+    }
+
     return result;
 }
 

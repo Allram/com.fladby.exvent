@@ -1,4 +1,3 @@
-import { info } from 'console';
 import Homey from 'homey';
 
 export interface Measurement {
@@ -31,132 +30,132 @@ export class eWind extends Homey.Device {
         "heating_coil": [54, 1, 'UINT32', "State of Heater coil On/Off"], 
     };
 
-    processResult(result: Record<string, Measurement>) {
+    async processResult(result: Record<string, Measurement>) {
         if (!result) {
             return;
         }
 
         if (result['air_outside'] && result['air_outside'].value !== 'xxx') {
             let air_outside = ((Number(result['air_outside'].value) / 10));
-            this.setCapabilityValue('measure_temperature.outsideAir', air_outside);
+            await this.setCapabilityValue('measure_temperature.outsideAir', air_outside);
         }
 
         if (result['air_extract'] && result['air_extract'].value !== 'xxx') {
             let extractair = ((Number(result['air_extract'].value) / 10));
-            this.setCapabilityValue('measure_temperature.extractAir', extractair);
+            await this.setCapabilityValue('measure_temperature.extractAir', extractair);
         }
 
         if (result['air_supply'] && result['air_supply'].value !== 'xxx') {
             let airsupply = ((Number(result['air_supply'].value) / 10));
-            this.setCapabilityValue('measure_temperature.step', airsupply);
+            await this.setCapabilityValue('measure_temperature.step', airsupply);
         }
         
         if (result['air_supply_HRC'] && result['air_supply_HRC'].value !== 'xxx') {
             let temperature = ((Number(result['air_supply_HRC'].value) / 10));
-            this.setCapabilityValue('measure_temperature.supplyAirHRC', temperature);
+            await this.setCapabilityValue('measure_temperature.supplyAirHRC', temperature);
             
         }
 
         if (result['air_exhaust'] && result['air_exhaust'].value !== 'xxx') {
             let temperature = ((Number(result['air_exhaust'].value) / 10));
-            this.setCapabilityValue('measure_temperature.exhaustAir', temperature);
+            await this.setCapabilityValue('measure_temperature.exhaustAir', temperature);
         }
 
         if (result['temperature_setpoint'] && result['temperature_setpoint'].value !== 'xxx') {
             let temperature = ((Number(result['temperature_setpoint'].value) / 10));
             if (temperature >= 15 && temperature <= 22) {
-                this.setCapabilityValue('target_temperature.step',temperature);
+                await this.setCapabilityValue('target_temperature.step',temperature);
             }
         }
 
         if (result['air_humidity'] && result['air_humidity'].value !== 'xxx') {
             let humidity = ((Number(result['air_humidity'].value)));
-            this.setCapabilityValue('measure_humidity.extractAir', humidity);
+            await this.setCapabilityValue('measure_humidity.extractAir', humidity);
         }
 
         if (result['air_supply_eff'] && result['air_supply_eff'].value !== 'xxx') {
             let humidity = ((Number(result['air_supply_eff'].value)));
-            this.setCapabilityValue('efficiency.supplyEff', humidity);
+            await this.setCapabilityValue('efficiency.supplyEff', humidity);
         }
 
         if (result['air_extract_eff'] && result['air_extract_eff'].value !== 'xxx') {
             let humidity = ((Number(result['air_extract_eff'].value)));
-            this.setCapabilityValue('efficiency.extractEff', humidity);
+            await this.setCapabilityValue('efficiency.extractEff', humidity);
         }
 
         if (result['fan_speed_level'] && result['fan_speed_level'].value !== 'xxx') {
             let humidity = ((Number(result['fan_speed_level'].value)));
-            this.setCapabilityValue('fanspeed_level', humidity);
+            await this.setCapabilityValue('fanspeed_level', humidity);
         }
 
         if (result['status'] && result['status'].value !== 'xxx') {
             let statusValue = result['status'].value;
             if (statusValue === '0') { 
-                this.setCapabilityValue('eWindstatus', '0');
+                await this.setCapabilityValue('eWindstatus', '0');
             } else if (statusValue === '1' ) {
-                this.setCapabilityValue('eWindstatus', '1');
+                await this.setCapabilityValue('eWindstatus', '1');
             } else if (statusValue === '2') {
-                this.setCapabilityValue('eWindstatus', '2');
+                await this.setCapabilityValue('eWindstatus', '2');
             } else if (statusValue === '4') {
-                this.setCapabilityValue('eWindstatus', '3');
+                await this.setCapabilityValue('eWindstatus', '3');
             } else if (statusValue === '7') {
-                this.setCapabilityValue('eWindstatus', '4');
+                await this.setCapabilityValue('eWindstatus', '4');
             } else if (statusValue === '8') {
-                this.setCapabilityValue('eWindstatus', '5');
+                await this.setCapabilityValue('eWindstatus', '5');
             }
         }
 
         if (result['status_mode'] && result['status_mode'].value !== 'xxx') {
             let statusValue = result['status_mode'].value;
             if (statusValue === "0") { 
-                this.setCapabilityValue('eWindstatus_mode', '0');
+                await this.setCapabilityValue('eWindstatus_mode', '0');
             } else if (statusValue === "16") {
-                this.setCapabilityValue('eWindstatus_mode', '1');
+                await this.setCapabilityValue('eWindstatus_mode', '1');
             } else if (statusValue === "1024") {
-                this.setCapabilityValue('eWindstatus_mode', '2');
+                await this.setCapabilityValue('eWindstatus_mode', '2');
             } else if (statusValue === "512") {
-                this.setCapabilityValue('eWindstatus_mode', '3');
+                await this.setCapabilityValue('eWindstatus_mode', '3');
             }
         }  
 
         if (result['eco_mode'] && result['eco_mode'].value !== 'xxx') {
                 let ecomode_value = result['eco_mode'].value;
             if (ecomode_value === "0") {
-                this.setCapabilityValue('ecomode_mode', '0');
+                await this.setCapabilityValue('ecomode_mode', '0');
             } else if (ecomode_value === "1") {
-                this.setCapabilityValue('ecomode_mode', '1');
+                await this.setCapabilityValue('ecomode_mode', '1');
             }
         }  
         if (result['heater_status'] && result['heater_status'].value !== 'xxx') {
             let statusValue = result['heater_status'].value;
             if (statusValue === "0") { 
-                this.setCapabilityValue('heater_mode', "0");
+                await this.setCapabilityValue('heater_mode', "0");
             } else if (statusValue === "1" ) {
-                this.setCapabilityValue('heater_mode', "1");
+                await this.setCapabilityValue('heater_mode', "1");
             }
         }
         if (result['heat_exchanger_state'] && result['heat_exchanger_state'].value !== 'xxx') {
             let statusValue = result['heat_exchanger_state'].value;
             if (statusValue === "0") { 
-                this.setCapabilityValue('heat_exchanger_mode', "0");
+                await this.setCapabilityValue('heat_exchanger_mode', "0");
             } else if (statusValue === "1" ) {
-                this.setCapabilityValue('heat_exchanger_mode', "1");
+                await this.setCapabilityValue('heat_exchanger_mode', "1");
             }
         }
         if (result['heating_coil'] && result['heating_coil'].value !== 'xxx') {
             let statusValue = result['heating_coil'].value;
             if (statusValue === "0") { 
-                this.setCapabilityValue('heating_coil_state', '0');
+                await this.setCapabilityValue('heating_coil_state', '0');
             } else if (statusValue === "1" ) {
-                this.setCapabilityValue('heating_coil_state', '1');
+                await this.setCapabilityValue('heating_coil_state', '1');
             }
         }
         if (result['alarm_b_desc'] && result['alarm_b_desc'].value !== 'xxx') {
             let statusValue = result['alarm_b_desc'].value;
             if (statusValue === "0") { 
-                this.setCapabilityValue('alarm_b.desc', false);
+                await this.setCapabilityValue('alarm_b.desc', false);
             } else if (statusValue === "1" ) {
-                this.setCapabilityValue('alarm_b.desc', true);
+                await this.setCapabilityValue('alarm_b.desc', true);
             }
         }
     }

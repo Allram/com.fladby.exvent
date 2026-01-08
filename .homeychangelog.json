@@ -208,5 +208,8 @@
   },
   "3.2.4": {
     "en": "Fixing reconnection problems."
+  },
+  "4.0.0": {
+    "en": "Made reconnection logic more robust, fixed flows for turning the heating elemenent on/off. Values does not update now if there is no new value to prevent cpu peaks on Homey when all values updates for every poll. Fixed flows running when device is disconnected/offline. Now shows 'no connection' when the device is offline. Reworked bounce timers so we don't overload the device when it's back online, updated to node.js22"
   }
 }
