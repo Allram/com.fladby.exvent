@@ -8,7 +8,7 @@ const RETRY_INTERVAL = 60 * 1000;
 const CONNECTION_RETRY_MIN = 5000;
 const CONNECTION_RETRY_MAX = 30000;
 const WAIT_FOR_CONNECT_TIMEOUT = 10000;
-const SOCKET_IDLE_TIMEOUT = 7000;
+const SOCKET_IDLE_TIMEOUT = 0;
 
 const shutdown = () => {
     if (currentDevice) {
@@ -54,6 +54,15 @@ class MyeWindDevice extends eWind {
     private connectionRetryDelay: number = CONNECTION_RETRY_MIN;
     private debouncedAction: NodeJS.Timeout | null = null;
 
+    private async markNoConnection() {
+        if (!this.isActive) return;
+        try {
+            await this.setCapabilityValue('lastPollTime', 'No connection');
+        } catch (_) {
+            // ignore capability write errors when device is unavailable
+        }
+    }
+
     /**
      * Guard against acting on stale/deleted devices; Homey returns 404 when a
      * flow or capability change targets a missing device entry.
@@ -69,7 +78,6 @@ class MyeWindDevice extends eWind {
             try {
                 await action();
             } catch (err) {
-                this.log('Action error:', err);
                 if (this.isActive) {
                     try {
                         await this.setCapabilityValue('lastPollTime', 'No connection');
@@ -82,7 +90,6 @@ class MyeWindDevice extends eWind {
     }
 
     async onInit() {
-        this.log('MyeWindDevice has been initialized');
         currentDevice = this;
         this.isActive = true;
         this.connectSocket();
@@ -91,10 +98,7 @@ class MyeWindDevice extends eWind {
         this.registerCapabilityListeners();
 
         await this.poll_eWind();
-        if (!this.getData() || !this.getData().id) {
-            this.log('Device not found, stopping polling');
-            return;
-        }
+        if (!this.getData() || !this.getData().id) return;
         this.intervalId = setInterval(async () => {
             if (!this.isActive) return;
             if (this.skipNextIntervalPoll) {
@@ -110,39 +114,38 @@ class MyeWindDevice extends eWind {
         socket.setTimeout(SOCKET_IDLE_TIMEOUT);
         socket.on('end', () => {
             if (!this.isActive) return;
-            this.log('Socket ended');
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('timeout', () => {
             if (!this.isActive) return;
-            this.log('Socket timeout');
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('error', (err: any) => {
             if (!this.isActive) return;
-            this.log('Socket error:', err);
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('close', () => {
             if (!this.isActive) return;
-            this.log('Socket closed');
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('connect', () => {
             if (!this.isActive) return;
-            this.log('Socket connected');
             this.isConnected = true;
             this.isConnecting = false;
             this.connectionRetryDelay = CONNECTION_RETRY_MIN;
@@ -155,7 +158,6 @@ class MyeWindDevice extends eWind {
     connectSocket() {
         if (this.isConnecting && this.connectingPromise) return;
         this.isConnecting = true;
-        this.log('Attempting to connect to Modbus server...');
         this.teardownSocket();
         this.socket = new net.Socket();
         this.attachSocketListeners(this.socket);
@@ -191,9 +193,9 @@ class MyeWindDevice extends eWind {
     retryConnection() {
         if (!this.isActive) return; // Do not retry if device has been deleted
         if (this.connectionRetryId || this.isConnecting) return;
-        this.log('Retrying connection to Modbus server...');
         this.connectionRetryId = setTimeout(() => {
             if (!this.isActive) return;
+            this.connectionRetryId = null;
             this.connectSocket();
             this.connectionRetryDelay = Math.min(CONNECTION_RETRY_MAX, this.connectionRetryDelay * 2 || CONNECTION_RETRY_MIN);
         }, this.connectionRetryDelay);
@@ -254,7 +256,6 @@ class MyeWindDevice extends eWind {
             try {
                 await this.ensureConnected();
             } catch (err) {
-                this.log('Polling skipped, no connection');
                 try {
                     if (this.getAvailable()) {
                         this.setCapabilityValue('lastPollTime', 'No connection');
@@ -267,7 +268,6 @@ class MyeWindDevice extends eWind {
             }
         }
 
-        this.log('Polling eWind...');
         try {
             const checkRegisterRes = await checkRegister(this.registers, this.client);
             await this.processResult({ ...checkRegisterRes });
@@ -284,7 +284,11 @@ class MyeWindDevice extends eWind {
                 }
             }
         } catch (error) {
-            this.log('Polling error:', error);
+            this.isConnected = false;
+            this.isConnecting = false;
+            this.teardownSocket();
+            await this.markNoConnection();
+            this.retryConnection();
             if (this.getAvailable()) {
                 try {
                     await this.setCapabilityValue('lastPollTime', 'No connection');
@@ -292,10 +296,11 @@ class MyeWindDevice extends eWind {
                     // Ignore errors if device is deleted
                 }
             } else {
-                this.log('Device unavailable, skipping capability update');
+                // Device unavailable, skip capability update
             }
         } finally {
             this.pollingInProgress = false;
+            // device unavailable, skip capability update
         }
     }
 
@@ -478,7 +483,6 @@ class MyeWindDevice extends eWind {
     
         this.registerCapabilityListener('eWindstatus_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Changes to :', value);
             await this.setEWindValue(value);
             await this.homey.flow.getDeviceTriggerCard('eWindstatus_mode_changed')
                 .trigger(this)
@@ -487,19 +491,16 @@ class MyeWindDevice extends eWind {
     
         this.registerCapabilityListener('target_temperature.step', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Changes to :', value);
             await this.sendHoldingRequest(135, value * 10);
         });
     
         this.registerCapabilityListener('ecomode_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Changes to :', value);
             await this.sendCoilRequest(40, value === '1');
         });
     
         this.registerCapabilityListener('heat_exchanger_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('heat_exchanger_mode changed to:', value);
             await this.homey.flow.getDeviceTriggerCard('heat_exchanger_mode_changed')
                 .trigger(this)
                 .catch(this.error);
@@ -507,7 +508,6 @@ class MyeWindDevice extends eWind {
     
         this.registerCapabilityListener('heater_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('heater_mode changed to:', value);
             await this.homey.flow.getDeviceTriggerCard('heater_mode_changed')
                 .trigger(this)
                 .catch(this.error);
@@ -515,7 +515,6 @@ class MyeWindDevice extends eWind {
     
         this.registerCapabilityListener('alarm_b', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Alarm B triggered with value:', value);
             if (value) {
                 await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered')
                     .trigger(this)
@@ -525,7 +524,6 @@ class MyeWindDevice extends eWind {
     
         this.registerCapabilityListener('heating_coil_state', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Heater changed to :', value);
             const coilValue = (value === true || value === '1' || value === 'true')
                 ? true
                 : (value === false || value === '0' || value === 'false')
@@ -534,7 +532,7 @@ class MyeWindDevice extends eWind {
             if (coilValue !== null) {
                 await this.sendCoilRequest(54, coilValue);
             } else {
-                this.log('Invalid heater value:', value);
+                // Invalid heater value; ignore
             }
         });
     
@@ -571,7 +569,6 @@ class MyeWindDevice extends eWind {
     }
     
     async onAdded() {
-        this.log('MyeWindDevice has been added');
         setTimeout(async () => {
             if (this.isActive) await this.poll_eWind();
         }, 10000);
@@ -580,7 +577,6 @@ class MyeWindDevice extends eWind {
     async onSettings({ newSettings }: { newSettings: Record<string, any>; changedKeys: string[] }) {
         if (newSettings && (newSettings.address || newSettings.port)) {
             try {
-                this.log('IP address or port changed. Reconnecting...');
                 this.modbusOptions.host = newSettings.address;
                 this.modbusOptions.port = newSettings.port;
                 this.teardownSocket();
@@ -590,7 +586,7 @@ class MyeWindDevice extends eWind {
                 await this.ensureConnected();
                 await this.poll_eWind();
             } catch (error: any) {
-                this.error('Error reconnecting:', error.message);
+                // Ignore reconnect error
                 if (this.isActive) {
                     await this.setCapabilityValue('lastPollTime', 'No connection');
                 }
@@ -598,12 +594,7 @@ class MyeWindDevice extends eWind {
         }
     }
     
-    async onRenamed(name: string) {
-        this.log('MyeWindDevice was renamed');
-    }
-    
     async onDeleted() {
-        this.log('MyeWindDevice has been deleted');
         this.cleanup();
     }
     

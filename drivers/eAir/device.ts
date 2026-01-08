@@ -8,7 +8,7 @@ const RETRY_INTERVAL = 60 * 1000;
 const CONNECTION_RETRY_MIN = 5000;
 const CONNECTION_RETRY_MAX = 30000;
 const WAIT_FOR_CONNECT_TIMEOUT = 10000;
-const SOCKET_IDLE_TIMEOUT = 7000;
+const SOCKET_IDLE_TIMEOUT = 0;
 
 const shutdown = () => {
     if (currentDevice) {
@@ -54,6 +54,15 @@ class MyeAirDevice extends eAir {
     private connectionRetryDelay: number = CONNECTION_RETRY_MIN;
     private debouncedAction: NodeJS.Timeout | null = null;
 
+    private async markNoConnection() {
+        if (!this.isActive) return;
+        try {
+            await this.setCapabilityValue('lastPollTime', 'No connection');
+        } catch (_) {
+            // ignore capability write errors when device is unavailable
+        }
+    }
+
     /**
      * Guard to avoid acting on stale/deleted devices. Prevents Homey 404s when
      * flows or capability updates target a removed device entry.
@@ -69,7 +78,6 @@ class MyeAirDevice extends eAir {
             try {
                 await action();
             } catch (err) {
-                this.log('Action error:', err);
                 if (this.isActive) {
                     try {
                         await this.setCapabilityValue('lastPollTime', 'No connection');
@@ -82,7 +90,6 @@ class MyeAirDevice extends eAir {
     }
 
     async onInit() {
-        this.log('MyeAirDevice has been initialized');
         currentDevice = this;
         this.isActive = true;
         this.connectSocket();
@@ -91,10 +98,7 @@ class MyeAirDevice extends eAir {
         this.registerCapabilityListeners();
 
         await this.poll_eAir();
-        if (!this.getData() || !this.getData().id) {
-            this.log('Device not found, stopping polling');
-            return;
-        }
+        if (!this.getData() || !this.getData().id) return;
         this.intervalId = setInterval(async () => {
             if (!this.isActive) return;
             if (this.skipNextIntervalPoll) {
@@ -110,39 +114,38 @@ class MyeAirDevice extends eAir {
         socket.setTimeout(SOCKET_IDLE_TIMEOUT);
         socket.on('end', () => {
             if (!this.isActive) return;
-            this.log('Socket ended');
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('timeout', () => {
             if (!this.isActive) return;
-            this.log('Socket timeout');
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('error', (err: any) => {
             if (!this.isActive) return;
-            this.log('Socket error:', err);
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('close', () => {
             if (!this.isActive) return;
-            this.log('Socket closed');
             this.isConnected = false;
             this.isConnecting = false;
             this.teardownSocket();
+            this.markNoConnection();
             this.retryConnection();
         });
         socket.on('connect', () => {
             if (!this.isActive) return;
-            this.log('Socket connected');
             this.isConnected = true;
             this.isConnecting = false;
             this.connectionRetryDelay = CONNECTION_RETRY_MIN;
@@ -155,7 +158,6 @@ class MyeAirDevice extends eAir {
     connectSocket() {
         if (this.isConnecting && this.connectingPromise) return;
         this.isConnecting = true;
-        this.log('Attempting to connect to Modbus server...');
         this.teardownSocket();
         this.socket = new net.Socket();
         this.attachSocketListeners(this.socket);
@@ -187,9 +189,9 @@ class MyeAirDevice extends eAir {
     retryConnection() {
         if (!this.isActive) return; // Do not retry if device has been deleted
         if (this.connectionRetryId || this.isConnecting) return;
-        this.log('Retrying connection to Modbus server...');
         this.connectionRetryId = setTimeout(() => {
             if (!this.isActive) return;
+            this.connectionRetryId = null;
             this.connectSocket();
             this.connectionRetryDelay = Math.min(CONNECTION_RETRY_MAX, this.connectionRetryDelay * 2 || CONNECTION_RETRY_MIN);
         }, this.connectionRetryDelay);
@@ -240,7 +242,6 @@ class MyeAirDevice extends eAir {
             try {
                 await this.ensureConnected();
             } catch (err) {
-                this.log('Polling skipped, no connection');
                 try {
                     if (this.getAvailable()) {
                         this.setCapabilityValue('lastPollTime', 'No connection');
@@ -253,7 +254,6 @@ class MyeAirDevice extends eAir {
             }
         }
 
-        this.log('Polling eAir...');
         try {
             const checkRegisterRes = await checkRegister(this.registers, this.client);
             await this.processResult({ ...checkRegisterRes });
@@ -270,7 +270,11 @@ class MyeAirDevice extends eAir {
                 }
             }
         } catch (error) {
-            this.log('Polling error:', error);
+            this.isConnected = false;
+            this.isConnecting = false;
+            this.teardownSocket();
+            await this.markNoConnection();
+            this.retryConnection();
             if (this.getAvailable()) {
                 try {
                     await this.setCapabilityValue('lastPollTime', 'No connection');
@@ -278,7 +282,7 @@ class MyeAirDevice extends eAir {
                     // Ignore errors if device is deleted
                 }
             } else {
-                this.log('Device unavailable, skipping capability update');
+                // Device unavailable, skip capability update
             }
         } finally {
             this.pollingInProgress = false;
@@ -464,7 +468,6 @@ class MyeAirDevice extends eAir {
     
         this.registerCapabilityListener('eAirstatus_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Changes to :', value);
             await this.seteAirValue(value);
             await this.homey.flow.getDeviceTriggerCard('eAirstatus_mode_changed2')
                 .trigger(this)
@@ -473,19 +476,16 @@ class MyeAirDevice extends eAir {
     
         this.registerCapabilityListener('target_temperature.step', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Changes to :', value);
             await this.sendHoldingRequest(135, value * 10);
         });
     
         this.registerCapabilityListener('ecomode_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Changes to :', value);
             await this.sendCoilRequest(40, value === '1');
         });
     
         this.registerCapabilityListener('heat_exchanger_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('heat_exchanger_mode changed to:', value);
             await this.homey.flow.getDeviceTriggerCard('heat_exchanger_mode_changed')
                 .trigger(this)
                 .catch(this.error);
@@ -493,7 +493,6 @@ class MyeAirDevice extends eAir {
     
         this.registerCapabilityListener('heater_mode', async (value) => {
             if (!this.isUsable()) return;
-            this.log('heater_mode changed to:', value);
             await this.homey.flow.getDeviceTriggerCard('heater_mode_changed')
                 .trigger(this)
                 .catch(this.error);
@@ -501,7 +500,6 @@ class MyeAirDevice extends eAir {
     
         this.registerCapabilityListener('alarm_b', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Alarm B triggered with value:', value);
             if (value) {
                 await this.homey.flow.getDeviceTriggerCard('alarm_b_triggered')
                     .trigger(this)
@@ -511,7 +509,6 @@ class MyeAirDevice extends eAir {
     
         this.registerCapabilityListener('heating_coil_state', async (value) => {
             if (!this.isUsable()) return;
-            this.log('Heater changed to :', value);
             const coilValue = (value === true || value === '1' || value === 'true')
                 ? true
                 : (value === false || value === '0' || value === 'false')
@@ -520,7 +517,7 @@ class MyeAirDevice extends eAir {
             if (coilValue !== null) {
                 await this.sendCoilRequest(54, coilValue);
             } else {
-                this.log('Invalid heater value:', value);
+                // Invalid heater value; ignore
             }
         });
     
@@ -557,7 +554,6 @@ class MyeAirDevice extends eAir {
     }
     
     async onAdded() {
-        this.log('MyeAirDevice has been added');
         setTimeout(async () => {
             if (this.isActive) await this.poll_eAir();
         }, 10000);
@@ -566,7 +562,6 @@ class MyeAirDevice extends eAir {
     async onSettings({ newSettings }: { newSettings: Record<string, any>; changedKeys: string[] }) {
         if (newSettings && (newSettings.address || newSettings.port)) {
             try {
-                this.log('IP address or port changed. Reconnecting...');
                 this.modbusOptions.host = newSettings.address;
                 this.modbusOptions.port = newSettings.port;
                 this.teardownSocket();
@@ -576,7 +571,7 @@ class MyeAirDevice extends eAir {
                 await this.ensureConnected();
                 await this.poll_eAir();
             } catch (error: any) {
-                this.error('Error reconnecting:', error.message);
+                // Ignore reconnect error
                 if (this.isActive) {
                     await this.setCapabilityValue('lastPollTime', 'No connection');
                 }
@@ -585,11 +580,9 @@ class MyeAirDevice extends eAir {
     }
     
     async onRenamed(name: string) {
-        this.log('MyeAirDevice was renamed');
     }
     
     async onDeleted() {
-        this.log('MyeAirDevice has been deleted');
         this.cleanup();
     }
     

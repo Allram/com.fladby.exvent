@@ -14,7 +14,7 @@
     "no": "Exvent"
   },
   "description": {
-    "en": "Improve your indoor climate with your ventilation system",
+    "en": "Smart ventilation control for Exvent eWind & eAir, fully Homey-integrated.",
     "no": "Forbedre innendørsklima med ventilasjonsanlegget"
   },
   "category": [
@@ -31,5 +31,11 @@
   },
   "bugs": {
     "url": "https://github.com/Allram/com.fladby.exvent/issues"
+  },
+  "tags": {
+    "en": [
+      "Ventilasjon",
+      ""
+    ]
   }
 }
