@@ -272,6 +272,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
       this.socket = null;
       this.client = null;
+      this.isConnected = false;
     }
 
     ensureConnected(): Promise<void> {

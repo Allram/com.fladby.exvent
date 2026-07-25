@@ -235,5 +235,8 @@
   },
   "4.5.0": {
     "en": "New 'Days until filter change' sensor with countdown and insights. New flow card to reset the filter change reminder after replacing the filter. The filter alarm trigger now actually fires when the unit raises the alarm."
+  },
+  "4.5.1": {
+    "en": "Improved reconnection when the IP address or port is changed in device settings."
   }
 }
