@@ -9,6 +9,7 @@ const CONNECTION_RETRY_MIN = 5000;
 const CONNECTION_RETRY_MAX = 30000;
 const WAIT_FOR_CONNECT_TIMEOUT = 10000;
 const SOCKET_IDLE_TIMEOUT = 0;
+const WRITE_SPACING_MS = 1000;
 
 const shutdown = () => {
     if (currentDevice) {
@@ -47,12 +48,12 @@ class MyeWindDevice extends eWind {
     private pollingInProgress: boolean = false;
     private isActive: boolean = true;
     private skipNextIntervalPoll: boolean = false;
-    private pollDebounceTimeout: NodeJS.Timeout | null = null;
     private isConnected: boolean = false;
     private isConnecting: boolean = false;
     private connectingPromise: Promise<void> | null = null;
     private connectionRetryDelay: number = CONNECTION_RETRY_MIN;
-    private debouncedAction: NodeJS.Timeout | null = null;
+    private writeQueue: Array<() => Promise<void>> = [];
+    private drainingWriteQueue: boolean = false;
 
     private async markNoConnection() {
         if (!this.isActive) return;
@@ -71,22 +72,33 @@ class MyeWindDevice extends eWind {
         return this.isActive && this.getAvailable();
     }
 
-    private scheduleAction(action: () => Promise<void>, delayMs: number = 1000) {
-        if (this.debouncedAction) clearTimeout(this.debouncedAction);
-        this.debouncedAction = setTimeout(async () => {
-            if (!this.isActive) return;
-            try {
-                await action();
-            } catch (err) {
-                if (this.isActive) {
-                    try {
-                        await this.setCapabilityValue('lastPollTime', 'No connection');
-                    } catch (_) {
-                        // ignore capability write errors
-                    }
+    /**
+     * Writes are serialized through a FIFO queue with a pause between each
+     * command, so concurrent flows/capability changes cannot cancel each
+     * other's writes and the Modbus module is never flooded.
+     */
+    private enqueueWrite(op: () => Promise<void>) {
+        this.writeQueue.push(op);
+        void this.drainWriteQueue();
+    }
+
+    private async drainWriteQueue() {
+        if (this.drainingWriteQueue) return;
+        this.drainingWriteQueue = true;
+        try {
+            while (this.isActive && this.writeQueue.length > 0) {
+                const op = this.writeQueue.shift()!;
+                try {
+                    await this.ensureConnected();
+                    await op();
+                } catch (err) {
+                    await this.markNoConnection();
                 }
+                if (this.writeQueue.length > 0) await this.delay(WRITE_SPACING_MS);
             }
-        }, delayMs);
+        } finally {
+            this.drainingWriteQueue = false;
+        }
     }
 
     async onInit() {
@@ -305,60 +317,48 @@ class MyeWindDevice extends eWind {
     }
 
     async setEWindValue(value: string) {
-        this.scheduleAction(async () => {
-            await this.ensureConnected();
-            const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-            switch (value) {
-                case "0":
-                    await this.sendCoilRequest(0, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(1, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(3, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(10, false);
-                    break;
-                case "1":
-                    await this.sendCoilRequest(0, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(10, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(1, true);
-                    break;
-                case "2":
-                    await this.sendCoilRequest(0, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(10, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(3, true);
-                    break;
-                case "3":
-                    await this.sendCoilRequest(0, false);
-                    await delay(1000);
-                    await this.sendCoilRequest(10, true);
-                    break;
-                case "4":
-                    await this.sendCoilRequest(0, true);
-                    break;
-                default:
-                    break;
-            }
+        switch (value) {
+            case "0":
+                await this.sendCoilRequest(0, false);
+                await this.sendCoilRequest(1, false);
+                await this.sendCoilRequest(3, false);
+                await this.sendCoilRequest(10, false);
+                break;
+            case "1":
+                await this.sendCoilRequest(0, false);
+                await this.sendCoilRequest(10, false);
+                await this.sendCoilRequest(1, true);
+                break;
+            case "2":
+                await this.sendCoilRequest(0, false);
+                await this.sendCoilRequest(10, false);
+                await this.sendCoilRequest(3, true);
+                break;
+            case "3":
+                await this.sendCoilRequest(0, false);
+                await this.sendCoilRequest(10, true);
+                break;
+            case "4":
+                await this.sendCoilRequest(0, true);
+                break;
+            default:
+                break;
+        }
+        this.enqueueWrite(async () => {
             if (this.isActive) {
                 await this.setCapabilityValue('eWindstatus_mode', value);
             }
         });
     }
-    
+
     async sendHoldingRequest(register: number, value: number) {
-        this.scheduleAction(async () => {
-            await this.ensureConnected();
+        this.enqueueWrite(async () => {
             await this.client.writeSingleRegister(register, value);
         });
     }
-    
+
     async sendCoilRequest(register: number, value: boolean) {
-        this.scheduleAction(async () => {
-            await this.ensureConnected();
+        this.enqueueWrite(async () => {
             await this.client.writeSingleCoil(register, value);
         });
     }
@@ -434,30 +434,34 @@ class MyeWindDevice extends eWind {
     
         const ecomodeCard = this.homey.flow.getActionCard('ecomode');
         ecomodeCard.registerRunListener(async (args: any) => {
-            if (!this.isUsable()) return false;
-            await args.device.setMode('ecomode_mode', args.ecomode);
-            await this.sendCoilRequest(40, args.ecomode === '1');
+            const device = args.device as MyeWindDevice;
+            if (!device.isUsable()) return false;
+            await device.setMode('ecomode_mode', args.ecomode);
+            await device.sendCoilRequest(40, args.ecomode === '1');
         });
-    
+
         const HeatingCoilCard = this.homey.flow.getActionCard('heatingcoil');
         HeatingCoilCard.registerRunListener(async (args: any) => {
-            if (!this.isUsable()) return false;
-            await args.device.setMode('heating_coil_state', args.heatingcoil);
-            await this.sendCoilRequest(54, args.heatingcoil === '1');
+            const device = args.device as MyeWindDevice;
+            if (!device.isUsable()) return false;
+            await device.setMode('heating_coil_state', args.heatingcoil);
+            await device.sendCoilRequest(54, args.heatingcoil === '1');
         });
-    
+
         const eWindStatusCard = this.homey.flow.getActionCard('status-mode');
         eWindStatusCard.registerRunListener(async (args: any) => {
-            if (!this.isUsable()) return false;
-            await args.device.setMode('eWindstatus_mode', args.mode);
-            await this.setEWindValue(args.mode);
+            const device = args.device as MyeWindDevice;
+            if (!device.isUsable()) return false;
+            await device.setMode('eWindstatus_mode', args.mode);
+            await device.setEWindValue(args.mode);
         });
-    
+
         const SetTemperatureCard = this.homey.flow.getActionCard('set-temperature');
         SetTemperatureCard.registerRunListener(async (args: any) => {
-            if (!this.isUsable()) return false;
-            await this.setCapabilityValue('target_temperature.step', args.temperature);
-            await this.sendHoldingRequest(135, args.temperature * 10);
+            const device = args.device as MyeWindDevice;
+            if (!device.isUsable()) return false;
+            await device.setCapabilityValue('target_temperature.step', args.temperature);
+            await device.sendHoldingRequest(135, args.temperature * 10);
         });
     
         this.flowListenersRegistered = true;
@@ -468,17 +472,17 @@ class MyeWindDevice extends eWind {
     
         this.homey.flow.getConditionCard('eWindstatus_mode_is')
             .registerRunListener(async (args: any) => {
-                return this.getCapabilityValue('eWindstatus_mode') === args.mode;
+                return args.device.getCapabilityValue('eWindstatus_mode') === args.mode;
             });
-    
+
         this.homey.flow.getConditionCard('heat_exchanger_mode_is')
             .registerRunListener(async (args: any) => {
-                return this.getCapabilityValue('heat_exchanger_mode') === args.mode;
+                return args.device.getCapabilityValue('heat_exchanger_mode') === args.mode;
             });
-    
+
         this.homey.flow.getConditionCard('heater_mode_is')
             .registerRunListener(async (args: any) => {
-                return this.getCapabilityValue('heater_mode') === args.mode;
+                return args.device.getCapabilityValue('heater_mode') === args.mode;
             });
     
         this.registerCapabilityListener('eWindstatus_mode', async (value) => {
@@ -545,14 +549,7 @@ class MyeWindDevice extends eWind {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
-        if (this.pollDebounceTimeout) {
-            clearTimeout(this.pollDebounceTimeout);
-            this.pollDebounceTimeout = null;
-        }
-        if (this.debouncedAction) {
-            clearTimeout(this.debouncedAction);
-            this.debouncedAction = null;
-        }
+        this.writeQueue = [];
         if (this.connectionRetryId) {
             clearTimeout(this.connectionRetryId);
             this.connectionRetryId = null;

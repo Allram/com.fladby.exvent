@@ -220,5 +220,8 @@
   },
   "4.0.3": {
     "en": "Last poll time now uses the timezone and language configured on your Homey instead of a fixed Norwegian timezone."
+  },
+  "4.1.0": {
+    "en": "Modbus writes are now serialized through a queue so quick mode changes or simultaneous flows can no longer cancel each other's commands. Fixed eAir flow cards: Ecomode, Heating coil and Set temperature action cards now actually run, condition cards now compare values correctly, and Heat exchanger/Heating element/Filter alarm triggers now fire. Flow cards now always act on the selected device when multiple devices are paired."
   }
 }
