@@ -157,41 +157,19 @@
       ]
     },
     {
-      "id": "service_reminder",
+      "id": "reset_filter_reminder",
       "title": {
-        "en": "Set filter change reminder to",
-        "no": "Sett varsel om filterbytte til"
+        "en": "Reset filter change reminder",
+        "no": "Nullstill varsel om filterbytte"
       },
       "titleFormatted": {
-        "en": "Set filter change reminder to [[service_reminder]]",
-        "no": "Sett varsel om filterbytte til [[service_reminder]]"
+        "en": "Reset filter change reminder",
+        "no": "Nullstill varsel om filterbytte"
       },
       "hint": {
-        "en": "Enable or disable the filter change / service reminder on the unit",
-        "no": "Aktiver eller deaktiver varsel om filterbytte/service på anlegget"
-      },
-      "args": [
-        {
-          "type": "dropdown",
-          "name": "service_reminder",
-          "values": [
-            {
-              "id": "1",
-              "label": {
-                "en": "enabled",
-                "no": "aktivert"
-              }
-            },
-            {
-              "id": "0",
-              "label": {
-                "en": "disabled",
-                "no": "deaktivert"
-              }
-            }
-          ]
-        }
-      ]
+        "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
+        "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
+      }
     }
   ],
   "triggers": [

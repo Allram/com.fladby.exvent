@@ -21,7 +21,8 @@
     "eWindstatus",
     "eWindstatus_mode",
     "lastPollTime",
-    "heating_coil_state"
+    "heating_coil_state",
+    "filter_days_remaining"
   ],
   "capabilitiesOptions": {
     "measure_temperature.exhaustAir": {

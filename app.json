@@ -836,44 +836,24 @@
         ]
       },
       {
-        "id": "service_reminder_eAir",
+        "id": "reset_filter_reminder_eAir",
         "title": {
-          "en": "Set filter change reminder to",
-          "no": "Sett varsel om filterbytte til"
+          "en": "Reset filter change reminder",
+          "no": "Nullstill varsel om filterbytte"
         },
         "titleFormatted": {
-          "en": "Set filter change reminder to [[service_reminder_eAir]]",
-          "no": "Sett varsel om filterbytte til [[service_reminder_eAir]]"
+          "en": "Reset filter change reminder",
+          "no": "Nullstill varsel om filterbytte"
         },
         "hint": {
-          "en": "Enable or disable the filter change / service reminder on the unit",
-          "no": "Aktiver eller deaktiver varsel om filterbytte/service på anlegget"
+          "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
+          "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
         },
         "args": [
           {
             "type": "device",
             "name": "device",
             "filter": "driver_id=eAir"
-          },
-          {
-            "type": "dropdown",
-            "name": "service_reminder_eAir",
-            "values": [
-              {
-                "id": "1",
-                "label": {
-                  "en": "enabled",
-                  "no": "aktivert"
-                }
-              },
-              {
-                "id": "0",
-                "label": {
-                  "en": "disabled",
-                  "no": "deaktivert"
-                }
-              }
-            ]
           }
         ]
       },
@@ -1054,44 +1034,24 @@
         ]
       },
       {
-        "id": "service_reminder",
+        "id": "reset_filter_reminder",
         "title": {
-          "en": "Set filter change reminder to",
-          "no": "Sett varsel om filterbytte til"
+          "en": "Reset filter change reminder",
+          "no": "Nullstill varsel om filterbytte"
         },
         "titleFormatted": {
-          "en": "Set filter change reminder to [[service_reminder]]",
-          "no": "Sett varsel om filterbytte til [[service_reminder]]"
+          "en": "Reset filter change reminder",
+          "no": "Nullstill varsel om filterbytte"
         },
         "hint": {
-          "en": "Enable or disable the filter change / service reminder on the unit",
-          "no": "Aktiver eller deaktiver varsel om filterbytte/service på anlegget"
+          "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
+          "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
         },
         "args": [
           {
             "type": "device",
             "name": "device",
             "filter": "driver_id=eWind"
-          },
-          {
-            "type": "dropdown",
-            "name": "service_reminder",
-            "values": [
-              {
-                "id": "1",
-                "label": {
-                  "en": "enabled",
-                  "no": "aktivert"
-                }
-              },
-              {
-                "id": "0",
-                "label": {
-                  "en": "disabled",
-                  "no": "deaktivert"
-                }
-              }
-            ]
           }
         ]
       }
@@ -1121,7 +1081,8 @@
         "eAirstatus",
         "eAirstatus_mode",
         "lastPollTime",
-        "heating_coil_state"
+        "heating_coil_state",
+        "filter_days_remaining"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -1303,7 +1264,8 @@
         "eWindstatus",
         "eWindstatus_mode",
         "lastPollTime",
-        "heating_coil_state"
+        "heating_coil_state",
+        "filter_days_remaining"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -1806,6 +1768,28 @@
         "en": "Fan level changed",
         "no": "Viftenivå endret"
       }
+    },
+    "filter_days_remaining": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "icon": "/assets/remaining.svg",
+      "title": {
+        "en": "Days until filter change",
+        "no": "Dager til filterbytte"
+      },
+      "desc": {
+        "en": "Days remaining until the filter change reminder",
+        "no": "Dager igjen til varsel om filterbytte"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "units": {
+        "en": "d",
+        "no": "d"
+      },
+      "min": 0,
+      "step": 1
     },
     "heat_exchanger_mode": {
       "type": "enum",

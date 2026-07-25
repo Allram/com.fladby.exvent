@@ -16,6 +16,8 @@ const holdingRegisters: RegisterMap = {
   fan_speed_level: [50, 1, 'UINT16', 'Fan speed level'],
   status: [45, 1, 'INT16', 'status'],
   status_mode: [44, 1, 'INT16', 'statusMode'],
+  service_interval_days: [538, 1, 'UINT16', 'Days until service reminder alarm'],
+  days_since_service_ack: [710, 1, 'UINT16', 'Days since service reminder was acknowledged'],
 };
 
 const coilRegisters: RegisterMap = {
@@ -33,7 +35,7 @@ function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]
   });
 }
 
-test('holding registers batch into 5 requests', () => {
+test('holding registers batch into 7 requests', () => {
   const blocks = toBlocks(holdingRegisters, 'holding');
   assert.deepEqual(blockSpans(blocks), [
     [6, 8], // 6..13 incl. the 11/12 gap
@@ -41,6 +43,8 @@ test('holding registers batch into 5 requests', () => {
     [44, 2], // 44..45
     [50, 1],
     [135, 1],
+    [538, 1],
+    [710, 1],
   ]);
 });
 

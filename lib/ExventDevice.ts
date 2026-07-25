@@ -39,8 +39,7 @@ export interface FlowCardIds {
     heatingcoilArg: string;
     statusMode: string;
     setTemperature: string;
-    serviceReminder: string;
-    serviceReminderArg: string;
+    resetFilterReminder: string;
     statusModeIs: string;
     heatExchangerIs: string;
     heaterIs: string;
@@ -78,6 +77,8 @@ export abstract class ExventModbusDevice extends Homey.Device {
       fan_speed_level: [50, 1, 'UINT16', 'Fan speed level'],
       status: [45, 1, 'INT16', 'status'],
       status_mode: [44, 1, 'INT16', 'statusMode'],
+      service_interval_days: [538, 1, 'UINT16', 'Days until service reminder alarm'],
+      days_since_service_ack: [710, 1, 'UINT16', 'Days since service reminder was acknowledged'],
     };
 
     coilRegisters: RegisterMap = {
@@ -403,6 +404,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         'heat_exchanger_mode',
         'target_temperature.step',
         'alarm_b.desc',
+        'filter_days_remaining',
         'measure_humidity.extractAir',
         'fanspeed_level',
         this.statusCapability,
@@ -456,13 +458,13 @@ export abstract class ExventModbusDevice extends Homey.Device {
           return true;
         });
 
-      // Coil 49 (COIL_SERVICE_EN): enables/disables the unit's filter
-      // change / service reminder.
-      this.homey.flow.getActionCard(cards.serviceReminder)
+      // HREG 710 (HREG_DAYS_RUNNING) counts days since the service reminder
+      // was acknowledged; writing 0 restarts the filter change countdown.
+      this.homey.flow.getActionCard(cards.resetFilterReminder)
         .registerRunListener(async (args: any) => {
           const device = args.device as ExventModbusDevice;
           if (!device.isUsable()) return false;
-          await device.sendCoilRequest(49, args[cards.serviceReminderArg] === '1');
+          await device.sendHoldingRequest(710, 0);
           return true;
         });
 
@@ -524,15 +526,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
         await this.homey.flow.getDeviceTriggerCard(cards.heaterChanged)
           .trigger(this)
           .catch(this.error);
-      });
-
-      this.registerCapabilityListener('alarm_b', async (value) => {
-        if (!this.isUsable()) return;
-        if (value) {
-          await this.homey.flow.getDeviceTriggerCard(cards.alarmBTriggered)
-            .trigger(this)
-            .catch(this.error);
-        }
       });
 
       this.registerCapabilityListener('heating_coil_state', async (value) => {
@@ -718,8 +711,26 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (result['alarm_b_desc'] && result['alarm_b_desc'].value !== 'xxx') {
         const { value } = result['alarm_b_desc'];
         if (value === '0' || value === '1') {
-          await this.setIfChanged('alarm_b.desc', value === '1');
+          const alarmActive = value === '1';
+          // Capability listeners only fire on user-initiated changes, so the
+          // filter alarm trigger must be fired here on the poll transition.
+          const wasActive = this.getCapabilityValue('alarm_b.desc') === true;
+          await this.setIfChanged('alarm_b.desc', alarmActive);
+          if (alarmActive && !wasActive) {
+            await this.homey.flow.getDeviceTriggerCard(this.flowCardIds.alarmBTriggered)
+              .trigger(this)
+              .catch(this.error);
+          }
         }
+      }
+
+      // Days until the filter change reminder: configured interval (HREG 538)
+      // minus days elapsed since last acknowledgement (HREG 710).
+      if (result['service_interval_days'] && result['service_interval_days'].value !== 'xxx'
+        && result['days_since_service_ack'] && result['days_since_service_ack'].value !== 'xxx') {
+        const interval = Number(result['service_interval_days'].value);
+        const elapsed = Number(result['days_since_service_ack'].value);
+        await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
       }
     }
 }

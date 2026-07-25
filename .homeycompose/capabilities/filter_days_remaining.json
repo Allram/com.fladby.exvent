@@ -1,0 +1,22 @@
+{
+  "type": "number",
+  "uiComponent": "sensor",
+  "icon": "/assets/remaining.svg",
+  "title": {
+    "en": "Days until filter change",
+    "no": "Dager til filterbytte"
+  },
+  "desc": {
+    "en": "Days remaining until the filter change reminder",
+    "no": "Dager igjen til varsel om filterbytte"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "units": {
+    "en": "d",
+    "no": "d"
+  },
+  "min": 0,
+  "step": 1
+}

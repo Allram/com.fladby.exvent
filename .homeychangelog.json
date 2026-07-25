@@ -234,6 +234,6 @@
     "en": "The device state is now re-read a few seconds after commands are sent, so Homey shows the unit's actual state without waiting for the next poll. Added unit tests for the Modbus batching logic and refreshed the documentation."
   },
   "4.5.0": {
-    "en": "New flow card: enable or disable the filter change / service reminder on the unit."
+    "en": "New 'Days until filter change' sensor with countdown and insights. New flow card to reset the filter change reminder after replacing the filter. The filter alarm trigger now actually fires when the unit raises the alarm."
   }
 }
