@@ -177,6 +177,34 @@
           }
         }
       ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Filter",
+        "no": "Filter"
+      },
+      "children": [
+        {
+          "id": "filter_interval_days",
+          "type": "number",
+          "label": {
+            "en": "Days between filter changes",
+            "no": "Dager mellom filterbytter"
+          },
+          "hint": {
+            "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed.",
+            "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring."
+          },
+          "value": 120,
+          "min": 1,
+          "max": 365,
+          "units": {
+            "en": "d",
+            "no": "d"
+          }
+        }
+      ]
     }
   ]
 }

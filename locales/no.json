@@ -1,15 +1,17 @@
 {
-    "pair": {
-      "title": "Legg til eWind ventilasjonssystem",
-      "nosettings": "Vennligst fyll inn alle tomme felter.",
-      "intro": "Skriv inn IP-Adressen og porten på eWind Wifi-enheten og verifiser at du har satt Modbus TCP til ON i Exvent appen.",
-      "address": "IP-Addresse",
-      "port": "Port",
-      "deviceid": "Enhets-ID",
-      "connect": "Koble til"
-    },
-    "Unreachable": "Unreachable",
-    "Off": "Av",
-    "NA": "Ikke tilgjengelig"
-  }
-  
+  "pair": {
+    "title_eWind": "Legg til eWind-ventilasjonsanlegg",
+    "title_eAir": "Legg til eAir-ventilasjonsanlegg",
+    "intro_eWind": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eWind-anlegget. Husk å aktivere Modbus TCP i eWind-appen, og gi anlegget en statisk IP-adresse i ruteren.",
+    "intro_eAir": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eAir-anlegget. Husk å aktivere Modbus TCP i eAir-appen, og gi anlegget en statisk IP-adresse i ruteren.",
+    "nosettings": "Vennligst fyll ut alle feltene.",
+    "invalidip": "Skriv inn en gyldig IP-adresse og port (1–65535).",
+    "address": "IP-adresse",
+    "port": "Port",
+    "connect": "Koble til",
+    "connecting": "Legger til enhet…"
+  },
+  "Unreachable": "Unreachable",
+  "Off": "Av",
+  "NA": "Ikke tilgjengelig"
+}

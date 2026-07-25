@@ -578,8 +578,17 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }, 10000);
     }
 
-    async onSettings({ newSettings }: { newSettings: Record<string, any>; changedKeys: string[] }) {
-      if (newSettings && (newSettings.address || newSettings.port)) {
+    async onSettings({ newSettings, changedKeys }: { newSettings: Record<string, any>; changedKeys: string[] }) {
+      // HREG 538: number of days after a reset before the filter change
+      // reminder is raised. The confirmation poll refreshes the countdown.
+      if (changedKeys.includes('filter_interval_days')) {
+        const days = Number(newSettings.filter_interval_days);
+        if (Number.isInteger(days) && days >= 1 && days <= 365) {
+          await this.sendHoldingRequest(538, days);
+        }
+      }
+
+      if (changedKeys.includes('address') || changedKeys.includes('port')) {
         try {
           this.modbusOptions.host = newSettings.address;
           this.modbusOptions.port = newSettings.port;
@@ -732,6 +741,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
         const interval = Number(result['service_interval_days'].value);
         const elapsed = Number(result['days_since_service_ack'].value);
         await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
+        // Mirror the unit's actual interval in the device settings so the
+        // settings page shows the truth. setSettings does not re-trigger
+        // onSettings, so this cannot loop.
+        if (this.isActive && interval >= 1 && this.getSetting('filter_interval_days') !== interval) {
+          await this.setSettings({ filter_interval_days: interval }).catch(this.error);
+        }
       }
     }
 }

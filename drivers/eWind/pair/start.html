@@ -1,97 +1,154 @@
 <script type="text/javascript">
+  Homey.setTitle(__('pair.title_eWind'));
 
-Homey.setTitle( __('pair.title') );
+  function showError(msg) {
+    var box = document.getElementById('error');
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
 
-$(function() {
-	$('#connect').click(function() {
-    $('.eWind-error').hide();
+  function hideError() {
+    document.getElementById('error').style.display = 'none';
+  }
 
-    var inputaddress = $('#address').val();
-    var inputport = Number($('#port').val());
+  function isValidHost(value) {
+    var ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if (ipv4.test(value)) {
+      return value.split('.').every(function (octet) { return Number(octet) <= 255; });
+    }
+    return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$/.test(value);
+  }
 
-    var deviceId = Math.random().toString(36).substr(2,5).toLowerCase();
-    var id = Math.round(Math.random() * (100000 - 10000) + 10000);
+  function addDevice() {
+    var address = document.getElementById('address').value.trim();
+    var portValue = document.getElementById('port').value;
+    var port = Number(portValue);
+    var button = document.getElementById('connect');
 
-    if (inputaddress != '' && inputport != '') {
-      var device_data = {
-        id:  deviceId
-      };
+    hideError();
 
-      var settings = {
-        address : inputaddress,
-        port    : inputport,
-      };
-
-      Homey.addDevice({
-        name   : 'exvent_' + deviceId,
-        data 	 : device_data,
-        settings : settings
-      }, function(error, result) {
-        if (error) {
-            $('.eWind-error').show();
-            $('.eWind-error-msg').html(error.message || error.toString() );
-        }
-        $('.eWind-error').hide();
-
-        Homey.done();
-      })
-
-    } else {
-        $('.eWind-error').show();
-        $('.eWind-error-msg').html( __('pair.nosettings') );
+    if (!address || !portValue) {
+      showError(__('pair.nosettings'));
+      return;
+    }
+    if (!isValidHost(address) || !Number.isInteger(port) || port < 1 || port > 65535) {
+      showError(__('pair.invalidip'));
+      return;
     }
 
-	});
-})
+    button.disabled = true;
+    button.textContent = __('pair.connecting');
+
+    var deviceId = Math.random().toString(36).substring(2, 7).toLowerCase();
+    Homey.addDevice({
+      name: 'eWind',
+      data: { id: deviceId },
+      settings: { address: address, port: port },
+    }, function (error) {
+      if (error) {
+        button.disabled = false;
+        button.textContent = __('pair.connect');
+        showError(error.message || error.toString());
+        return;
+      }
+      Homey.done();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('connect').addEventListener('click', addDevice);
+    ['address', 'port'].forEach(function (id) {
+      document.getElementById(id).addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') addDevice();
+      });
+    });
+    document.getElementById('address').focus();
+  });
 </script>
 
 <style type="text/css">
-  .form-group {
+  .pairing {
+    max-width: 340px;
+    margin: 0 auto;
+    padding: 8px 4px;
+  }
+  .pairing .intro {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 20px;
+  }
+  .pairing .field {
+    margin-bottom: 16px;
+  }
+  .pairing label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .pairing input {
     width: 100%;
-    display: block;
-    margin-bottom: 12px;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #fff;
+    color: inherit;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
   }
-  .form-group label {
-    display: block;
+  .pairing input:focus {
+    border-color: #00c139;
+    box-shadow: 0 0 0 3px rgba(0, 193, 57, 0.15);
   }
-  .eWind-status, .eWind-info {
-		display: none;
-	}
-  .eWind-info {
-    margin-top: 10px;
-    font-size: 12px;
-  }
-  .eWind-info .info-label {
-    min-width: 150px;
-    font-weight: 700;
-  }
-  .buttons, .messages {
-    padding-top: 14px;
-  }
-  .button:disabled {
-    color: #ccc;
-  }
-  .button:enabled {
-    background-color: #00c139 !important;
+  .pairing .connect-button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    font-size: 16px;
+    font-weight: 600;
     color: #fff;
+    background: #00c139;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .pairing .connect-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .pairing .error {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 14px;
+    font-size: 14px;
+    border-radius: 10px;
+    background: rgba(255, 99, 0, 0.12);
+    color: #d33c19;
+  }
+  @media (prefers-color-scheme: dark) {
+    .pairing .intro { color: #9ca3af; }
+    .pairing input {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .pairing .error { color: #ff8a5c; }
   }
 </style>
 
-<p data-i18n="pair.intro">Enter the IP address and port of your eWind ModbusUnit. </p>
-<div class="eWind-pairing">
-  <div class="form-group">
+<div class="pairing">
+  <p class="intro" data-i18n="pair.intro_eWind"></p>
+  <div class="field">
     <label for="address" data-i18n="pair.address">IP address</label>
-    <input type="text" class="form-control" id="address" placeholder="0.0.0.0" required>
+    <input type="text" id="address" placeholder="192.168.1.100" autocomplete="off" autocapitalize="off" spellcheck="false" required>
   </div>
-  <div class="form-group">
-  	<label for="port" data-i18n="pair.port">Port</label>
-  	<input type="number" class="form-control" id="port" placeholder="502" value="502" required>
+  <div class="field">
+    <label for="port" data-i18n="pair.port">Port</label>
+    <input type="number" id="port" placeholder="502" value="502" min="1" max="65535" required>
   </div>
-  <div class="form-group buttons">
-    <button id="connect" class="button" data-i18n="pair.connect">Connect</button>
-  </div>
-</div>
-
-<div class="messages">
-  <p class="eWind-status eWind-error" style="color: #ff6300;"><i class="fa fa-times"></i> <span class="eWind-error-msg"></span></p>
+  <button id="connect" class="connect-button" data-i18n="pair.connect">Connect</button>
+  <p id="error" class="error"></p>
 </div>

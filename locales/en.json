@@ -1,15 +1,17 @@
 {
-    "pair": {
-      "title": "Add eWind ventilation system",
-      "nosettings": "Please fill in all the required fields.",
-      "intro": "Enter the IP address and port of your eWind Wifi-dongle and ensure you have set Modbus TCP to ON in the app.",
-      "address": "IP Address",
-      "port": "Port",
-      "deviceid": "Device ID",
-      "connect": "Connect"
-    },
-    "Unreachable": "Unreachable",
-    "Off": "Off",
-    "NA": "Information Not Available"
-  }
-  
+  "pair": {
+    "title_eWind": "Add eWind ventilation unit",
+    "title_eAir": "Add eAir ventilation unit",
+    "intro_eWind": "Enter the IP address and port of the eWind unit’s Modbus TCP interface. Make sure Modbus TCP is enabled in the eWind app, and give the unit a static IP address in your router.",
+    "intro_eAir": "Enter the IP address and port of the eAir unit’s Modbus TCP interface. Make sure Modbus TCP is enabled in the eAir app, and give the unit a static IP address in your router.",
+    "nosettings": "Please fill in all the required fields.",
+    "invalidip": "Please enter a valid IP address and port (1–65535).",
+    "address": "IP address",
+    "port": "Port",
+    "connect": "Connect",
+    "connecting": "Adding device…"
+  },
+  "Unreachable": "Unreachable",
+  "Off": "Off",
+  "NA": "Information Not Available"
+}
