@@ -37,6 +37,9 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      - name: Lint
+        run: npm run lint
+
       - name: Validate Homey App (publish level)
         run: npx homey app validate --level publish
 

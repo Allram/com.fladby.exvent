@@ -17,7 +17,7 @@ class MyeWindDriver extends Homey.Driver {
     return [
     ];
   }
-  
+
 }
 
 module.exports = MyeWindDriver;

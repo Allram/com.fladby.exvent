@@ -1,6 +1,5 @@
 import Homey from 'homey';
 
-
 class MyExventApp extends Homey.App {
 
   /**

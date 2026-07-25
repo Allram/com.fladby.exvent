@@ -1,3 +1,27 @@
 {
-  "extends": "athom"
+  "extends": "athom",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "rules": {
+        "strict": "off",
+        "node/no-unsupported-features/es-syntax": "off",
+        "node/no-missing-import": ["error", { "allowModules": ["homey"], "tryExtensions": [".js", ".ts"] }],
+        "node/no-unpublished-import": ["error", { "allowModules": ["homey"] }],
+        "import/no-unresolved": "off",
+        "import/extensions": "off",
+        "no-undef": "off"
+      }
+    },
+    {
+      "files": ["*.d.ts"],
+      "rules": {
+        "max-classes-per-file": "off",
+        "no-unused-vars": "off"
+      }
+    }
+  ]
 }

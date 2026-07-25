@@ -17,7 +17,7 @@ class MyeAirDriver extends Homey.Driver {
     return [
     ];
   }
-  
+
 }
 
 module.exports = MyeAirDriver;
