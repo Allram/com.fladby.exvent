@@ -226,5 +226,8 @@
   },
   "4.2.0": {
     "en": "Internal cleanup: eWind and eAir now share one common driver implementation, so fixes always apply to both. More reliable shutdown with multiple devices, honest connection error handling, and a Modbus request timeout is now actually applied."
+  },
+  "4.3.0": {
+    "en": "Polling now reads adjacent registers in batched Modbus requests (17 requests per poll reduced to 6), lowering the load on both Homey and the ventilation unit's Modbus module. Automatically falls back to individual reads if the unit rejects a batched read."
   }
 }

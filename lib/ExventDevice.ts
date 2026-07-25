@@ -368,12 +368,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
     }
 
     private async syncCapabilities() {
-        const toRemove = [
-            'measure_temperature.supplyAir',
-            'target_temperature',
-            'measure_temperature',
-            'remaining.filter_days',
-        ];
         const toAdd = [
             'efficiency.supplyEff',
             'efficiency.extractEff',
@@ -393,11 +387,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
             this.statusModeCapability,
             'lastPollTime',
         ];
-        for (const capability of toRemove) {
-            if (this.hasCapability(capability)) {
-                await this.removeCapability(capability);
-            }
-        }
         for (const capability of toAdd) {
             if (!this.hasCapability(capability)) {
                 await this.addCapability(capability);
