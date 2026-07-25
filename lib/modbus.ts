@@ -9,9 +9,9 @@ export interface Measurement {
 /** [address, length, type, label] */
 export type RegisterMap = Record<string, [number, number, string, string]>;
 
-type ModbusKind = 'holding' | 'coil';
+export type ModbusKind = 'holding' | 'coil';
 
-interface RegisterEntry {
+export interface RegisterEntry {
     key: string;
     addr: number;
     len: number;
@@ -25,7 +25,7 @@ interface RegisterEntry {
 const MAX_GAP: Record<ModbusKind, number> = { holding: 3, coil: 12 };
 const MAX_BLOCK_LENGTH = 32;
 
-function toBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntry[][] {
+export function toBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntry[][] {
     const entries: RegisterEntry[] = Object.entries(registers)
         .map(([key, def]) => ({ key, addr: def[0], len: def[1], type: def[2], label: def[3] }))
         .sort((a, b) => a.addr - b.addr);
@@ -48,7 +48,7 @@ function toBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntry[][] {
     return blocks;
 }
 
-function decode(response: any, entry: RegisterEntry, blockStart: number, kind: ModbusKind): Measurement {
+export function decode(response: any, entry: RegisterEntry, blockStart: number, kind: ModbusKind): Measurement {
     const measurement: Measurement = {
         value: 'xxx',
         scale: 'xxx',

@@ -1,9 +1,10 @@
 {
   "name": "com.fladby.exvent",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "main": "app.ts",
   "scripts": {
     "build": "tsc",
+    "test": "tsc && node --test .homeybuild/test/*.test.js",
     "lint": "eslint --ext .js,.ts --ignore-path .gitignore ."
   },
   "engines": {

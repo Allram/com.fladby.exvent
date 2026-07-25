@@ -10,6 +10,8 @@ const WAIT_FOR_CONNECT_TIMEOUT = 10000;
 const SOCKET_IDLE_TIMEOUT = 0;
 const WRITE_SPACING_MS = 1000;
 const MODBUS_TIMEOUT = 5000;
+const MODBUS_UNIT_ID = 255;
+const CONFIRM_POLL_DELAY_MS = 3000;
 
 /**
  * Every active device across both drivers, so the process shutdown handlers
@@ -89,7 +91,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
     modbusOptions = {
         host: this.getSetting('address'),
         port: this.getSetting('port'),
-        unitId: this.getSetting('id') || 255,
     };
 
     private intervalId: NodeJS.Timeout | null = null;
@@ -104,6 +105,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
     private connectionRetryDelay: number = CONNECTION_RETRY_MIN;
     private writeQueue: Array<() => Promise<void>> = [];
     private drainingWriteQueue: boolean = false;
+    private confirmPollTimeout: NodeJS.Timeout | null = null;
 
     private async markNoConnection() {
         if (!this.isActive) return;
@@ -135,12 +137,14 @@ export abstract class ExventModbusDevice extends Homey.Device {
     private async drainWriteQueue() {
         if (this.drainingWriteQueue) return;
         this.drainingWriteQueue = true;
+        let didWrite = false;
         try {
             while (this.isActive && this.writeQueue.length > 0) {
                 const op = this.writeQueue.shift()!;
                 try {
                     await this.ensureConnected();
                     await op();
+                    didWrite = true;
                 } catch (err) {
                     await this.markNoConnection();
                 }
@@ -148,7 +152,22 @@ export abstract class ExventModbusDevice extends Homey.Device {
             }
         } finally {
             this.drainingWriteQueue = false;
+            if (didWrite) this.scheduleConfirmationPoll();
         }
+    }
+
+    /**
+     * Re-read the device shortly after commands have been sent, so Homey
+     * reflects the unit's actual state without waiting for the next
+     * 60-second poll.
+     */
+    private scheduleConfirmationPoll() {
+        if (!this.isActive) return;
+        if (this.confirmPollTimeout) clearTimeout(this.confirmPollTimeout);
+        this.confirmPollTimeout = setTimeout(() => {
+            this.confirmPollTimeout = null;
+            if (this.isActive) void this.pollDevice();
+        }, CONFIRM_POLL_DELAY_MS);
     }
 
     async onInit() {
@@ -200,7 +219,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         this.teardownSocket();
         this.socket = new net.Socket();
         this.attachSocketListeners(this.socket);
-        this.client = new Modbus.client.TCP(this.socket, this.modbusOptions.unitId, MODBUS_TIMEOUT);
+        this.client = new Modbus.client.TCP(this.socket, MODBUS_UNIT_ID, MODBUS_TIMEOUT);
 
         const promise = new Promise<void>((resolve, reject) => {
             if (!this.socket) {
@@ -522,6 +541,10 @@ export abstract class ExventModbusDevice extends Homey.Device {
             this.intervalId = null;
         }
         this.writeQueue = [];
+        if (this.confirmPollTimeout) {
+            clearTimeout(this.confirmPollTimeout);
+            this.confirmPollTimeout = null;
+        }
         if (this.connectionRetryId) {
             clearTimeout(this.connectionRetryId);
             this.connectionRetryId = null;
