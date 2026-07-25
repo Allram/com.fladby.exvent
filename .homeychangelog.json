@@ -214,5 +214,8 @@
   },
   "4.0.1": {
     "en": "Bugfix for LastPollTime capability and reconnect logic. Updated Tagline and description of the app."
+  },
+  "4.0.2": {
+    "en": "Fixed Last poll time showing wrong time during daylight saving time (now uses Europe/Oslo). Fixed unsigned register decoding. Cleaned up dependencies."
   }
 }

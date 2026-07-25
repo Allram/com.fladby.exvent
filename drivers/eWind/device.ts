@@ -277,7 +277,7 @@ class MyeWindDevice extends eWind {
                 try {
                     await this.setCapabilityValue(
                         'lastPollTime',
-                        new Date().toLocaleString('no-nb', { timeZone: 'CET', hour12: false })
+                        new Date().toLocaleString('nb-NO', { timeZone: 'Europe/Oslo', hour12: false })
                     );
                 } catch (err) {
                     // Ignore errors if device is deleted

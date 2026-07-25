@@ -1,0 +1,19 @@
+name: Validate Homey App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: https://github.com/actions/checkout@v4
+
+      - name: Validate Homey App
+        uses: https://github.com/athombv/github-action-homey-app-validate@master
+        with:
+          level: publish

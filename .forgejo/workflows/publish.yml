@@ -1,0 +1,31 @@
+name: Publish Homey App
+
+# Publishes to the Homey App Store when a version tag (v*) is pushed,
+# or manually via "Run workflow" in Forgejo.
+#
+# Requires the repository secret HOMEY_PAT — create a Personal Access Token
+# at https://tools.developer.homey.app/me and add it under
+# Settings → Actions → Secrets in Forgejo.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: https://github.com/actions/checkout@v4
+
+      - name: Validate Homey App
+        uses: https://github.com/athombv/github-action-homey-app-validate@master
+        with:
+          level: publish
+
+      - name: Publish Homey App
+        uses: https://github.com/athombv/github-action-homey-app-publish@master
+        with:
+          personal_access_token: ${{ secrets.HOMEY_PAT }}
