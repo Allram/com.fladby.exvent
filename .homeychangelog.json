@@ -217,5 +217,8 @@
   },
   "4.0.2": {
     "en": "Fixed Last poll time showing wrong time during daylight saving time (now uses Europe/Oslo). Fixed unsigned register decoding. Cleaned up dependencies."
+  },
+  "4.0.3": {
+    "en": "Last poll time now uses the timezone and language configured on your Homey instead of a fixed Norwegian timezone."
   }
 }

@@ -263,7 +263,7 @@ class MyeAirDevice extends eAir {
                 try {
                     await this.setCapabilityValue(
                         'lastPollTime',
-                        new Date().toLocaleString('nb-NO', { timeZone: 'Europe/Oslo', hour12: false })
+                        new Date().toLocaleString(this.homey.i18n.getLanguage(), { timeZone: this.homey.clock.getTimezone(), hour12: false })
                     );
                 } catch (err) {
                     // Ignore errors if device is deleted
