@@ -31,19 +31,16 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Install Homey CLI
-        run: npm install --global --no-audit --no-fund homey
+        run: npm ci --no-audit --no-fund
 
       - name: Validate Homey App (publish level)
-        run: homey app validate --level publish
+        run: npx homey app validate --level publish
 
       - name: Publish to Homey App Store
         env:
           HOMEY_HEADLESS: "1"
           HOMEY_PAT: ${{ secrets.HOMEY_PAT }}
-        run: homey app publish
+        run: npx homey app publish
 
       - name: Release info
         run: echo "Manage the release at https://tools.developer.homey.app/apps/app/com.fladby.exvent"
