@@ -13,7 +13,14 @@ jobs:
       - name: Checkout
         uses: https://github.com/actions/checkout@v4
 
-      - name: Validate Homey App
-        uses: https://github.com/athombv/github-action-homey-app-validate@master
+      - name: Setup Node.js
+        uses: https://github.com/actions/setup-node@v4
         with:
-          level: publish
+          node-version: 22
+
+      # npm install instead of npm ci until package-lock.json is regenerated
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund --ignore-scripts
+
+      - name: Validate Homey App (publish level)
+        run: npx homey app validate --level publish

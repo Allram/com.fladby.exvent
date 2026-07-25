@@ -3,9 +3,14 @@ name: Publish Homey App
 # Publishes to the Homey App Store when a version tag (v*) is pushed,
 # or manually via "Run workflow" in Forgejo.
 #
+# Runs the same steps as Athom's official publish action
+# (athombv/github-action-homey-app-publish), but as plain run-steps
+# because Docker-based actions hardcode /github/workspace, which is
+# incompatible with Forgejo's act_runner.
+#
 # Requires the repository secret HOMEY_PAT — create a Personal Access Token
 # at https://tools.developer.homey.app/me and add it under
-# Settings → Actions → Secrets in Forgejo.
+# Settings -> Actions -> Secrets in Forgejo.
 
 on:
   push:
@@ -20,12 +25,23 @@ jobs:
       - name: Checkout
         uses: https://github.com/actions/checkout@v4
 
-      - name: Validate Homey App
-        uses: https://github.com/athombv/github-action-homey-app-validate@master
+      - name: Setup Node.js
+        uses: https://github.com/actions/setup-node@v4
         with:
-          level: publish
+          node-version: 22
 
-      - name: Publish Homey App
-        uses: https://github.com/athombv/github-action-homey-app-publish@master
-        with:
-          personal_access_token: ${{ secrets.HOMEY_PAT }}
+      # npm install instead of npm ci until package-lock.json is regenerated
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund --ignore-scripts
+
+      - name: Validate Homey App (publish level)
+        run: npx homey app validate --level publish
+
+      - name: Publish to Homey App Store
+        env:
+          HOMEY_HEADLESS: "1"
+          HOMEY_PAT: ${{ secrets.HOMEY_PAT }}
+        run: npx homey app publish
+
+      - name: Release info
+        run: echo "Manage the release at https://tools.developer.homey.app/apps/app/com.fladby.exvent"
