@@ -38,6 +38,8 @@ export interface FlowCardIds {
     heatingcoilArg: string;
     statusMode: string;
     setTemperature: string;
+    serviceReminder: string;
+    serviceReminderArg: string;
     statusModeIs: string;
     heatExchangerIs: string;
     heaterIs: string;
@@ -442,14 +444,22 @@ export abstract class ExventModbusDevice extends Homey.Device {
             });
 
         this.homey.flow.getActionCard(cards.setTemperature)
-            .registerRunListener(async (args: any) => {
-                const device = args.device as ExventModbusDevice;
-                if (!device.isUsable()) return false;
-                await device.setCapabilityValue('target_temperature.step', args.temperature);
-                await device.sendHoldingRequest(135, args.temperature * 10);
-            });
+                    .registerRunListener(async (args: any) => {
+                                    const device = args.device as ExventModbusDevice;
+                                                    if (!device.isUsable()) return false;
+                                                                    await device.setCapabilityValue('target_temperature.step', args.temperature);
+                                                                                    await device.sendHoldingRequest(135, args.temperature * 10);
+                                                                                                });
 
-        this.flowListenersRegistered = true;
+                                                                                                        // Coil 49 (COIL_SERVICE_EN): enables/disables the unit's filter
+                                                                                                                // change / service reminder.
+                                                                                                                        this.homey.flow.getActionCard(cards.serviceReminder)
+                                                                                                                                    .registerRunListener(async (args: any) => {
+                                                                                                                                                    const device = args.device as ExventModbusDevice;
+                                                                                                                                                                    if (!device.isUsable()) return false;
+                                                                                                                                                                                    await device.sendCoilRequest(49, args[cards.serviceReminderArg] === '1');
+                                                                                                                                                                                                });
+
     }
 
     registerCapabilityListeners() {

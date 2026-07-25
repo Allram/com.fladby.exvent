@@ -10,6 +10,8 @@ class MyeAirDevice extends ExventModbusDevice {
         heatingcoilArg: 'heatingcoil_eAir',
         statusMode: 'status-mode_eAir',
         setTemperature: 'set-temperature_eAir',
+        serviceReminder: 'service_reminder_eAir',
+        serviceReminderArg: 'service_reminder_eAir',
         statusModeIs: 'eAirstatus_mode_is2',
         heatExchangerIs: 'heat_exchanger_mode_is2',
         heaterIs: 'heater_mode_is2',

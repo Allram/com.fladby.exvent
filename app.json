@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fladby.exvent",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -836,6 +836,48 @@
         ]
       },
       {
+        "id": "service_reminder_eAir",
+        "title": {
+          "en": "Set filter change reminder to",
+          "no": "Sett varsel om filterbytte til"
+        },
+        "titleFormatted": {
+          "en": "Set filter change reminder to [[service_reminder_eAir]]",
+          "no": "Sett varsel om filterbytte til [[service_reminder_eAir]]"
+        },
+        "hint": {
+          "en": "Enable or disable the filter change / service reminder on the unit",
+          "no": "Aktiver eller deaktiver varsel om filterbytte/service på anlegget"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "dropdown",
+            "name": "service_reminder_eAir",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "enabled",
+                  "no": "aktivert"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "disabled",
+                  "no": "deaktivert"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "ecomode",
         "title": {
           "en": "Set ecomode to ",
@@ -1005,6 +1047,48 @@
                 "label": {
                   "en": "Off",
                   "no": "Av"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "service_reminder",
+        "title": {
+          "en": "Set filter change reminder to",
+          "no": "Sett varsel om filterbytte til"
+        },
+        "titleFormatted": {
+          "en": "Set filter change reminder to [[service_reminder]]",
+          "no": "Sett varsel om filterbytte til [[service_reminder]]"
+        },
+        "hint": {
+          "en": "Enable or disable the filter change / service reminder on the unit",
+          "no": "Aktiver eller deaktiver varsel om filterbytte/service på anlegget"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "service_reminder",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "enabled",
+                  "no": "aktivert"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "disabled",
+                  "no": "deaktivert"
                 }
               }
             ]

@@ -10,6 +10,8 @@ class MyeWindDevice extends ExventModbusDevice {
         heatingcoilArg: 'heatingcoil',
         statusMode: 'status-mode',
         setTemperature: 'set-temperature',
+        serviceReminder: 'service_reminder',
+        serviceReminderArg: 'service_reminder',
         statusModeIs: 'eWindstatus_mode_is',
         heatExchangerIs: 'heat_exchanger_mode_is',
         heaterIs: 'heater_mode_is',

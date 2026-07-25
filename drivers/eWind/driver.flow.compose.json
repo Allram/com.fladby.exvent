@@ -155,6 +155,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "service_reminder",
+      "title": {
+        "en": "Set filter change reminder to",
+        "no": "Sett varsel om filterbytte til"
+      },
+      "titleFormatted": {
+        "en": "Set filter change reminder to [[service_reminder]]",
+        "no": "Sett varsel om filterbytte til [[service_reminder]]"
+      },
+      "hint": {
+        "en": "Enable or disable the filter change / service reminder on the unit",
+        "no": "Aktiver eller deaktiver varsel om filterbytte/service på anlegget"
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "service_reminder",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "enabled",
+                "no": "aktivert"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "disabled",
+                "no": "deaktivert"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "triggers": [
@@ -172,7 +209,7 @@
         "en": "Filter needs replacement",
         "no": "Filter må byttes"
       },
-    "args": []
+      "args": []
     },
     {
       "id": "eWindstatus_mode_changed",
