@@ -30,9 +30,8 @@ jobs:
         with:
           node-version: 22
 
-      # npm install instead of npm ci until package-lock.json is regenerated
       - name: Install dependencies
-        run: npm install --no-audit --no-fund --ignore-scripts
+        run: npm install --no-audit --no-fund
 
       - name: Validate Homey App (publish level)
         run: npx homey app validate --level publish
