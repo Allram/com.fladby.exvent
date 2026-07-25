@@ -223,5 +223,8 @@
   },
   "4.1.0": {
     "en": "Modbus writes are now serialized through a queue so quick mode changes or simultaneous flows can no longer cancel each other's commands. Fixed eAir flow cards: Ecomode, Heating coil and Set temperature action cards now actually run, condition cards now compare values correctly, and Heat exchanger/Heating element/Filter alarm triggers now fire. Flow cards now always act on the selected device when multiple devices are paired."
+  },
+  "4.2.0": {
+    "en": "Internal cleanup: eWind and eAir now share one common driver implementation, so fixes always apply to both. More reliable shutdown with multiple devices, honest connection error handling, and a Modbus request timeout is now actually applied."
   }
 }

@@ -1,15 +1,30 @@
 import * as Modbus from 'jsmodbus';
-import { Measurement } from './eWind';
 
-export async function checkRegister(registers: Object, client: InstanceType<typeof Modbus.client.TCP>) {
-    let result: Record<string, Measurement> = {};
+export interface Measurement {
+    value: string;
+    scale: string;
+    label: string;
+}
+
+/** [address, length, type, label] */
+export type RegisterMap = Record<string, [number, number, string, string]>;
+
+/**
+ * Reads every entry in a register map and decodes the response.
+ * Shared by holding-register and coil reads; only the client call differs.
+ */
+export async function readModbus(
+    client: InstanceType<typeof Modbus.client.TCP>,
+    registers: RegisterMap,
+    kind: 'holding' | 'coil',
+): Promise<Record<string, Measurement>> {
+    const result: Record<string, Measurement> = {};
     let successCount = 0;
     for (const [key, value] of Object.entries(registers)) {
         try {
-            const res = client.readHoldingRegisters(value[0], value[1])
-            const actualRes = await res;
-            // const metrics = actualRes.metrics;
-            // const request = actualRes.request;
+            const actualRes = await (kind === 'holding'
+                ? client.readHoldingRegisters(value[0], value[1])
+                : client.readCoils(value[0], value[1]));
             const response = actualRes.response;
             const measurement: Measurement = {
                 value: 'xxx',
@@ -23,7 +38,6 @@ export async function checkRegister(registers: Object, client: InstanceType<type
                     break;
                 case 'UINT32':
                     resultValue = response.body.valuesAsArray[0].toString();
-                    // console.log( response.body);
                     break;
                 case 'ACC32':
                     resultValue = response.body.valuesAsBuffer.readUInt32BE().toString();
@@ -39,31 +53,26 @@ export async function checkRegister(registers: Object, client: InstanceType<type
                     break;
                 case 'SCALE':
                     resultValue = response.body.valuesAsBuffer.readInt16BE().toString();
-                    // console.log(value[3] + ": " + resultValue);
-                    // console.log(key.replace('_scale', ''));
-                    result[key.replace('_scale', '')].scale = resultValue
+                    result[key.replace('_scale', '')].scale = resultValue;
                     break;
                 case 'FLOAT32':
                     resultValue = response.body.valuesAsBuffer.swap16().swap32().readFloatBE().toString();
                     break;
                 default:
-                    //console.log(key + ": type not found " + value[2]);
                     break;
             }
             measurement.value = resultValue;
             result[key] = measurement;
             successCount++;
-
         } catch (err) {
-            //console.log("error with key: " + key);
-            //console.log(err);
+            // Individual register failures are tolerated; only a fully dead
+            // device (no register responding) is treated as an error below.
         }
     }
 
     if (successCount === 0) {
-        throw new Error('No holding registers responded');
+        throw new Error(kind === 'holding' ? 'No holding registers responded' : 'No coils responded');
     }
 
     return result;
 }
-

@@ -1,6 +1,6 @@
 {
   "id": "com.fladby.exvent",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -15,7 +15,7 @@
   },
   "description": {
     "en": "Smart ventilation control for Exvent eWind & eAir, fully Homey-integrated.",
-    "no": "Forbedre innendørsklima med ventilasjonsanlegget"
+    "no": "Smart ventilasjonsstyring for Exvent eWind og eAir, fullt integrert med Homey."
   },
   "category": [
     "climate"
@@ -34,8 +34,14 @@
   },
   "tags": {
     "en": [
+      "Ventilation",
+      "Modbus",
+      "Exvent"
+    ],
+    "no": [
       "Ventilasjon",
-      ""
+      "Modbus",
+      "Exvent"
     ]
   }
 }
