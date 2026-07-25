@@ -21,5 +21,8 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Install Homey CLI
+        run: npm install --global --no-audit --no-fund homey
+
       - name: Validate Homey App (publish level)
-        run: npx homey app validate --level publish
+        run: homey app validate --level publish
