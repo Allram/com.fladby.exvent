@@ -238,5 +238,8 @@
   },
   "4.6.0": {
     "en": "New device setting to adjust the number of days between filter changes (written to the unit). Redesigned pairing with input validation, correct texts for eAir and dark mode support. Improved reconnection when the IP address or port is changed."
+  },
+  "4.6.1": {
+    "en": "Updated App Store images per reviewer feedback."
   }
 }

@@ -1,6 +1,6 @@
 {
   "id": "com.fladby.exvent",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -23,7 +23,8 @@
   "permissions": [],
   "images": {
     "small": "/assets/images/small.jpg",
-    "large": "/assets/images/large.jpg"
+    "large": "/assets/images/large.jpg",
+    "xlarge": "/assets/images/xlarge.jpg"
   },
   "author": {
     "name": "Vegard Fladby",
