@@ -23,7 +23,7 @@ class MyeAirDevice extends ExventModbusDevice {
   // The eAir condition cards use named dropdown ids while the capabilities
   // store numeric strings; map before comparing.
   protected readonly statusModeArgMap: Record<string, string> = {
-    home: '0', away: '1', fireplace: '2', boost: '3', off: '4',
+    home: '0', away: '1', fireplace: '2', boost: '3', off: '4', enhanced: '5',
   };
 
   protected readonly onOffArgMap: Record<string, string> = {

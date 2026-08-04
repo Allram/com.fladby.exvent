@@ -250,5 +250,8 @@
   },
   "4.7.0": {
     "en": "New device setting for how many minutes fireplace mode stays active, written to the unit when changed. Fixed the pairing page so the Connect button reliably activates and turns blue once an IP address has been entered."
+  },
+  "4.8.0": {
+    "en": "New mode: Enhanced ventilation (panel fan speed level 3), selectable on the device and in flows, and shown when the unit boosts on humidity or CO2. Fixed the Connect button on the pairing page not reacting to input."
   }
 }

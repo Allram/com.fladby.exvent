@@ -139,6 +139,13 @@
               }
             },
             {
+              "id": "5",
+              "label": {
+                "en": "Enhanced ventilation",
+                "no": "Forsterket ventilasjon"
+              }
+            },
+            {
               "id": "3",
               "label": {
                 "en": "Boost",
@@ -227,6 +234,13 @@
               "label": {
                 "en": "Fireplace",
                 "no": "Peismodus"
+              }
+            },
+            {
+              "id": "5",
+              "label": {
+                "en": "Enhanced ventilation",
+                "no": "Forsterket ventilasjon"
               }
             },
             {
@@ -357,6 +371,13 @@
               "label": {
                 "en": "Fireplace",
                 "no": "Peismodus"
+              }
+            },
+            {
+              "id": "5",
+              "label": {
+                "en": "Enhanced ventilation",
+                "no": "Forsterket ventilasjon"
               }
             },
             {

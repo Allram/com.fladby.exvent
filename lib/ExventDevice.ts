@@ -352,6 +352,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
           await this.sendCoilRequest(1, false);
           await this.sendCoilRequest(3, false);
           await this.sendCoilRequest(10, false);
+          // Leave enhanced ventilation by returning the panel fan speed to
+          // level 2 (Home); harmless when already at level 2.
+          await this.sendHoldingRequest(50, 2);
           break;
         case '1':
           await this.sendCoilRequest(0, false);
@@ -369,6 +372,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
           break;
         case '4':
           await this.sendCoilRequest(0, true);
+          break;
+        case '5':
+          // Enhanced ventilation: normal operation at panel fan speed
+          // level 3 ("Home-mode with high fan speeds", HREG 50).
+          await this.sendCoilRequest(0, false);
+          await this.sendCoilRequest(1, false);
+          await this.sendCoilRequest(3, false);
+          await this.sendCoilRequest(10, false);
+          await this.sendHoldingRequest(50, 3);
           break;
         default:
           break;
@@ -696,7 +708,17 @@ export abstract class ExventModbusDevice extends Homey.Device {
         const statusModeMap: Record<string, string> = {
           0: '0', 16: '1', 1024: '2', 512: '3',
         };
-        const mapped = statusModeMap[result['status_mode'].value];
+        // HREG 44 bits 128/256 are CO2/RH boosting: the unit running the
+        // level-3 fan speeds on its own. Shown as enhanced ventilation.
+        statusModeMap[128] = '5';
+        statusModeMap[256] = '5';
+        let mapped = statusModeMap[result['status_mode'].value];
+        // Manually selected enhanced ventilation: normal Home state but the
+        // panel fan speed is at level 3.
+        if (mapped === '0'
+          && result['fan_speed_level'] && Number(result['fan_speed_level'].value) === 3) {
+          mapped = '5';
+        }
         if (mapped !== undefined) {
           await this.setIfChanged(this.statusModeCapability, mapped);
         }

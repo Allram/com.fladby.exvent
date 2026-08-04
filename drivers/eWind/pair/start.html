@@ -89,71 +89,70 @@
   <p class="intro" data-i18n="pair.intro_eWind"></p>
   <div class="field">
     <label for="address" data-i18n="pair.address">IP address</label>
-    <input type="text" id="address" placeholder="192.168.1.100" autocomplete="off" autocapitalize="off" spellcheck="false" required
-      oninput="updateButtonState()" onkeydown="if (event.key === 'Enter') addDevice()">
+    <input type="text" id="address" placeholder="192.168.1.100" autocomplete="off" autocapitalize="off" spellcheck="false" required>
   </div>
   <div class="field">
     <label for="port" data-i18n="pair.port">Port</label>
-    <input type="number" id="port" placeholder="502" value="502" min="1" max="65535" required
-      oninput="updateButtonState()" onkeydown="if (event.key === 'Enter') addDevice()">
+    <input type="number" id="port" placeholder="502" value="502" min="1" max="65535" required>
   </div>
-  <button type="button" id="connect" class="connect-button" data-i18n="pair.connect" disabled
-    onclick="addDevice()">Connect</button>
+  <button type="button" id="connect" class="connect-button" data-i18n="pair.connect" disabled>Connect</button>
   <p id="error" class="error"></p>
 </div>
 
-<!--
-  All handlers are wired inline (onclick/oninput) and the functions are put
-  explicitly on window: Homey injects pair views into an already-loaded page,
-  so DOMContentLoaded never fires here, and depending on how the view's
-  script blocks are evaluated, top-level declarations are not guaranteed to
-  be reachable from other blocks. Inline attributes resolve against window
-  at event time, which works in every case.
--->
 <script type="text/javascript">
+  // Homey injects pair views into an already-loaded page: DOMContentLoaded
+  // never fires, inline on*-attributes may be stripped by sanitizing, and
+  // separate script blocks do not reliably share scope. Everything therefore
+  // lives in this single block, and events are captured with document-level
+  // delegation so the bindings survive no matter when — or how — the markup
+  // above is injected or re-rendered.
   Homey.setTitle(__('pair.title_eWind'));
 
-  window.showError = function (msg) {
+  function showError(msg) {
     var box = document.getElementById('error');
+    if (!box) return;
     box.textContent = msg;
     box.style.display = 'block';
-  };
+  }
 
-  window.hideError = function () {
-    document.getElementById('error').style.display = 'none';
-  };
+  function hideError() {
+    var box = document.getElementById('error');
+    if (box) box.style.display = 'none';
+  }
 
-  window.isValidHost = function (value) {
+  function isValidHost(value) {
     var ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
     if (ipv4.test(value)) {
       return value.split('.').every(function (octet) { return Number(octet) <= 255; });
     }
     return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$/.test(value);
-  };
+  }
 
-  window.updateButtonState = function () {
+  function updateButtonState() {
     var button = document.getElementById('connect');
-    if (!button || button.classList.contains('busy')) return;
-    var ready = document.getElementById('address').value.trim() !== ''
-      && document.getElementById('port').value !== '';
+    var address = document.getElementById('address');
+    var port = document.getElementById('port');
+    if (!button || !address || !port || button.classList.contains('busy')) return;
+    var ready = address.value.trim() !== '' && port.value !== '';
     button.classList.toggle('ready', ready);
     button.disabled = !ready;
-  };
+  }
 
-  window.addDevice = function () {
+  function addDevice() {
+    var button = document.getElementById('connect');
+    if (!button || button.classList.contains('busy')) return;
     var address = document.getElementById('address').value.trim();
     var portValue = document.getElementById('port').value;
     var port = Number(portValue);
-    var button = document.getElementById('connect');
 
-    window.hideError();
+    hideError();
 
     if (!address || !portValue) {
-      window.showError(__('pair.nosettings'));
+      showError(__('pair.nosettings'));
       return;
     }
-    if (!window.isValidHost(address) || !Number.isInteger(port) || port < 1 || port > 65535) {
-      window.showError(__('pair.invalidip'));
+    if (!isValidHost(address) || !Number.isInteger(port) || port < 1 || port > 65535) {
+      showError(__('pair.invalidip'));
       return;
     }
 
@@ -170,22 +169,41 @@
       if (error) {
         button.classList.remove('busy');
         button.textContent = __('pair.connect');
-        window.updateButtonState();
-        window.showError(error.message || error.toString());
+        updateButtonState();
+        showError(error.message || error.toString());
         return;
       }
       Homey.done();
     });
-  };
+  }
 
-  // Retry until the injected markup exists, then sync the button state
-  // (the port field is prefilled) and focus the address field.
+  if (!window.__exventPairingBound) {
+    window.__exventPairingBound = true;
+    document.addEventListener('input', function (event) {
+      var id = event.target && event.target.id;
+      if (id === 'address' || id === 'port') updateButtonState();
+    }, true);
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      while (target && target !== document) {
+        if (target.id === 'connect') { addDevice(); return; }
+        target = target.parentNode;
+      }
+    }, true);
+    document.addEventListener('keydown', function (event) {
+      var id = event.target && event.target.id;
+      if (event.key === 'Enter' && (id === 'address' || id === 'port')) addDevice();
+    }, true);
+  }
+
+  // Sync the initial state (the port field is prefilled) and focus the
+  // address field, retrying until the injected markup exists.
   (function initPairing() {
     if (!document.getElementById('connect')) {
       setTimeout(initPairing, 50);
       return;
     }
-    window.updateButtonState();
+    updateButtonState();
     document.getElementById('address').focus();
   })();
 </script>

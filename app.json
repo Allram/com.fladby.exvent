@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fladby.exvent",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -113,6 +113,13 @@
                 "label": {
                   "en": "Fireplace",
                   "no": "Peismodus"
+                }
+              },
+              {
+                "id": "5",
+                "label": {
+                  "en": "Enhanced ventilation",
+                  "no": "Forsterket ventilasjon"
                 }
               },
               {
@@ -285,6 +292,13 @@
                 }
               },
               {
+                "id": "5",
+                "label": {
+                  "en": "Enhanced ventilation",
+                  "no": "Forsterket ventilasjon"
+                }
+              },
+              {
                 "id": "3",
                 "label": {
                   "en": "Boost",
@@ -430,6 +444,13 @@
                 }
               },
               {
+                "id": "enhanced",
+                "label": {
+                  "en": "Enhanced ventilation",
+                  "no": "Forsterket ventilasjon"
+                }
+              },
+              {
                 "id": "boost",
                 "label": {
                   "en": "Boost",
@@ -562,6 +583,13 @@
                 "label": {
                   "en": "Fireplace",
                   "no": "Peismodus"
+                }
+              },
+              {
+                "id": "5",
+                "label": {
+                  "en": "Enhanced ventilation",
+                  "no": "Forsterket ventilasjon"
                 }
               },
               {
@@ -819,6 +847,13 @@
                 }
               },
               {
+                "id": "5",
+                "label": {
+                  "en": "Enhanced ventilation",
+                  "no": "Forsterket ventilasjon"
+                }
+              },
+              {
                 "id": "3",
                 "label": {
                   "en": "Boost",
@@ -1014,6 +1049,13 @@
                 "label": {
                   "en": "Fireplace",
                   "no": "Peismodus"
+                }
+              },
+              {
+                "id": "5",
+                "label": {
+                  "en": "Enhanced ventilation",
+                  "no": "Forsterket ventilasjon"
                 }
               },
               {
@@ -1656,6 +1698,13 @@
           }
         },
         {
+          "id": "5",
+          "title": {
+            "en": "Enhanced ventilation",
+            "no": "Forsterket ventilasjon"
+          }
+        },
+        {
           "id": "3",
           "title": {
             "en": "Boost",
@@ -1840,6 +1889,13 @@
           "title": {
             "en": "Fireplace",
             "no": "Peismodus"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "Enhanced ventilation",
+            "no": "Forsterket ventilasjon"
           }
         },
         {
