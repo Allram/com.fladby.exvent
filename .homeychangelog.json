@@ -241,5 +241,8 @@
   },
   "4.6.1": {
     "en": "Updated App Store images per reviewer feedback."
+  },
+  "4.6.2": {
+    "en": "Fixed the Connect button not responding on the pairing page."
   }
 }

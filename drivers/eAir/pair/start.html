@@ -55,7 +55,9 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  // Homey injects this view into an already-loaded page, so DOMContentLoaded
+  // never fires here — initPairing() is called from the bottom of the markup.
+  function initPairing() {
     document.getElementById('connect').addEventListener('click', addDevice);
     ['address', 'port'].forEach(function (id) {
       document.getElementById(id).addEventListener('keydown', function (event) {
@@ -63,7 +65,7 @@
       });
     });
     document.getElementById('address').focus();
-  });
+  }
 </script>
 
 <style type="text/css">
@@ -152,3 +154,7 @@
   <button id="connect" class="connect-button" data-i18n="pair.connect">Connect</button>
   <p id="error" class="error"></p>
 </div>
+
+<script type="text/javascript">
+  initPairing();
+</script>
