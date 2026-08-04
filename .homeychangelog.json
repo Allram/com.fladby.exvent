@@ -259,5 +259,8 @@
   },
   "4.8.2": {
     "en": "Additional fixes for the pairing page."
+  },
+  "4.8.3": {
+    "en": "Renamed the pairing view so phones that cached the old broken page load the fixed one."
   }
 }
