@@ -244,5 +244,8 @@
   },
   "4.6.2": {
     "en": "Fixed the Connect button not responding on the pairing page."
+  },
+  "4.6.3": {
+    "en": "The Connect button on the pairing page now lights up blue once an IP address has been entered."
   }
 }

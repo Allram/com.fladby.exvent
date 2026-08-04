@@ -37,6 +37,7 @@
     }
 
     button.disabled = true;
+    button.classList.add('busy');
     button.textContent = __('pair.connecting');
 
     var deviceId = Math.random().toString(36).substring(2, 7).toLowerCase();
@@ -46,8 +47,9 @@
       settings: { address: address, port: port },
     }, function (error) {
       if (error) {
-        button.disabled = false;
+        button.classList.remove('busy');
         button.textContent = __('pair.connect');
+        updateButtonState();
         showError(error.message || error.toString());
         return;
       }
@@ -55,15 +57,26 @@
     });
   }
 
+  function updateButtonState() {
+    var button = document.getElementById('connect');
+    if (button.classList.contains('busy')) return;
+    var ready = document.getElementById('address').value.trim() !== ''
+      && document.getElementById('port').value !== '';
+    button.classList.toggle('ready', ready);
+    button.disabled = !ready;
+  }
+
   // Homey injects this view into an already-loaded page, so DOMContentLoaded
   // never fires here — initPairing() is called from the bottom of the markup.
   function initPairing() {
     document.getElementById('connect').addEventListener('click', addDevice);
     ['address', 'port'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', updateButtonState);
       document.getElementById(id).addEventListener('keydown', function (event) {
         if (event.key === 'Enter') addDevice();
       });
     });
+    updateButtonState();
     document.getElementById('address').focus();
   }
 </script>
@@ -103,8 +116,8 @@
     appearance: none;
   }
   .pairing input:focus {
-    border-color: #00c139;
-    box-shadow: 0 0 0 3px rgba(0, 193, 57, 0.15);
+    border-color: #0091ff;
+    box-shadow: 0 0 0 3px rgba(0, 145, 255, 0.15);
   }
   .pairing .connect-button {
     width: 100%;
@@ -112,13 +125,19 @@
     margin-top: 8px;
     font-size: 16px;
     font-weight: 600;
-    color: #fff;
-    background: #00c139;
+    color: #9ca3af;
+    background: #e5e7eb;
     border: none;
     border-radius: 10px;
+    cursor: default;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .pairing .connect-button.ready {
+    color: #fff;
+    background: #0091ff;
     cursor: pointer;
   }
-  .pairing .connect-button:disabled {
+  .pairing .connect-button.busy {
     opacity: 0.6;
     cursor: default;
   }
@@ -136,6 +155,14 @@
     .pairing input {
       background: rgba(255, 255, 255, 0.06);
       border-color: rgba(255, 255, 255, 0.16);
+    }
+    .pairing .connect-button {
+      color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .pairing .connect-button.ready {
+      color: #fff;
+      background: #0091ff;
     }
     .pairing .error { color: #ff8a5c; }
   }
