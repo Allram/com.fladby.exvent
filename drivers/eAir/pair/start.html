@@ -99,15 +99,18 @@
   <p id="error" class="error"></p>
 </div>
 
+
 <script type="text/javascript">
-  // Homey injects pair views into an already-loaded page: DOMContentLoaded
-  // never fires, inline on*-attributes may be stripped by sanitizing, and
-  // separate script blocks do not reliably share scope. Everything therefore
-  // lives in this single block, and events are captured with document-level
-  // delegation so the bindings survive no matter when — or how — the markup
-  // above is injected or re-rendered. Note: in pair views translation is
-  // Homey.__() (no global __), and device creation is Homey.createDevice().
-  Homey.setTitle(Homey.__('pair.title_eAir'));
+  // Modelled on the pre-4.6.0 pairing page that provably worked in Homey's
+  // pairing webview: jQuery's $(function(){}) for binding, the global __()
+  // translation helper and Homey.addDevice() with a callback. Each of them
+  // falls back to the SDK3-documented equivalent when missing, and script
+  // errors are surfaced in the error box instead of failing silently.
+  function t(key) {
+    try { if (typeof __ === 'function') return __(key); } catch (e) {}
+    try { if (typeof Homey !== 'undefined' && typeof Homey.__ === 'function') return Homey.__(key); } catch (e) {}
+    return key;
+  }
 
   function showError(msg) {
     var box = document.getElementById('error');
@@ -120,6 +123,10 @@
     var box = document.getElementById('error');
     if (box) box.style.display = 'none';
   }
+
+  window.onerror = function (msg, src, line) {
+    try { showError('Script error: ' + msg + (line ? ' (line ' + line + ')' : '')); } catch (e) {}
+  };
 
   function isValidHost(value) {
     var ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
@@ -149,60 +156,88 @@
     hideError();
 
     if (!address || !portValue) {
-      showError(Homey.__('pair.nosettings'));
+      showError(t('pair.nosettings'));
       return;
     }
     if (!isValidHost(address) || !Number.isInteger(port) || port < 1 || port > 65535) {
-      showError(Homey.__('pair.invalidip'));
+      showError(t('pair.invalidip'));
       return;
     }
 
     button.disabled = true;
     button.classList.add('busy');
-    button.textContent = Homey.__('pair.connecting');
+    button.textContent = t('pair.connecting');
+
+    function onFail(error) {
+      button.classList.remove('busy');
+      button.textContent = t('pair.connect');
+      updateButtonState();
+      showError((error && error.message) || String(error));
+    }
 
     var deviceId = Math.random().toString(36).substring(2, 7).toLowerCase();
-    Homey.createDevice({
+    var payload = {
       name: 'eAir',
       data: { id: deviceId },
       settings: { address: address, port: port },
-    }).then(function () {
-      Homey.done();
-    }).catch(function (error) {
-      button.classList.remove('busy');
-      button.textContent = Homey.__('pair.connect');
-      updateButtonState();
-      showError((error && error.message) || String(error));
-    });
-  }
-
-  if (!window.__exventPairingBound) {
-    window.__exventPairingBound = true;
-    document.addEventListener('input', function (event) {
-      var id = event.target && event.target.id;
-      if (id === 'address' || id === 'port') updateButtonState();
-    }, true);
-    document.addEventListener('click', function (event) {
-      var target = event.target;
-      while (target && target !== document) {
-        if (target.id === 'connect') { addDevice(); return; }
-        target = target.parentNode;
+    };
+    try {
+      if (typeof Homey.addDevice === 'function') {
+        Homey.addDevice(payload, function (error) {
+          if (error) onFail(error);
+          else Homey.done();
+        });
+      } else {
+        Homey.createDevice(payload).then(function () { Homey.done(); }).catch(onFail);
       }
-    }, true);
-    document.addEventListener('keydown', function (event) {
-      var id = event.target && event.target.id;
-      if (event.key === 'Enter' && (id === 'address' || id === 'port')) addDevice();
-    }, true);
+    } catch (e) {
+      onFail(e);
+    }
   }
 
-  // Sync the initial state (the port field is prefilled) and focus the
-  // address field, retrying until the injected markup exists.
-  (function initPairing() {
-    if (!document.getElementById('connect')) {
-      setTimeout(initPairing, 50);
-      return;
-    }
+  function initPairing() {
     updateButtonState();
-    document.getElementById('address').focus();
-  })();
+    var address = document.getElementById('address');
+    if (address) address.focus();
+  }
+
+  if (typeof $ === 'function') {
+    $(function () {
+      $('#connect').on('click', addDevice);
+      $('#address, #port').on('input keyup change', updateButtonState);
+      $('#address, #port').on('keydown', function (event) {
+        if (event.key === 'Enter') addDevice();
+      });
+      initPairing();
+    });
+  } else {
+    if (!window.__exventPairingBound) {
+      window.__exventPairingBound = true;
+      document.addEventListener('input', function (event) {
+        var id = event.target && event.target.id;
+        if (id === 'address' || id === 'port') updateButtonState();
+      }, true);
+      document.addEventListener('keyup', function (event) {
+        var id = event.target && event.target.id;
+        if (id === 'address' || id === 'port') updateButtonState();
+        if (event.key === 'Enter' && (id === 'address' || id === 'port')) addDevice();
+      }, true);
+      document.addEventListener('click', function (event) {
+        var target = event.target;
+        while (target && target !== document) {
+          if (target.id === 'connect') { addDevice(); return; }
+          target = target.parentNode;
+        }
+      }, true);
+    }
+    (function waitForMarkup() {
+      if (!document.getElementById('connect')) {
+        setTimeout(waitForMarkup, 50);
+        return;
+      }
+      initPairing();
+    })();
+  }
+
+  try { Homey.setTitle(t('pair.title_eAir')); } catch (e) {}
 </script>

@@ -256,5 +256,8 @@
   },
   "4.8.1": {
     "en": "Fixed the pairing page: the Connect button now activates, turns blue and actually adds the device."
+  },
+  "4.8.2": {
+    "en": "Additional fixes for the pairing page."
   }
 }
