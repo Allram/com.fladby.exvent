@@ -253,5 +253,8 @@
   },
   "4.8.0": {
     "en": "New mode: Enhanced ventilation (panel fan speed level 3), selectable on the device and in flows, and shown when the unit boosts on humidity or CO2. Fixed the Connect button on the pairing page not reacting to input."
+  },
+  "4.8.1": {
+    "en": "Fixed the pairing page: the Connect button now activates, turns blue and actually adds the device."
   }
 }

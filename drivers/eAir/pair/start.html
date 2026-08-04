@@ -105,8 +105,9 @@
   // separate script blocks do not reliably share scope. Everything therefore
   // lives in this single block, and events are captured with document-level
   // delegation so the bindings survive no matter when — or how — the markup
-  // above is injected or re-rendered.
-  Homey.setTitle(__('pair.title_eAir'));
+  // above is injected or re-rendered. Note: in pair views translation is
+  // Homey.__() (no global __), and device creation is Homey.createDevice().
+  Homey.setTitle(Homey.__('pair.title_eAir'));
 
   function showError(msg) {
     var box = document.getElementById('error');
@@ -148,32 +149,30 @@
     hideError();
 
     if (!address || !portValue) {
-      showError(__('pair.nosettings'));
+      showError(Homey.__('pair.nosettings'));
       return;
     }
     if (!isValidHost(address) || !Number.isInteger(port) || port < 1 || port > 65535) {
-      showError(__('pair.invalidip'));
+      showError(Homey.__('pair.invalidip'));
       return;
     }
 
     button.disabled = true;
     button.classList.add('busy');
-    button.textContent = __('pair.connecting');
+    button.textContent = Homey.__('pair.connecting');
 
     var deviceId = Math.random().toString(36).substring(2, 7).toLowerCase();
-    Homey.addDevice({
+    Homey.createDevice({
       name: 'eAir',
       data: { id: deviceId },
       settings: { address: address, port: port },
-    }, function (error) {
-      if (error) {
-        button.classList.remove('busy');
-        button.textContent = __('pair.connect');
-        updateButtonState();
-        showError(error.message || error.toString());
-        return;
-      }
+    }).then(function () {
       Homey.done();
+    }).catch(function (error) {
+      button.classList.remove('busy');
+      button.textContent = Homey.__('pair.connect');
+      updateButtonState();
+      showError((error && error.message) || String(error));
     });
   }
 
