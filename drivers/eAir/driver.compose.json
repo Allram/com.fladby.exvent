@@ -181,6 +181,34 @@
     {
       "type": "group",
       "label": {
+        "en": "Fireplace mode",
+        "no": "Peismodus"
+      },
+      "children": [
+        {
+          "id": "fireplace_duration_minutes",
+          "type": "number",
+          "label": {
+            "en": "Fireplace mode duration",
+            "no": "Varighet for peismodus"
+          },
+          "hint": {
+            "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
+            "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+          },
+          "value": 10,
+          "min": 1,
+          "max": 60,
+          "units": {
+            "en": "min",
+            "no": "min"
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
         "en": "Filter",
         "no": "Filter"
       },

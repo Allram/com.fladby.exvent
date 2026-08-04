@@ -79,6 +79,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       status_mode: [44, 1, 'INT16', 'statusMode'],
       service_interval_days: [538, 1, 'UINT16', 'Days until service reminder alarm'],
       days_since_service_ack: [710, 1, 'UINT16', 'Days since service reminder was acknowledged'],
+      fireplace_duration: [56, 1, 'UINT16', 'Overpressure (fireplace) duration in minutes'],
     };
 
     coilRegisters: RegisterMap = {
@@ -588,6 +589,17 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
+      // HREG 56 (HREG_OVP_TIME) is the active overpressure/fireplace duration,
+      // but the unit overwrites it at startup with the default in HREG 57
+      // (HREG_OVP_TIME_DEF) — write both so the setting survives a restart.
+      if (changedKeys.includes('fireplace_duration_minutes')) {
+        const minutes = Number(newSettings.fireplace_duration_minutes);
+        if (Number.isInteger(minutes) && minutes >= 1 && minutes <= 60) {
+          await this.sendHoldingRequest(56, minutes);
+          await this.sendHoldingRequest(57, minutes);
+        }
+      }
+
       if (changedKeys.includes('address') || changedKeys.includes('port')) {
         try {
           this.modbusOptions.host = newSettings.address;
@@ -731,6 +743,17 @@ export abstract class ExventModbusDevice extends Homey.Device {
               .trigger(this)
               .catch(this.error);
           }
+        }
+      }
+
+      // Mirror the unit's active fireplace/overpressure duration (HREG 56) in
+      // the device settings. setSettings does not re-trigger onSettings, so
+      // this cannot loop.
+      if (result['fireplace_duration'] && result['fireplace_duration'].value !== 'xxx') {
+        const minutes = Number(result['fireplace_duration'].value);
+        if (this.isActive && minutes >= 1 && minutes <= 60
+          && this.getSetting('fireplace_duration_minutes') !== minutes) {
+          await this.setSettings({ fireplace_duration_minutes: minutes }).catch(this.error);
         }
       }
 

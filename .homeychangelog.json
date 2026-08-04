@@ -247,5 +247,8 @@
   },
   "4.6.3": {
     "en": "The Connect button on the pairing page now lights up blue once an IP address has been entered."
+  },
+  "4.7.0": {
+    "en": "New device setting for how many minutes fireplace mode stays active, written to the unit when changed. Fixed the pairing page so the Connect button reliably activates and turns blue once an IP address has been entered."
   }
 }
