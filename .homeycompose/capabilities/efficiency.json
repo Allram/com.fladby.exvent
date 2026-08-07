@@ -7,10 +7,9 @@
     "no": "Effektivitet"
   },
   "desc": {
-    "en": "Efficiency level changed",
-    "no": "Effektivitet endret"
+    "en": "Heat recovery efficiency",
+    "no": "Effektivitet for varmegjenvinning"
   },
-
   "getable": true,
   "setable": false,
   "insights": true,
@@ -23,10 +22,10 @@
     "no": "Effektivitet endret"
   },
   "units": {
-    "en": " %",
-    "no": " %"
-    },
-    "min": 0,
-    "max": 100,
-    "step": 1
+    "en": "%",
+    "no": "%"
+  },
+  "min": 0,
+  "max": 100,
+  "step": 1
 }

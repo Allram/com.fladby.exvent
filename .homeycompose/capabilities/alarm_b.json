@@ -2,7 +2,7 @@
   "type": "boolean",
   "icon": "/assets/filter_alarm.svg",
   "title": {
-    "en": "Filteralarm",
+    "en": "Filter alarm",
     "no": "Filteralarm"
   },
   "getable": true,

@@ -3,16 +3,12 @@
     {
       "id": "ecomode_eAir",
       "title": {
-        "en": "Set ecomode to ",
-        "no": "Sett økomodus til "
+        "en": "Set eco mode",
+        "no": "Sett økomodus"
       },
       "titleFormatted": {
-        "en": "Set ecomode to [[ecomode]]",
+        "en": "Set eco mode to [[ecomode]]",
         "no": "Sett økomodus til [[ecomode]]"
-      },
-      "hint": {
-        "en": "Set ecomode to",
-        "no": "Sett økomodus til"
       },
       "args": [
         {
@@ -22,15 +18,15 @@
             {
               "id": "1",
               "label": {
-                "en": "active",
-                "no": "aktiv"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "inactive",
-                "no": "inaktiv"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -40,16 +36,16 @@
     {
       "id": "heatingcoil_eAir",
       "title": {
-        "en": "Set heatingcoil to",
-        "no": "Sett varmekolbe til"
+        "en": "Set heating coil",
+        "no": "Sett varmekolbe"
       },
       "titleFormatted": {
-        "en": "Set heatingcoil to [[heatingcoil_eAir]]",
+        "en": "Set heating coil to [[heatingcoil_eAir]]",
         "no": "Sett varmekolbe til [[heatingcoil_eAir]]"
       },
       "hint": {
-        "en": "Set heatingcoil to",
-        "no": "Sett varmekolbe til"
+        "en": "Allows or blocks the unit from using its heating coil.",
+        "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
       },
       "args": [
         {
@@ -59,15 +55,15 @@
             {
               "id": "1",
               "label": {
-                "en": "active",
-                "no": "aktiv"
+                "en": "On",
+                "no": "På"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "inactive",
-                "no": "inaktiv"
+                "en": "Off",
+                "no": "Av"
               }
             }
           ]
@@ -77,16 +73,12 @@
     {
       "id": "set-temperature_eAir",
       "title": {
-        "en": "Set temperature",
-        "no": "Sett temperatur"
+        "en": "Set target temperature",
+        "no": "Sett ønsket temperatur"
       },
       "titleFormatted": {
-        "en": "Set temperature to [[temperature]]",
-        "no": "Sett temperatur til [[temperature]]"
-      },
-      "hint": {
-        "en": "Set target temperature",
-        "no": "Sett måltemperatur"
+        "en": "Set target temperature to [[temperature]]",
+        "no": "Sett ønsket temperatur til [[temperature]]"
       },
       "args": [
         {
@@ -101,16 +93,12 @@
     {
       "id": "status-mode_eAir",
       "title": {
-        "en": "Set mode to ",
-        "no": "Sett modus til "
+        "en": "Set mode",
+        "no": "Sett modus"
       },
       "titleFormatted": {
         "en": "Set mode to [[mode]]",
         "no": "Sett modus til [[mode]]"
-      },
-      "hint": {
-        "en": "Set mode to",
-        "no": "Sett modus til "
       },
       "args": [
         {
@@ -183,16 +171,16 @@
     {
       "id": "alarm_b_triggered2",
       "title": {
-        "en": "Filteralarm",
+        "en": "Filter alarm",
         "no": "Filteralarm"
       },
       "titleFormatted": {
-        "en": "Filter alarm triggered",
-        "no": "Filteralarm utløst"
+        "en": "The filter alarm went off",
+        "no": "Filteralarmen ble utløst"
       },
       "hint": {
-        "en": "Filter needs replacement",
-        "no": "Filter må byttes"
+        "en": "The unit reports that the filter needs replacing.",
+        "no": "Anlegget melder at filteret må byttes."
       },
       "args": []
     },
@@ -205,10 +193,6 @@
       "titleFormatted": {
         "en": "Mode changed to [[mode_title]]",
         "no": "Modus endret til [[mode_title]]"
-      },
-      "hint": {
-        "en": "Ventilation changed to",
-        "no": "Ventilasjon endret til"
       },
       "args": [
         {
@@ -264,16 +248,12 @@
     {
       "id": "heat_exchanger_mode_changed2",
       "title": {
-        "en": "Heat exchanger changed to",
-        "no": "Varmeveksler endre til"
+        "en": "Heat exchanger changed",
+        "no": "Varmeveksler endret"
       },
       "titleFormatted": {
-        "en": "Heat exchanger mode changed to [[mode_title]]",
-        "no": "Varmeveksler modus endret til [[mode_title]]"
-      },
-      "hint": {
-        "en": "Heat exchanger mode was changed",
-        "no": "Varmeveksler endret status"
+        "en": "Heat exchanger changed to [[mode_title]]",
+        "no": "Varmeveksler endret til [[mode_title]]"
       },
       "args": [
         {
@@ -283,15 +263,15 @@
             {
               "id": "1",
               "label": {
-                "en": "On",
-                "no": "På"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Off",
-                "no": "Av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -301,16 +281,12 @@
     {
       "id": "heater_mode_changed2",
       "title": {
-        "en": "Heater changed to",
-        "no": "Varmeelement endret til"
+        "en": "Heating coil changed",
+        "no": "Varmekolbe endret"
       },
       "titleFormatted": {
-        "en": "Heater mode changed to [[mode_title]]",
-        "no": "Varmeelement modus endret til [[mode_title]]"
-      },
-      "hint": {
-        "en": "Heater mode was changed",
-        "no": "Varmeelement endret status"
+        "en": "Heating coil changed to [[mode_title]]",
+        "no": "Varmekolbe endret til [[mode_title]]"
       },
       "args": [
         {
@@ -320,15 +296,15 @@
             {
               "id": "1",
               "label": {
-                "en": "On",
-                "no": "På"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Off",
-                "no": "Av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -340,12 +316,12 @@
     {
       "id": "eAirstatus_mode_is2",
       "title": {
-        "en": "eAir status mode is",
-        "no": "eAir modus er"
+        "en": "Mode is",
+        "no": "Modus er"
       },
       "titleFormatted": {
-        "en": "eAir status mode is [[mode]]",
-        "no": "eAir modus er [[mode]]"
+        "en": "Mode is [[mode]]",
+        "no": "Modus er [[mode]]"
       },
       "args": [
         {
@@ -401,12 +377,12 @@
     {
       "id": "heat_exchanger_mode_is2",
       "title": {
-        "en": "Heat exchanger mode is",
+        "en": "Heat exchanger is",
         "no": "Varmeveksler er"
       },
       "titleFormatted": {
-        "en": "Heat exchanger mode is [[mode]]",
-        "no": "Varmeveksler modus er [[mode]]"
+        "en": "Heat exchanger is [[mode]]",
+        "no": "Varmeveksler er [[mode]]"
       },
       "args": [
         {
@@ -416,15 +392,15 @@
             {
               "id": "on",
               "label": {
-                "en": "On",
-                "no": "På"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "off",
               "label": {
-                "en": "Off",
-                "no": "Av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -434,12 +410,12 @@
     {
       "id": "heater_mode_is2",
       "title": {
-        "en": "Heater mode is",
-        "no": "Varmeelement er"
+        "en": "Heating coil is",
+        "no": "Varmekolbe er"
       },
       "titleFormatted": {
-        "en": "Heater mode is [[mode]]",
-        "no": "Varmeelement modus er [[mode]]"
+        "en": "Heating coil is [[mode]]",
+        "no": "Varmekolbe er [[mode]]"
       },
       "args": [
         {
@@ -449,15 +425,15 @@
             {
               "id": "on",
               "label": {
-                "en": "On",
-                "no": "På"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "off",
               "label": {
-                "en": "Off",
-                "no": "Av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]

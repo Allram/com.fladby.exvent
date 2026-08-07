@@ -1,36 +1,35 @@
 {
-    "type": "enum",
+  "type": "enum",
+  "uiComponent": "picker",
+  "title": {
+    "en": "Heating coil enabled",
+    "no": "Varmekolbe aktivert"
+  },
+  "desc": {
+    "en": "Lets the unit use the heating coil",
+    "no": "Lar anlegget bruke varmekolben"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Heating coil was enabled or disabled",
+    "no": "Varmekolbe ble slått på eller av"
+  },
+  "values": [
+    {
+      "id": "1",
       "title": {
-        "en": "Heatingcoil",
-        "no": "Varmespole"
-      },
-      "desc": {
-        "en": "Heatingcoil on or off",
-        "no": "Varmespole av eller på"
-      },
-    
-      "getable": true,
-      "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Heatingcoil changed",
-        "no": "Varmespole endret"
-      },
-      "uiComponent": "picker",
-      "values": [
-        {
-          "id": "1",
-          "title": {
-            "en": "Active",
-            "no": "Aktiv"
-          }
-        },
-        {
-          "id": "0",
-          "title": {
-            "en": "Inactive",
-            "no": "Inaktiv"
-          }
-        }
-      ]
+        "en": "On",
+        "no": "På"
+      }
+    },
+    {
+      "id": "0",
+      "title": {
+        "en": "Off",
+        "no": "Av"
+      }
     }
+  ]
+}

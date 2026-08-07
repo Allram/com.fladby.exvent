@@ -1,7 +1,3 @@
-Control and monitor your Exvent eWind and eAir units directly from Homey. This app reads temperatures, humidity, fan speed, efficiency, heater and heat-exchanger states, and exposes modes and actions to Flows. Automate eco mode, heater coil, status modes, and target temperature, and keep an eye on live poll status so you always know your ventilation is connected.
-Remember to activate Modbus TCP in the eWind app before trying to connect and to give it a static IP in your router.
+Exvent eWind and eAir ventilation units connect over Modbus TCP and show up as a single device with live temperatures, humidity, heat recovery efficiency, fan speed and filter status. Home, Away, Fireplace, Enhanced ventilation, Boost and Off can be switched by hand or from a Flow, along with target temperature, eco mode and the heating coil.
 
-Supported devices
-Following devices are supported
-- Exvent eWind systems
-- Exvent eAir systems
+Before adding the unit, enable Modbus TCP from the eWind or eAir panel and give the unit a fixed IP address in your router. You then only need that IP address and the port, which is 502 on a standard installation.

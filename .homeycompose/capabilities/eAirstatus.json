@@ -42,8 +42,8 @@
     {
       "id": "3",
       "title": {
-        "en": "Heating element active",
-        "no": "Varmeelement aktivt"
+        "en": "Heating coil active",
+        "no": "Varmekolbe aktiv"
       }
     },
     {
@@ -62,4 +62,3 @@
     }
   ]
 }
-

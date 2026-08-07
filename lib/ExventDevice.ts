@@ -115,7 +115,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
     private async markNoConnection() {
       if (!this.isActive) return;
       try {
-        await this.setCapabilityValue('lastPollTime', 'No connection');
+        await this.setCapabilityValue('lastPollTime', this.homey.__('noConnection'));
       } catch (_) {
         // ignore capability write errors when device is unavailable
       }

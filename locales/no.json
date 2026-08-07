@@ -11,7 +11,8 @@
     "connect": "Koble til",
     "connecting": "Legger til enhet…"
   },
-  "Unreachable": "Unreachable",
+  "noConnection": "Ingen forbindelse",
+  "Unreachable": "Utilgjengelig",
   "Off": "Av",
   "NA": "Ikke tilgjengelig"
 }

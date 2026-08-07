@@ -27,37 +27,37 @@
   "capabilitiesOptions": {
     "measure_temperature.exhaustAir": {
       "title": {
-        "en": "Exhaust Air",
+        "en": "Exhaust air",
         "no": "Utkast"
       }
     },
     "measure_temperature.extractAir": {
       "title": {
-        "en": "Extract Air temperature",
+        "en": "Extract air temperature",
         "no": "Avtrekk"
       }
     },
     "measure_temperature.outsideAir": {
       "title": {
-        "en": "Fresh Air",
+        "en": "Fresh air",
         "no": "Inntak"
       }
     },
     "measure_temperature.supplyAirHRC": {
       "title": {
-        "en": "Supply Air after Heat recovery",
+        "en": "Supply air after heat recovery",
         "no": "Tilluft etter varmegjenvinning"
       }
     },
     "measure_temperature.step": {
       "title": {
-        "en": "Supply Air",
+        "en": "Supply air",
         "no": "Tilluft"
       }
     },
     "measure_humidity.extractAir": {
       "title": {
-        "en": "Extract Air humidity",
+        "en": "Extract air humidity",
         "no": "Avtrekksfuktighet"
       }
     },
@@ -69,14 +69,14 @@
     },
     "efficiency.extractEff": {
       "title": {
-        "en": "Exhaust Air efficiency",
+        "en": "Extract air efficiency",
         "no": "Avtrekkseffektivitet"
       }
     },
     "heater_mode": {
       "title": {
-        "en": "Heating element",
-        "no": "Varmeelement"
+        "en": "Heating coil",
+        "no": "Varmekolbe"
       }
     },
     "heat_exchanger_mode": {
@@ -87,13 +87,13 @@
     },
     "heating_coil_state": {
       "title": {
-        "en": "Heatingcoil",
-        "no": "Varmespole"
+        "en": "Heating coil enabled",
+        "no": "Varmekolbe aktivert"
       }
     },
     "alarm_b.desc": {
       "title": {
-        "en": "Filteralarm",
+        "en": "Filter alarm",
         "no": "Filteralarm"
       }
     },
@@ -117,7 +117,7 @@
     },
     "ecomode_mode": {
       "title": {
-        "en": "Ecomode",
+        "en": "Eco mode",
         "no": "Økomodus"
       }
     },
@@ -156,7 +156,8 @@
     {
       "type": "group",
       "label": {
-        "en": "eWind settings"
+        "en": "Connection",
+        "no": "Tilkobling"
       },
       "children": [
         {
@@ -164,7 +165,12 @@
           "type": "text",
           "value": "0.0.0.0",
           "label": {
-            "en": "IP Address"
+            "en": "IP address",
+            "no": "IP-adresse"
+          },
+          "hint": {
+            "en": "The fixed IP address of the ventilation unit on your network.",
+            "no": "Den faste IP-adressen ventilasjonsanlegget har i nettverket ditt."
           }
         },
         {
@@ -173,7 +179,12 @@
           "value": 502,
           "step": 1,
           "label": {
-            "en": "Port"
+            "en": "Port",
+            "no": "Port"
+          },
+          "hint": {
+            "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
+            "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
           }
         }
       ]

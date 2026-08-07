@@ -11,7 +11,8 @@
     "connect": "Connect",
     "connecting": "Adding device…"
   },
+  "noConnection": "No connection",
   "Unreachable": "Unreachable",
   "Off": "Off",
-  "NA": "Information Not Available"
+  "NA": "Information not available"
 }

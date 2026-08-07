@@ -262,5 +262,9 @@
   },
   "4.8.3": {
     "en": "Renamed the pairing view so phones that cached the old broken page load the fixed one."
+  },
+  "4.9.0": {
+    "en": "The heater is now called the heating coil everywhere, and the on/off setting for it is called Heating coil enabled. Flow cards got shorter, clearer titles, several Norwegian texts and typos were corrected, and the connection settings are now translated. eWind and eAir also got their own icons, and the eWind device image was redrawn.",
+    "no": "Varmeelementet heter nå varmekolbe overalt, og av/på-innstillingen for den heter Varmekolbe aktivert. Flytkortene har fått kortere og tydeligere titler, flere norske tekster og skrivefeil er rettet, og tilkoblingsinnstillingene er nå oversatt. eWind og eAir har også fått hvert sitt ikon, og enhetsbildet for eWind er tegnet på nytt."
   }
 }

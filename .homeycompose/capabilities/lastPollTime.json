@@ -3,23 +3,22 @@
   "uiComponent": "sensor",
   "icon": "/assets/efficiency.svg",
   "title": {
-    "en": "Last poll",
+    "en": "Last poll time",
     "no": "Siste polling"
   },
   "desc": {
-    "en": "Poll time changed",
-    "no": "Polling endret"
+    "en": "When the values were last read from the unit",
+    "no": "Når verdiene sist ble lest fra anlegget"
   },
-
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Poll time changed",
-    "no": "Polling endret"
+    "en": "Last poll time changed",
+    "no": "Siste polling endret"
   },
   "insightsTitleFalse": {
-    "en": "Poll time changed",
-    "no": "Polling endret"
+    "en": "Last poll time changed",
+    "no": "Siste polling endret"
   }
 }

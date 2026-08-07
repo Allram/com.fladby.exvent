@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fladby.exvent",
-  "version": "4.8.3",
+  "version": "4.9.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -15,8 +15,8 @@
     "no": "Exvent"
   },
   "description": {
-    "en": "Smart ventilation control for Exvent eWind & eAir, fully Homey-integrated.",
-    "no": "Smart ventilasjonsstyring for Exvent eWind og eAir, fullt integrert med Homey."
+    "en": "Fresh air, on autopilot.",
+    "no": "Frisk luft på autopilot."
   },
   "category": [
     "climate"
@@ -51,16 +51,16 @@
       {
         "id": "alarm_b_triggered2",
         "title": {
-          "en": "Filteralarm",
+          "en": "Filter alarm",
           "no": "Filteralarm"
         },
         "titleFormatted": {
-          "en": "Filter alarm triggered",
-          "no": "Filteralarm utløst"
+          "en": "The filter alarm went off",
+          "no": "Filteralarmen ble utløst"
         },
         "hint": {
-          "en": "Filter needs replacement",
-          "no": "Filter må byttes"
+          "en": "The unit reports that the filter needs replacing.",
+          "no": "Anlegget melder at filteret må byttes."
         },
         "args": [
           {
@@ -79,10 +79,6 @@
         "titleFormatted": {
           "en": "Mode changed to [[mode_title]]",
           "no": "Modus endret til [[mode_title]]"
-        },
-        "hint": {
-          "en": "Ventilation changed to",
-          "no": "Ventilasjon endret til"
         },
         "args": [
           {
@@ -143,16 +139,12 @@
       {
         "id": "heat_exchanger_mode_changed2",
         "title": {
-          "en": "Heat exchanger changed to",
-          "no": "Varmeveksler endre til"
+          "en": "Heat exchanger changed",
+          "no": "Varmeveksler endret"
         },
         "titleFormatted": {
-          "en": "Heat exchanger mode changed to [[mode_title]]",
-          "no": "Varmeveksler modus endret til [[mode_title]]"
-        },
-        "hint": {
-          "en": "Heat exchanger mode was changed",
-          "no": "Varmeveksler endret status"
+          "en": "Heat exchanger changed to [[mode_title]]",
+          "no": "Varmeveksler endret til [[mode_title]]"
         },
         "args": [
           {
@@ -167,15 +159,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -185,16 +177,12 @@
       {
         "id": "heater_mode_changed2",
         "title": {
-          "en": "Heater changed to",
-          "no": "Varmeelement endret til"
+          "en": "Heating coil changed",
+          "no": "Varmekolbe endret"
         },
         "titleFormatted": {
-          "en": "Heater mode changed to [[mode_title]]",
-          "no": "Varmeelement modus endret til [[mode_title]]"
-        },
-        "hint": {
-          "en": "Heater mode was changed",
-          "no": "Varmeelement endret status"
+          "en": "Heating coil changed to [[mode_title]]",
+          "no": "Varmekolbe endret til [[mode_title]]"
         },
         "args": [
           {
@@ -209,15 +197,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -227,16 +215,16 @@
       {
         "id": "alarm_b_triggered",
         "title": {
-          "en": "Filteralarm",
+          "en": "Filter alarm",
           "no": "Filteralarm"
         },
         "titleFormatted": {
-          "en": "Filter alarm triggered",
-          "no": "Filteralarm utløst"
+          "en": "The filter alarm went off",
+          "no": "Filteralarmen ble utløst"
         },
         "hint": {
-          "en": "Filter needs replacement",
-          "no": "Filter må byttes"
+          "en": "The unit reports that the filter needs replacing.",
+          "no": "Anlegget melder at filteret må byttes."
         },
         "args": [
           {
@@ -249,16 +237,12 @@
       {
         "id": "eWindstatus_mode_changed",
         "title": {
-          "en": "Mode changed to",
-          "no": "Modus endret til"
+          "en": "Mode changed",
+          "no": "Modus endret"
         },
         "titleFormatted": {
           "en": "Mode changed to [[mode_title]]",
           "no": "Modus endret til [[mode_title]]"
-        },
-        "hint": {
-          "en": "Ventilation changed mode",
-          "no": "Ventilasjon endret status"
         },
         "args": [
           {
@@ -319,16 +303,12 @@
       {
         "id": "heat_exchanger_mode_changed",
         "title": {
-          "en": "Heat exchanger changed to",
-          "no": "Varmeveksler endret til"
+          "en": "Heat exchanger changed",
+          "no": "Varmeveksler endret"
         },
         "titleFormatted": {
           "en": "Heat exchanger changed to [[mode_title]]",
           "no": "Varmeveksler endret til [[mode_title]]"
-        },
-        "hint": {
-          "en": "Heat exchanger mode was changed",
-          "no": "Varmeveksler endret status"
         },
         "args": [
           {
@@ -343,15 +323,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -361,16 +341,12 @@
       {
         "id": "heater_mode_changed",
         "title": {
-          "en": "Heater changed to",
-          "no": "Varmeelement endret til"
+          "en": "Heating coil changed",
+          "no": "Varmekolbe endret"
         },
         "titleFormatted": {
-          "en": "Heater changed to [[mode_title]]",
-          "no": "Varmeelement endret til [[mode_title]]"
-        },
-        "hint": {
-          "en": "Heater mode was changed",
-          "no": "Varmeelement endret status"
+          "en": "Heating coil changed to [[mode_title]]",
+          "no": "Varmekolbe endret til [[mode_title]]"
         },
         "args": [
           {
@@ -385,15 +361,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -405,12 +381,12 @@
       {
         "id": "eAirstatus_mode_is2",
         "title": {
-          "en": "eAir status mode is",
-          "no": "eAir modus er"
+          "en": "Mode is",
+          "no": "Modus er"
         },
         "titleFormatted": {
-          "en": "eAir status mode is [[mode]]",
-          "no": "eAir modus er [[mode]]"
+          "en": "Mode is [[mode]]",
+          "no": "Modus er [[mode]]"
         },
         "args": [
           {
@@ -471,12 +447,12 @@
       {
         "id": "heat_exchanger_mode_is2",
         "title": {
-          "en": "Heat exchanger mode is",
+          "en": "Heat exchanger is",
           "no": "Varmeveksler er"
         },
         "titleFormatted": {
-          "en": "Heat exchanger mode is [[mode]]",
-          "no": "Varmeveksler modus er [[mode]]"
+          "en": "Heat exchanger is [[mode]]",
+          "no": "Varmeveksler er [[mode]]"
         },
         "args": [
           {
@@ -491,15 +467,15 @@
               {
                 "id": "on",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "off",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -509,12 +485,12 @@
       {
         "id": "heater_mode_is2",
         "title": {
-          "en": "Heater mode is",
-          "no": "Varmeelement er"
+          "en": "Heating coil is",
+          "no": "Varmekolbe er"
         },
         "titleFormatted": {
-          "en": "Heater mode is [[mode]]",
-          "no": "Varmeelement modus er [[mode]]"
+          "en": "Heating coil is [[mode]]",
+          "no": "Varmekolbe er [[mode]]"
         },
         "args": [
           {
@@ -529,15 +505,15 @@
               {
                 "id": "on",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "off",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -547,12 +523,12 @@
       {
         "id": "eWindstatus_mode_is",
         "title": {
-          "en": "eWind status mode is",
-          "no": "eWind modus er"
+          "en": "Mode is",
+          "no": "Modus er"
         },
         "titleFormatted": {
-          "en": "eWind status mode is [[mode]]",
-          "no": "eWind modus er [[mode]]"
+          "en": "Mode is [[mode]]",
+          "no": "Modus er [[mode]]"
         },
         "args": [
           {
@@ -613,11 +589,11 @@
       {
         "id": "heat_exchanger_mode_is",
         "title": {
-          "en": "Heat exchanger mode is",
+          "en": "Heat exchanger is",
           "no": "Varmeveksler er"
         },
         "titleFormatted": {
-          "en": "Heat exchanger mode is [[mode]]",
+          "en": "Heat exchanger is [[mode]]",
           "no": "Varmeveksler er [[mode]]"
         },
         "args": [
@@ -633,15 +609,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -651,12 +627,12 @@
       {
         "id": "heater_mode_is",
         "title": {
-          "en": "Heater mode is",
-          "no": "Varmeelement er"
+          "en": "Heating coil is",
+          "no": "Varmekolbe er"
         },
         "titleFormatted": {
-          "en": "Heating element is [[mode]]",
-          "no": "Varmeelement er [[mode]]"
+          "en": "Heating coil is [[mode]]",
+          "no": "Varmekolbe er [[mode]]"
         },
         "args": [
           {
@@ -671,15 +647,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -691,16 +667,12 @@
       {
         "id": "ecomode_eAir",
         "title": {
-          "en": "Set ecomode to ",
-          "no": "Sett økomodus til "
+          "en": "Set eco mode",
+          "no": "Sett økomodus"
         },
         "titleFormatted": {
-          "en": "Set ecomode to [[ecomode]]",
+          "en": "Set eco mode to [[ecomode]]",
           "no": "Sett økomodus til [[ecomode]]"
-        },
-        "hint": {
-          "en": "Set ecomode to",
-          "no": "Sett økomodus til"
         },
         "args": [
           {
@@ -715,15 +687,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "active",
-                  "no": "aktiv"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "inactive",
-                  "no": "inaktiv"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -733,16 +705,16 @@
       {
         "id": "heatingcoil_eAir",
         "title": {
-          "en": "Set heatingcoil to",
-          "no": "Sett varmekolbe til"
+          "en": "Set heating coil",
+          "no": "Sett varmekolbe"
         },
         "titleFormatted": {
-          "en": "Set heatingcoil to [[heatingcoil_eAir]]",
+          "en": "Set heating coil to [[heatingcoil_eAir]]",
           "no": "Sett varmekolbe til [[heatingcoil_eAir]]"
         },
         "hint": {
-          "en": "Set heatingcoil to",
-          "no": "Sett varmekolbe til"
+          "en": "Allows or blocks the unit from using its heating coil.",
+          "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
         },
         "args": [
           {
@@ -757,15 +729,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "active",
-                  "no": "aktiv"
+                  "en": "On",
+                  "no": "På"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "inactive",
-                  "no": "inaktiv"
+                  "en": "Off",
+                  "no": "Av"
                 }
               }
             ]
@@ -775,16 +747,12 @@
       {
         "id": "set-temperature_eAir",
         "title": {
-          "en": "Set temperature",
-          "no": "Sett temperatur"
+          "en": "Set target temperature",
+          "no": "Sett ønsket temperatur"
         },
         "titleFormatted": {
-          "en": "Set temperature to [[temperature]]",
-          "no": "Sett temperatur til [[temperature]]"
-        },
-        "hint": {
-          "en": "Set target temperature",
-          "no": "Sett måltemperatur"
+          "en": "Set target temperature to [[temperature]]",
+          "no": "Sett ønsket temperatur til [[temperature]]"
         },
         "args": [
           {
@@ -804,16 +772,12 @@
       {
         "id": "status-mode_eAir",
         "title": {
-          "en": "Set mode to ",
-          "no": "Sett modus til "
+          "en": "Set mode",
+          "no": "Sett modus"
         },
         "titleFormatted": {
           "en": "Set mode to [[mode]]",
           "no": "Sett modus til [[mode]]"
-        },
-        "hint": {
-          "en": "Set mode to",
-          "no": "Sett modus til "
         },
         "args": [
           {
@@ -896,16 +860,12 @@
       {
         "id": "ecomode",
         "title": {
-          "en": "Set ecomode to ",
-          "no": "Sett økomodus til "
+          "en": "Set eco mode",
+          "no": "Sett økomodus"
         },
         "titleFormatted": {
-          "en": "Set ecomode to [[ecomode]]",
+          "en": "Set eco mode to [[ecomode]]",
           "no": "Sett økomodus til [[ecomode]]"
-        },
-        "hint": {
-          "en": "Set ecomode to",
-          "no": "Sett økomodus til"
         },
         "args": [
           {
@@ -920,15 +880,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "active",
-                  "no": "aktiv"
+                  "en": "Active",
+                  "no": "Aktiv"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "inactive",
-                  "no": "inaktiv"
+                  "en": "Inactive",
+                  "no": "Inaktiv"
                 }
               }
             ]
@@ -938,16 +898,16 @@
       {
         "id": "heatingcoil",
         "title": {
-          "en": "Set heatingcoil to",
-          "no": "Sett varmekolbe til"
+          "en": "Set heating coil",
+          "no": "Sett varmekolbe"
         },
         "titleFormatted": {
-          "en": "Set heatingcoil to [[heatingcoil]]",
+          "en": "Set heating coil to [[heatingcoil]]",
           "no": "Sett varmekolbe til [[heatingcoil]]"
         },
         "hint": {
-          "en": "Set heatingcoil to",
-          "no": "Sett varmekolbe til"
+          "en": "Allows or blocks the unit from using its heating coil.",
+          "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
         },
         "args": [
           {
@@ -962,15 +922,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "active",
-                  "no": "aktiv"
+                  "en": "On",
+                  "no": "På"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "inactive",
-                  "no": "inaktiv"
+                  "en": "Off",
+                  "no": "Av"
                 }
               }
             ]
@@ -980,16 +940,12 @@
       {
         "id": "set-temperature",
         "title": {
-          "en": "Set temperature",
-          "no": "Sett temperatur"
+          "en": "Set target temperature",
+          "no": "Sett ønsket temperatur"
         },
         "titleFormatted": {
-          "en": "Set temperature to [[temperature]]",
-          "no": "Sett temperatur til [[temperature]]"
-        },
-        "hint": {
-          "en": "Set target temperature",
-          "no": "Sett måltemperatur"
+          "en": "Set target temperature to [[temperature]]",
+          "no": "Sett ønsket temperatur til [[temperature]]"
         },
         "args": [
           {
@@ -1009,16 +965,12 @@
       {
         "id": "status-mode",
         "title": {
-          "en": "Set mode to ",
-          "no": "Sett modus til "
+          "en": "Set mode",
+          "no": "Sett modus"
         },
         "titleFormatted": {
           "en": "Set mode to [[mode]]",
           "no": "Sett modus til [[mode]]"
-        },
-        "hint": {
-          "en": "Set mode to",
-          "no": "Sett modus til "
         },
         "args": [
           {
@@ -1130,37 +1082,37 @@
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
           "title": {
-            "en": "Exhaust Air",
+            "en": "Exhaust air",
             "no": "Utkast"
           }
         },
         "measure_temperature.extractAir": {
           "title": {
-            "en": "Extract Air temperature",
+            "en": "Extract air temperature",
             "no": "Avtrekk"
           }
         },
         "measure_temperature.outsideAir": {
           "title": {
-            "en": "Fresh Air",
+            "en": "Fresh air",
             "no": "Inntak"
           }
         },
         "measure_temperature.supplyAirHRC": {
           "title": {
-            "en": "Supply Air after Heat recovery",
+            "en": "Supply air after heat recovery",
             "no": "Tilluft etter varmegjenvinning"
           }
         },
         "measure_temperature.step": {
           "title": {
-            "en": "Supply Air",
+            "en": "Supply air",
             "no": "Tilluft"
           }
         },
         "measure_humidity.extractAir": {
           "title": {
-            "en": "Extract Air humidity",
+            "en": "Extract air humidity",
             "no": "Avtrekksfuktighet"
           }
         },
@@ -1172,14 +1124,14 @@
         },
         "efficiency.extractEff": {
           "title": {
-            "en": "Exhaust Air efficiency",
+            "en": "Extract air efficiency",
             "no": "Avtrekkseffektivitet"
           }
         },
         "heater_mode": {
           "title": {
-            "en": "Heating element",
-            "no": "Varmeelement"
+            "en": "Heating coil",
+            "no": "Varmekolbe"
           }
         },
         "heat_exchanger_mode": {
@@ -1190,13 +1142,13 @@
         },
         "heating_coil_state": {
           "title": {
-            "en": "Heatingcoil",
-            "no": "Varmespole"
+            "en": "Heating coil enabled",
+            "no": "Varmekolbe aktivert"
           }
         },
         "alarm_b.desc": {
           "title": {
-            "en": "Filteralarm",
+            "en": "Filter alarm",
             "no": "Filteralarm"
           }
         },
@@ -1206,13 +1158,13 @@
             "no": "Viftenivå"
           }
         },
-        "eWindstatus": {
+        "eAirstatus": {
           "title": {
             "en": "Status",
             "no": "Status"
           }
         },
-        "eWindstatus_mode": {
+        "eAirstatus_mode": {
           "title": {
             "en": "Mode",
             "no": "Modus"
@@ -1220,7 +1172,7 @@
         },
         "ecomode_mode": {
           "title": {
-            "en": "Ecomode",
+            "en": "Eco mode",
             "no": "Økomodus"
           }
         },
@@ -1259,7 +1211,8 @@
         {
           "type": "group",
           "label": {
-            "en": "eAir settings"
+            "en": "Connection",
+            "no": "Tilkobling"
           },
           "children": [
             {
@@ -1267,7 +1220,12 @@
               "type": "text",
               "value": "0.0.0.0",
               "label": {
-                "en": "IP Address"
+                "en": "IP address",
+                "no": "IP-adresse"
+              },
+              "hint": {
+                "en": "The fixed IP address of the ventilation unit on your network.",
+                "no": "Den faste IP-adressen ventilasjonsanlegget har i nettverket ditt."
               }
             },
             {
@@ -1276,7 +1234,12 @@
               "value": 502,
               "step": 1,
               "label": {
-                "en": "Port"
+                "en": "Port",
+                "no": "Port"
+              },
+              "hint": {
+                "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
+                "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
               }
             }
           ]
@@ -1369,37 +1332,37 @@
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
           "title": {
-            "en": "Exhaust Air",
+            "en": "Exhaust air",
             "no": "Utkast"
           }
         },
         "measure_temperature.extractAir": {
           "title": {
-            "en": "Extract Air temperature",
+            "en": "Extract air temperature",
             "no": "Avtrekk"
           }
         },
         "measure_temperature.outsideAir": {
           "title": {
-            "en": "Fresh Air",
+            "en": "Fresh air",
             "no": "Inntak"
           }
         },
         "measure_temperature.supplyAirHRC": {
           "title": {
-            "en": "Supply Air after Heat recovery",
+            "en": "Supply air after heat recovery",
             "no": "Tilluft etter varmegjenvinning"
           }
         },
         "measure_temperature.step": {
           "title": {
-            "en": "Supply Air",
+            "en": "Supply air",
             "no": "Tilluft"
           }
         },
         "measure_humidity.extractAir": {
           "title": {
-            "en": "Extract Air humidity",
+            "en": "Extract air humidity",
             "no": "Avtrekksfuktighet"
           }
         },
@@ -1411,14 +1374,14 @@
         },
         "efficiency.extractEff": {
           "title": {
-            "en": "Exhaust Air efficiency",
+            "en": "Extract air efficiency",
             "no": "Avtrekkseffektivitet"
           }
         },
         "heater_mode": {
           "title": {
-            "en": "Heating element",
-            "no": "Varmeelement"
+            "en": "Heating coil",
+            "no": "Varmekolbe"
           }
         },
         "heat_exchanger_mode": {
@@ -1429,13 +1392,13 @@
         },
         "heating_coil_state": {
           "title": {
-            "en": "Heatingcoil",
-            "no": "Varmespole"
+            "en": "Heating coil enabled",
+            "no": "Varmekolbe aktivert"
           }
         },
         "alarm_b.desc": {
           "title": {
-            "en": "Filteralarm",
+            "en": "Filter alarm",
             "no": "Filteralarm"
           }
         },
@@ -1459,7 +1422,7 @@
         },
         "ecomode_mode": {
           "title": {
-            "en": "Ecomode",
+            "en": "Eco mode",
             "no": "Økomodus"
           }
         },
@@ -1498,7 +1461,8 @@
         {
           "type": "group",
           "label": {
-            "en": "eWind settings"
+            "en": "Connection",
+            "no": "Tilkobling"
           },
           "children": [
             {
@@ -1506,7 +1470,12 @@
               "type": "text",
               "value": "0.0.0.0",
               "label": {
-                "en": "IP Address"
+                "en": "IP address",
+                "no": "IP-adresse"
+              },
+              "hint": {
+                "en": "The fixed IP address of the ventilation unit on your network.",
+                "no": "Den faste IP-adressen ventilasjonsanlegget har i nettverket ditt."
               }
             },
             {
@@ -1515,7 +1484,12 @@
               "value": 502,
               "step": 1,
               "label": {
-                "en": "Port"
+                "en": "Port",
+                "no": "Port"
+              },
+              "hint": {
+                "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
+                "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
               }
             }
           ]
@@ -1585,7 +1559,7 @@
       "type": "boolean",
       "icon": "/assets/filter_alarm.svg",
       "title": {
-        "en": "Filteralarm",
+        "en": "Filter alarm",
         "no": "Filteralarm"
       },
       "getable": true,
@@ -1636,8 +1610,8 @@
         {
           "id": "3",
           "title": {
-            "en": "Heating element active",
-            "no": "Varmeelement aktivt"
+            "en": "Heating coil active",
+            "no": "Varmekolbe aktiv"
           }
         },
         {
@@ -1764,8 +1738,8 @@
         "no": "Effektivitet"
       },
       "desc": {
-        "en": "Efficiency level changed",
-        "no": "Effektivitet endret"
+        "en": "Heat recovery efficiency",
+        "no": "Effektivitet for varmegjenvinning"
       },
       "getable": true,
       "setable": false,
@@ -1779,8 +1753,8 @@
         "no": "Effektivitet endret"
       },
       "units": {
-        "en": " %",
-        "no": " %"
+        "en": "%",
+        "no": "%"
       },
       "min": 0,
       "max": 100,
@@ -1791,19 +1765,19 @@
       "uiComponent": "sensor",
       "icon": "/assets/status.svg",
       "title": {
-        "en": "eWind status",
-        "no": "eWind status"
+        "en": "Status",
+        "no": "Status"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "eWind status changed",
-        "no": "eWind status endret"
+        "en": "Status changed",
+        "no": "Status endret"
       },
       "insightsTitleFalse": {
-        "en": "eWind status changed",
-        "no": "eWind status endret"
+        "en": "Status changed",
+        "no": "Status endret"
       },
       "values": [
         {
@@ -1830,8 +1804,8 @@
         {
           "id": "3",
           "title": {
-            "en": "Heating element active",
-            "no": "Varmeelement aktivt"
+            "en": "Heating coil active",
+            "no": "Varmekolbe aktiv"
           }
         },
         {
@@ -1919,22 +1893,22 @@
       "uiComponent": "sensor",
       "icon": "/assets/fanspeed.svg",
       "title": {
-        "en": "Fan speed level (1-4)",
-        "no": "Viftenivå (1-4)"
+        "en": "Fan speed level",
+        "no": "Viftenivå"
       },
       "desc": {
-        "en": "Fan level changed",
-        "no": "Viftenivå endret"
+        "en": "Fan speed level, from 1 to 4",
+        "no": "Viftenivå, fra 1 til 4"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Fan level changed",
+        "en": "Fan speed level changed",
         "no": "Viftenivå endret"
       },
       "insightsTitleFalse": {
-        "en": "Fan level changed",
+        "en": "Fan speed level changed",
         "no": "Viftenivå endret"
       }
     },
@@ -2001,19 +1975,19 @@
       "uiComponent": "sensor",
       "icon": "/assets/heater_mode.svg",
       "title": {
-        "en": "Heatingelement",
-        "no": "Varmeeleement"
+        "en": "Heating coil",
+        "no": "Varmekolbe"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Heatingelement status changed",
-        "no": "Varmeelement status endret"
+        "en": "Heating coil status changed",
+        "no": "Varmekolbestatus endret"
       },
       "insightsTitleFalse": {
-        "en": "Heatingelement status changed",
-        "no": "Varmeelement status endret"
+        "en": "Heating coil status changed",
+        "no": "Varmekolbestatus endret"
       },
       "values": [
         {
@@ -2034,35 +2008,35 @@
     },
     "heating_coil_state": {
       "type": "enum",
+      "uiComponent": "picker",
       "title": {
-        "en": "Heatingcoil",
-        "no": "Varmespole"
+        "en": "Heating coil enabled",
+        "no": "Varmekolbe aktivert"
       },
       "desc": {
-        "en": "Heatingcoil on or off",
-        "no": "Varmespole av eller på"
+        "en": "Lets the unit use the heating coil",
+        "no": "Lar anlegget bruke varmekolben"
       },
       "getable": true,
       "setable": true,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Heatingcoil changed",
-        "no": "Varmespole endret"
+        "en": "Heating coil was enabled or disabled",
+        "no": "Varmekolbe ble slått på eller av"
       },
-      "uiComponent": "picker",
       "values": [
         {
           "id": "1",
           "title": {
-            "en": "Active",
-            "no": "Aktiv"
+            "en": "On",
+            "no": "På"
           }
         },
         {
           "id": "0",
           "title": {
-            "en": "Inactive",
-            "no": "Inaktiv"
+            "en": "Off",
+            "no": "Av"
           }
         }
       ]
@@ -2072,23 +2046,23 @@
       "uiComponent": "sensor",
       "icon": "/assets/efficiency.svg",
       "title": {
-        "en": "Last poll",
+        "en": "Last poll time",
         "no": "Siste polling"
       },
       "desc": {
-        "en": "Poll time changed",
-        "no": "Polling endret"
+        "en": "When the values were last read from the unit",
+        "no": "Når verdiene sist ble lest fra anlegget"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Poll time changed",
-        "no": "Polling endret"
+        "en": "Last poll time changed",
+        "no": "Siste polling endret"
       },
       "insightsTitleFalse": {
-        "en": "Poll time changed",
-        "no": "Polling endret"
+        "en": "Last poll time changed",
+        "no": "Siste polling endret"
       }
     }
   }
