@@ -10,8 +10,17 @@ jobs:
   validate:
     runs-on: docker
     steps:
+      # This instance runs with REQUIRE_SIGNIN_VIEW, and it rejects the
+      # Authorization header actions/checkout installs, so git falls back to
+      # prompting and dies with "could not read Username". Clone by hand with
+      # the run token in the URL, the same way Allram/MagicMatch does.
       - name: Checkout
-        uses: https://github.com/actions/checkout@v4
+        run: |
+          git init -q .
+          git remote add origin \
+            "https://actions:${{ github.token }}@kode.fladby.org/${{ github.repository }}.git"
+          git fetch -q --depth 1 origin "${GITHUB_SHA}"
+          git checkout -q --detach FETCH_HEAD
 
       - name: Setup Node.js
         uses: https://github.com/actions/setup-node@v4
