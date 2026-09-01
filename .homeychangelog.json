@@ -263,12 +263,12 @@
   "4.8.3": {
     "en": "Renamed the pairing view so phones that cached the old broken page load the fixed one."
   },
-  "4.10.0": {
-    "en": "Fixed the Mode changed, Heating coil changed and Heat exchanger changed Flow triggers. Their dropdown was never checked, so the cards could not match and the Flows using them never ran. The triggers now also fire when the unit changes by itself — from the panel, from its own CO2 or humidity boost, or when the boost timer runs out.",
-    "no": "Rettet flytutløserne Modus endret, Varmekolbe endret og Varmeveksler endret. Nedtrekksvalget ble aldri sjekket, så kortene kunne ikke treffe og flytene som brukte dem kjørte aldri. Utløserne fyrer nå også når anlegget endrer seg selv — fra panelet, fra sin egen CO2- eller fuktboost, eller når boost-tiden løper ut."
-  },
   "4.9.0": {
     "en": "The heater is now called the heating coil everywhere, and the on/off setting for it is called Heating coil enabled. Flow cards got shorter, clearer titles, several Norwegian texts and typos were corrected, and the connection settings are now translated. eWind and eAir also got their own icons, and the eWind device image was redrawn.",
     "no": "Varmeelementet heter nå varmekolbe overalt, og av/på-innstillingen for den heter Varmekolbe aktivert. Flytkortene har fått kortere og tydeligere titler, flere norske tekster og skrivefeil er rettet, og tilkoblingsinnstillingene er nå oversatt. eWind og eAir har også fått hvert sitt ikon, og enhetsbildet for eWind er tegnet på nytt."
+  },
+  "4.10.0": {
+    "en": "Fixed the Mode changed, Heating coil changed and Heat exchanger changed Flow triggers. Their dropdown was never checked, so the cards could not match and the Flows using them never ran. The triggers now also fire when the unit changes by itself — from the panel, from its own CO2 or humidity boost, or when the boost timer runs out.",
+    "no": "Rettet flytutløserne Modus endret, Varmekolbe endret og Varmeveksler endret. Nedtrekksvalget ble aldri sjekket, så kortene kunne ikke treffe og flytene som brukte dem kjørte aldri. Utløserne fyrer nå også når anlegget endrer seg selv — fra panelet, fra sin egen CO2- eller fuktboost, eller når boost-tiden løper ut."
   }
 }
