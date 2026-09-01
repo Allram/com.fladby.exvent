@@ -270,5 +270,9 @@
   "4.10.0": {
     "en": "Fixed the Mode changed, Heating coil changed and Heat exchanger changed Flow triggers. Their dropdown was never checked, so the cards could not match and the Flows using them never ran. The triggers now also fire when the unit changes by itself — from the panel, from its own CO2 or humidity boost, or when the boost timer runs out.",
     "no": "Rettet flytutløserne Modus endret, Varmekolbe endret og Varmeveksler endret. Nedtrekksvalget ble aldri sjekket, så kortene kunne ikke treffe og flytene som brukte dem kjørte aldri. Utløserne fyrer nå også når anlegget endrer seg selv — fra panelet, fra sin egen CO2- eller fuktboost, eller når boost-tiden løper ut."
+  },
+  "4.10.1": {
+    "en": "The Mode changed, Heating coil changed and Heat exchanger changed triggers still did not match in 4.10.0. Their check read a device that a device trigger card never passes along, so it failed before it could compare anything.",
+    "no": "Utløserne Modus endret, Varmekolbe endret og Varmeveksler endret traff fortsatt ikke i 4.10.0. Sjekken leste en enhet som et enhetsutløserkort aldri sender med, så den feilet før den rakk å sammenligne noe."
   }
 }

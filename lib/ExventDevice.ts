@@ -512,27 +512,25 @@ export abstract class ExventModbusDevice extends Homey.Device {
       // The *_changed trigger cards carry a mode dropdown. Without a run
       // listener the dropdown is never evaluated and the card can never match,
       // so every one of them has to compare its argument against the mode the
-      // trigger was fired with.
+      // trigger was fired with. Unlike the condition cards these listeners must
+      // not read args.device — a device trigger card filters by device itself
+      // and does not pass one — so the argument maps are captured here instead.
+      // They are per-driver constants and every device of this driver shares
+      // both the card id and the map, so the capture is always the right one.
+      const { statusModeArgMap, onOffArgMap } = this;
+      const matches = (map: Record<string, string>) => async (args: any, state: any) => {
+        const expected = map[args.mode_title] ?? args.mode_title;
+        return state != null && state.mode === expected;
+      };
+
       this.homey.flow.getDeviceTriggerCard(cards.statusModeChanged)
-        .registerRunListener(async (args: any, state: any) => {
-          const device = args.device as ExventModbusDevice;
-          const expected = device.statusModeArgMap[args.mode_title] ?? args.mode_title;
-          return state?.mode === expected;
-        });
+        .registerRunListener(matches(statusModeArgMap));
 
       this.homey.flow.getDeviceTriggerCard(cards.heaterChanged)
-        .registerRunListener(async (args: any, state: any) => {
-          const device = args.device as ExventModbusDevice;
-          const expected = device.onOffArgMap[args.mode_title] ?? args.mode_title;
-          return state?.mode === expected;
-        });
+        .registerRunListener(matches(onOffArgMap));
 
       this.homey.flow.getDeviceTriggerCard(cards.heatExchangerChanged)
-        .registerRunListener(async (args: any, state: any) => {
-          const device = args.device as ExventModbusDevice;
-          const expected = device.onOffArgMap[args.mode_title] ?? args.mode_title;
-          return state?.mode === expected;
-        });
+        .registerRunListener(matches(onOffArgMap));
 
       this.homey.flow.getConditionCard(cards.heatExchangerIs)
         .registerRunListener(async (args: any) => {
