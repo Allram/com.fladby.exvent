@@ -12,6 +12,12 @@ const WRITE_SPACING_MS = 1000;
 const MODBUS_TIMEOUT = 5000;
 const MODBUS_UNIT_ID = 255;
 const CONFIRM_POLL_DELAY_MS = 3000;
+/**
+ * How long after a mode write the poller's readings are treated as our own
+ * echo. The unit needs a poll or two before it reports the new mode, and the
+ * unit's own boost flags can linger for one cycle after the fan speed is back.
+ */
+const MODE_WRITE_SETTLE_MS = 2 * POLL_INTERVAL;
 
 /**
  * Every active device across both drivers, so the process shutdown handlers
@@ -111,6 +117,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
     private writeQueue: Array<() => Promise<void>> = [];
     private drainingWriteQueue: boolean = false;
     private confirmPollTimeout: NodeJS.Timeout | null = null;
+    /**
+     * Timestamp of the last mode write. A write is applied optimistically and
+     * only lands on the unit a poll or two later, so mode changes observed by
+     * the poller inside this window are our own echo, not an external change.
+     */
+    private lastModeWriteAt: number = 0;
 
     private async markNoConnection() {
       if (!this.isActive) return;
@@ -346,6 +358,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * The capability update is queued last, after all writes have been sent.
      */
     async setStatusModeValue(value: string) {
+      this.lastModeWriteAt = Date.now();
       switch (value) {
         case '0':
           await this.sendCoilRequest(0, false);
@@ -496,6 +509,31 @@ export abstract class ExventModbusDevice extends Homey.Device {
           return device.getCapabilityValue(device.statusModeCapability) === expected;
         });
 
+      // The *_changed trigger cards carry a mode dropdown. Without a run
+      // listener the dropdown is never evaluated and the card can never match,
+      // so every one of them has to compare its argument against the mode the
+      // trigger was fired with.
+      this.homey.flow.getDeviceTriggerCard(cards.statusModeChanged)
+        .registerRunListener(async (args: any, state: any) => {
+          const device = args.device as ExventModbusDevice;
+          const expected = device.statusModeArgMap[args.mode_title] ?? args.mode_title;
+          return state?.mode === expected;
+        });
+
+      this.homey.flow.getDeviceTriggerCard(cards.heaterChanged)
+        .registerRunListener(async (args: any, state: any) => {
+          const device = args.device as ExventModbusDevice;
+          const expected = device.onOffArgMap[args.mode_title] ?? args.mode_title;
+          return state?.mode === expected;
+        });
+
+      this.homey.flow.getDeviceTriggerCard(cards.heatExchangerChanged)
+        .registerRunListener(async (args: any, state: any) => {
+          const device = args.device as ExventModbusDevice;
+          const expected = device.onOffArgMap[args.mode_title] ?? args.mode_title;
+          return state?.mode === expected;
+        });
+
       this.homey.flow.getConditionCard(cards.heatExchangerIs)
         .registerRunListener(async (args: any) => {
           const device = args.device as ExventModbusDevice;
@@ -513,9 +551,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       this.registerCapabilityListener(this.statusModeCapability, async (value) => {
         if (!this.isUsable()) return;
         await this.setStatusModeValue(value);
-        await this.homey.flow.getDeviceTriggerCard(cards.statusModeChanged)
-          .trigger(this)
-          .catch(this.error);
+        await this.fireModeChanged(cards.statusModeChanged, value);
       });
 
       this.registerCapabilityListener('target_temperature.step', async (value) => {
@@ -636,6 +672,16 @@ export abstract class ExventModbusDevice extends Homey.Device {
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    /**
+     * Fires one of the *_changed trigger cards. The new value is passed as
+     * trigger state so the card's dropdown argument can be compared against it.
+     */
+    private async fireModeChanged(cardId: string, mode: string) {
+      await this.homey.flow.getDeviceTriggerCard(cardId)
+        .trigger(this, {}, { mode })
+        .catch(this.error);
+    }
+
     private async setIfChanged(capabilityId: string, value: any) {
       try {
         const current = this.getCapabilityValue(capabilityId);
@@ -720,7 +766,16 @@ export abstract class ExventModbusDevice extends Homey.Device {
           mapped = '5';
         }
         if (mapped !== undefined) {
+          // Panel changes, the unit's own CO2/RH boost and the boost timer
+          // running out all change the mode without Homey asking for it. The
+          // capability listener never sees those, so the trigger has to be
+          // fired here — except while our own write is still settling.
+          const previous = this.getCapabilityValue(this.statusModeCapability);
           await this.setIfChanged(this.statusModeCapability, mapped);
+          if (typeof previous === 'string' && previous !== mapped
+            && Date.now() - this.lastModeWriteAt > MODE_WRITE_SETTLE_MS) {
+            await this.fireModeChanged(this.flowCardIds.statusModeChanged, mapped);
+          }
         }
       }
 
@@ -734,14 +789,22 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (result['heater_status'] && result['heater_status'].value !== 'xxx') {
         const { value } = result['heater_status'];
         if (value === '0' || value === '1') {
+          const previous = this.getCapabilityValue('heater_mode');
           await this.setIfChanged('heater_mode', value);
+          if (typeof previous === 'string' && previous !== value) {
+            await this.fireModeChanged(this.flowCardIds.heaterChanged, value);
+          }
         }
       }
 
       if (result['heat_exchanger_state'] && result['heat_exchanger_state'].value !== 'xxx') {
         const { value } = result['heat_exchanger_state'];
         if (value === '0' || value === '1') {
+          const previous = this.getCapabilityValue('heat_exchanger_mode');
           await this.setIfChanged('heat_exchanger_mode', value);
+          if (typeof previous === 'string' && previous !== value) {
+            await this.fireModeChanged(this.flowCardIds.heatExchangerChanged, value);
+          }
         }
       }
 
