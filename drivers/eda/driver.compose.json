@@ -1,0 +1,261 @@
+{
+  "name": {
+    "en": "EDA"
+  },
+  "class": "other",
+  "capabilities": [
+    "efficiency.supplyEff",
+    "efficiency.extractEff",
+    "measure_temperature.outsideAir",
+    "measure_temperature.exhaustAir",
+    "measure_temperature.extractAir",
+    "measure_temperature.supplyAirHRC",
+    "measure_temperature.step",
+    "heater_mode",
+    "heat_exchanger_mode",
+    "target_temperature.step",
+    "alarm_b.desc",
+    "measure_humidity.extractAir",
+    "fanspeed_level",
+    "edastatus",
+    "edastatus_mode",
+    "lastPollTime",
+    "heating_coil_state"
+  ],
+  "capabilitiesOptions": {
+    "measure_temperature.exhaustAir": {
+      "title": {
+        "en": "Exhaust air",
+        "no": "Avkast"
+      }
+    },
+    "measure_temperature.extractAir": {
+      "title": {
+        "en": "Extract air",
+        "no": "Avtrekk"
+      }
+    },
+    "measure_temperature.outsideAir": {
+      "title": {
+        "en": "Fresh air",
+        "no": "Uteluft"
+      }
+    },
+    "measure_temperature.supplyAirHRC": {
+      "title": {
+        "en": "Supply air after heat recovery",
+        "no": "Tilluft etter varmegjenvinning"
+      }
+    },
+    "measure_temperature.step": {
+      "title": {
+        "en": "Supply air",
+        "no": "Tilluft"
+      }
+    },
+    "measure_humidity.extractAir": {
+      "title": {
+        "en": "Extract air humidity",
+        "no": "Luftfuktighet avtrekk"
+      }
+    },
+    "efficiency.supplyEff": {
+      "title": {
+        "en": "Supply air efficiency",
+        "no": "Virkningsgrad tilluft"
+      }
+    },
+    "efficiency.extractEff": {
+      "title": {
+        "en": "Extract air efficiency",
+        "no": "Virkningsgrad avtrekk"
+      }
+    },
+    "heater_mode": {
+      "title": {
+        "en": "Heating active",
+        "no": "Varme i drift"
+      }
+    },
+    "heat_exchanger_mode": {
+      "title": {
+        "en": "Heat exchanger",
+        "no": "Varmeveksler"
+      }
+    },
+    "heating_coil_state": {
+      "title": {
+        "en": "Heating allowed",
+        "no": "Varme tillatt"
+      }
+    },
+    "alarm_b.desc": {
+      "title": {
+        "en": "Filter alarm",
+        "no": "Filteralarm"
+      }
+    },
+    "fanspeed_level": {
+      "title": {
+        "en": "Fan level",
+        "no": "Viftenivå"
+      },
+      "units": {
+        "en": "%",
+        "no": "%"
+      }
+    },
+    "edastatus": {
+      "title": {
+        "en": "Status",
+        "no": "Status"
+      }
+    },
+    "edastatus_mode": {
+      "title": {
+        "en": "Mode",
+        "no": "Modus"
+      }
+    },
+    "target_temperature.step": {
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "title": {
+        "en": "Target temperature",
+        "no": "Ønsket temperatur"
+      }
+    },
+    "lastPollTime": {
+      "title": {
+        "en": "Last poll",
+        "no": "Siste polling"
+      }
+    }
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.jpg",
+    "large": "{{driverAssetsPath}}/images/large.jpg"
+  },
+  "pair": [
+    {
+      "id": "setup"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Connection",
+        "no": "Tilkobling"
+      },
+      "children": [
+        {
+          "id": "address",
+          "type": "text",
+          "value": "0.0.0.0",
+          "label": {
+            "en": "IP address",
+            "no": "IP-adresse"
+          },
+          "hint": {
+            "en": "The fixed IP address of the Freeway WEB adapter on your network.",
+            "no": "Den faste IP-adressen Freeway WEB-adapteren har i nettverket ditt."
+          }
+        },
+        {
+          "id": "port",
+          "type": "number",
+          "value": 502,
+          "step": 1,
+          "label": {
+            "en": "Port",
+            "no": "Port"
+          },
+          "hint": {
+            "en": "Modbus TCP port of the Freeway WEB adapter. This is 502 on a standard installation.",
+            "no": "Modbus TCP-porten til Freeway WEB-adapteren. Denne er 502 på et standardoppsett."
+          }
+        },
+        {
+          "id": "unitId",
+          "type": "number",
+          "value": 1,
+          "min": 1,
+          "max": 255,
+          "step": 1,
+          "label": {
+            "en": "Modbus unit ID",
+            "no": "Modbus-enhets-ID"
+          },
+          "hint": {
+            "en": "A Freeway WEB adapter presents the unit on ID 1. Only change this if your setup differs.",
+            "no": "En Freeway WEB-adapter presenterer aggregatet på ID 1. Endre bare hvis oppsettet ditt avviker."
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Overpressure",
+        "no": "Overtrykk"
+      },
+      "children": [
+        {
+          "id": "fireplace_duration_minutes",
+          "type": "number",
+          "label": {
+            "en": "Overpressure duration",
+            "no": "Varighet for overtrykk"
+          },
+          "hint": {
+            "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit when changed, and follows changes made on the unit's panel.",
+            "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring, og følger endringer gjort på panelet."
+          },
+          "value": 10,
+          "min": 1,
+          "max": 60,
+          "units": {
+            "en": "min",
+            "no": "min"
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Service reminder",
+        "no": "Servicepåminnelse"
+      },
+      "children": [
+        {
+          "id": "filter_interval_days",
+          "type": "number",
+          "label": {
+            "en": "Days between reminders",
+            "no": "Dager mellom påminnelser"
+          },
+          "hint": {
+            "en": "Number of days between service reminders. Exvent recommends changing the filters every six months. Stored on the unit when changed.",
+            "no": "Antall døgn mellom hver servicepåminnelse. Exvent anbefaler filterbytte hvert halvår. Lagres på aggregatet ved endring."
+          },
+          "value": 180,
+          "min": 1,
+          "max": 365,
+          "units": {
+            "en": "days",
+            "no": "døgn"
+          }
+        }
+      ]
+    }
+  ]
+}

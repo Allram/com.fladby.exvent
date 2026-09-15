@@ -375,6 +375,163 @@
             ]
           }
         ]
+      },
+      {
+        "id": "alarm_b_triggered_eda",
+        "title": {
+          "en": "Filter alarm triggered",
+          "no": "Filteralarm utløst"
+        },
+        "titleFormatted": {
+          "en": "The filter alarm went off",
+          "no": "Filteralarmen ble utløst"
+        },
+        "hint": {
+          "en": "The unit reports that the filters need replacing or that service is due.",
+          "no": "Aggregatet melder at filtrene må byttes eller at det er tid for service."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
+      },
+      {
+        "id": "edastatus_mode_changed",
+        "title": {
+          "en": "Mode changed",
+          "no": "Modus endret"
+        },
+        "titleFormatted": {
+          "en": "Mode changed to [[mode_title]]",
+          "no": "Modus endret til [[mode_title]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "name": "mode_title",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Home",
+                  "no": "Hjemme"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Away",
+                  "no": "Borte"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Overpressure",
+                  "no": "Overtrykk"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Boost",
+                  "no": "Boost"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "Off",
+                  "no": "Av"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "heat_exchanger_mode_changed_eda",
+        "title": {
+          "en": "Heat exchanger changed",
+          "no": "Varmeveksler endret"
+        },
+        "titleFormatted": {
+          "en": "Heat exchanger changed to [[mode_title]]",
+          "no": "Varmeveksler endret til [[mode_title]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "name": "mode_title",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "on",
+                  "no": "på"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "off",
+                  "no": "av"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "heater_mode_changed_eda",
+        "title": {
+          "en": "Heating changed",
+          "no": "Varme endret"
+        },
+        "titleFormatted": {
+          "en": "Heating changed to [[mode_title]]",
+          "no": "Varme endret til [[mode_title]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "name": "mode_title",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "on",
+                  "no": "på"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "off",
+                  "no": "av"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "conditions": [
@@ -639,6 +796,141 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=eWind"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "on",
+                  "no": "på"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "off",
+                  "no": "av"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "edastatus_mode_is",
+        "title": {
+          "en": "Mode is",
+          "no": "Modus er"
+        },
+        "titleFormatted": {
+          "en": "Mode is [[mode]]",
+          "no": "Modus er [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Home",
+                  "no": "Hjemme"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Away",
+                  "no": "Borte"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Overpressure",
+                  "no": "Overtrykk"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Boost",
+                  "no": "Boost"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "Off",
+                  "no": "Av"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "heat_exchanger_mode_is_eda",
+        "title": {
+          "en": "Heat exchanger is",
+          "no": "Varmeveksler er"
+        },
+        "titleFormatted": {
+          "en": "Heat exchanger is [[mode]]",
+          "no": "Varmeveksler er [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "name": "mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "on",
+                  "no": "på"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "off",
+                  "no": "av"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "heater_mode_is_eda",
+        "title": {
+          "en": "Heating is",
+          "no": "Varme er"
+        },
+        "titleFormatted": {
+          "en": "Heating is [[mode]]",
+          "no": "Varme er [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
           },
           {
             "name": "mode",
@@ -1047,6 +1339,132 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "heatingcoil_eda",
+        "title": {
+          "en": "Set heating",
+          "no": "Sett varme"
+        },
+        "titleFormatted": {
+          "en": "Set heating to [[heatingcoil]]",
+          "no": "Sett varme til [[heatingcoil]]"
+        },
+        "hint": {
+          "en": "Allows or blocks heating of the supply air. Stored on the unit.",
+          "no": "Tillater eller sperrer oppvarming av tilluften. Lagres på aggregatet."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "type": "dropdown",
+            "name": "heatingcoil",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "allowed",
+                  "no": "tillatt"
+                }
+              },
+              {
+                "id": "0",
+                "label": {
+                  "en": "blocked",
+                  "no": "sperret"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set-temperature_eda",
+        "title": {
+          "en": "Set target temperature",
+          "no": "Sett ønsket temperatur"
+        },
+        "titleFormatted": {
+          "en": "Set target temperature to [[temperature]]",
+          "no": "Sett ønsket temperatur til [[temperature]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "type": "range",
+            "name": "temperature",
+            "min": 10,
+            "max": 30,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "status-mode_eda",
+        "title": {
+          "en": "Set mode",
+          "no": "Sett modus"
+        },
+        "titleFormatted": {
+          "en": "Set mode to [[mode]]",
+          "no": "Sett modus til [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "values": [
+              {
+                "id": "0",
+                "label": {
+                  "en": "Home",
+                  "no": "Hjemme"
+                }
+              },
+              {
+                "id": "1",
+                "label": {
+                  "en": "Away",
+                  "no": "Borte"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "Overpressure",
+                  "no": "Overtrykk"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "Boost",
+                  "no": "Boost"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "Off",
+                  "no": "Av"
+                }
+              }
+            ]
           }
         ]
       }
@@ -1552,6 +1970,268 @@
         }
       ],
       "id": "eWind"
+    },
+    {
+      "name": {
+        "en": "EDA"
+      },
+      "class": "other",
+      "capabilities": [
+        "efficiency.supplyEff",
+        "efficiency.extractEff",
+        "measure_temperature.outsideAir",
+        "measure_temperature.exhaustAir",
+        "measure_temperature.extractAir",
+        "measure_temperature.supplyAirHRC",
+        "measure_temperature.step",
+        "heater_mode",
+        "heat_exchanger_mode",
+        "target_temperature.step",
+        "alarm_b.desc",
+        "measure_humidity.extractAir",
+        "fanspeed_level",
+        "edastatus",
+        "edastatus_mode",
+        "lastPollTime",
+        "heating_coil_state"
+      ],
+      "capabilitiesOptions": {
+        "measure_temperature.exhaustAir": {
+          "title": {
+            "en": "Exhaust air",
+            "no": "Avkast"
+          }
+        },
+        "measure_temperature.extractAir": {
+          "title": {
+            "en": "Extract air",
+            "no": "Avtrekk"
+          }
+        },
+        "measure_temperature.outsideAir": {
+          "title": {
+            "en": "Fresh air",
+            "no": "Uteluft"
+          }
+        },
+        "measure_temperature.supplyAirHRC": {
+          "title": {
+            "en": "Supply air after heat recovery",
+            "no": "Tilluft etter varmegjenvinning"
+          }
+        },
+        "measure_temperature.step": {
+          "title": {
+            "en": "Supply air",
+            "no": "Tilluft"
+          }
+        },
+        "measure_humidity.extractAir": {
+          "title": {
+            "en": "Extract air humidity",
+            "no": "Luftfuktighet avtrekk"
+          }
+        },
+        "efficiency.supplyEff": {
+          "title": {
+            "en": "Supply air efficiency",
+            "no": "Virkningsgrad tilluft"
+          }
+        },
+        "efficiency.extractEff": {
+          "title": {
+            "en": "Extract air efficiency",
+            "no": "Virkningsgrad avtrekk"
+          }
+        },
+        "heater_mode": {
+          "title": {
+            "en": "Heating active",
+            "no": "Varme i drift"
+          }
+        },
+        "heat_exchanger_mode": {
+          "title": {
+            "en": "Heat exchanger",
+            "no": "Varmeveksler"
+          }
+        },
+        "heating_coil_state": {
+          "title": {
+            "en": "Heating allowed",
+            "no": "Varme tillatt"
+          }
+        },
+        "alarm_b.desc": {
+          "title": {
+            "en": "Filter alarm",
+            "no": "Filteralarm"
+          }
+        },
+        "fanspeed_level": {
+          "title": {
+            "en": "Fan level",
+            "no": "Viftenivå"
+          },
+          "units": {
+            "en": "%",
+            "no": "%"
+          }
+        },
+        "edastatus": {
+          "title": {
+            "en": "Status",
+            "no": "Status"
+          }
+        },
+        "edastatus_mode": {
+          "title": {
+            "en": "Mode",
+            "no": "Modus"
+          }
+        },
+        "target_temperature.step": {
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "title": {
+            "en": "Target temperature",
+            "no": "Ønsket temperatur"
+          }
+        },
+        "lastPollTime": {
+          "title": {
+            "en": "Last poll",
+            "no": "Siste polling"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/eda/assets/images/small.jpg",
+        "large": "/drivers/eda/assets/images/large.jpg"
+      },
+      "pair": [
+        {
+          "id": "setup"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "no": "Tilkobling"
+          },
+          "children": [
+            {
+              "id": "address",
+              "type": "text",
+              "value": "0.0.0.0",
+              "label": {
+                "en": "IP address",
+                "no": "IP-adresse"
+              },
+              "hint": {
+                "en": "The fixed IP address of the Freeway WEB adapter on your network.",
+                "no": "Den faste IP-adressen Freeway WEB-adapteren har i nettverket ditt."
+              }
+            },
+            {
+              "id": "port",
+              "type": "number",
+              "value": 502,
+              "step": 1,
+              "label": {
+                "en": "Port",
+                "no": "Port"
+              },
+              "hint": {
+                "en": "Modbus TCP port of the Freeway WEB adapter. This is 502 on a standard installation.",
+                "no": "Modbus TCP-porten til Freeway WEB-adapteren. Denne er 502 på et standardoppsett."
+              }
+            },
+            {
+              "id": "unitId",
+              "type": "number",
+              "value": 1,
+              "min": 1,
+              "max": 255,
+              "step": 1,
+              "label": {
+                "en": "Modbus unit ID",
+                "no": "Modbus-enhets-ID"
+              },
+              "hint": {
+                "en": "A Freeway WEB adapter presents the unit on ID 1. Only change this if your setup differs.",
+                "no": "En Freeway WEB-adapter presenterer aggregatet på ID 1. Endre bare hvis oppsettet ditt avviker."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Overpressure",
+            "no": "Overtrykk"
+          },
+          "children": [
+            {
+              "id": "fireplace_duration_minutes",
+              "type": "number",
+              "label": {
+                "en": "Overpressure duration",
+                "no": "Varighet for overtrykk"
+              },
+              "hint": {
+                "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit when changed, and follows changes made on the unit's panel.",
+                "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring, og følger endringer gjort på panelet."
+              },
+              "value": 10,
+              "min": 1,
+              "max": 60,
+              "units": {
+                "en": "min",
+                "no": "min"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Service reminder",
+            "no": "Servicepåminnelse"
+          },
+          "children": [
+            {
+              "id": "filter_interval_days",
+              "type": "number",
+              "label": {
+                "en": "Days between reminders",
+                "no": "Dager mellom påminnelser"
+              },
+              "hint": {
+                "en": "Number of days between service reminders. Exvent recommends changing the filters every six months. Stored on the unit when changed.",
+                "no": "Antall døgn mellom hver servicepåminnelse. Exvent anbefaler filterbytte hvert halvår. Lagres på aggregatet ved endring."
+              },
+              "value": 180,
+              "min": 1,
+              "max": 365,
+              "units": {
+                "en": "days",
+                "no": "døgn"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "eda"
     }
   ],
   "capabilities": {
@@ -1725,6 +2405,127 @@
           "title": {
             "en": "Inactive",
             "no": "Inaktiv"
+          }
+        }
+      ]
+    },
+    "edastatus": {
+      "type": "enum",
+      "uiComponent": "sensor",
+      "icon": "/assets/status.svg",
+      "title": {
+        "en": "Status",
+        "no": "Status"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Status changed",
+        "no": "Status endret"
+      },
+      "insightsTitleFalse": {
+        "en": "Status changed",
+        "no": "Status endret"
+      },
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "No heating or cooling",
+            "no": "Ingen varme eller kjøling"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Cooling",
+            "no": "Kjøling"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Heat recovery",
+            "no": "Varmegjenvinning"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Heating",
+            "no": "Varme"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Starting up",
+            "no": "Starter opp"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "Stopped",
+            "no": "Stoppet"
+          }
+        }
+      ]
+    },
+    "edastatus_mode": {
+      "type": "enum",
+      "icon": "/assets/statusmode.svg",
+      "title": {
+        "en": "Mode",
+        "no": "Modus"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Mode changed",
+        "no": "Modus endret"
+      },
+      "insightsTitleFalse": {
+        "en": "Mode changed",
+        "no": "Modus endret"
+      },
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Home",
+            "no": "Hjemme"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Away",
+            "no": "Borte"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Overpressure",
+            "no": "Overtrykk"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Boost",
+            "no": "Boost"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Off",
+            "no": "Av"
           }
         }
       ]

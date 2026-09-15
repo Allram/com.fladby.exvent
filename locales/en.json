@@ -4,6 +4,8 @@
     "title_eAir": "Add eAir ventilation unit",
     "intro_eWind": "Enter the IP address and port of the eWind unit’s Modbus TCP interface. Make sure Modbus TCP is enabled in the eWind app, and give the unit a static IP address in your router.",
     "intro_eAir": "Enter the IP address and port of the eAir unit’s Modbus TCP interface. Make sure Modbus TCP is enabled in the eAir app, and give the unit a static IP address in your router.",
+    "title_eda": "Add EDA ventilation unit",
+    "intro_eda": "Enter the IP address and port of the Freeway WEB adapter connected to your EDA unit. First enable Modbus/TCP in the adapter’s own web interface: under Configuration → Access control configuration, enter your Homey’s IP address in “IP address of Modbus/TCP client” and click Save Modbus/TCP. Until then the adapter refuses connections on port 502. Give both the adapter and Homey a static IP address in your router.",
     "nosettings": "Please fill in all the required fields.",
     "invalidip": "Please enter a valid IP address and port (1–65535).",
     "address": "IP address",
