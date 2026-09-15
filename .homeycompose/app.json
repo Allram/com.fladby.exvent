@@ -37,12 +37,14 @@
     "en": [
       "Ventilation",
       "Modbus",
-      "Exvent"
+      "Exvent",
+      "EDA"
     ],
     "no": [
       "Ventilasjon",
       "Modbus",
-      "Exvent"
+      "Exvent",
+      "EDA"
     ]
   }
 }

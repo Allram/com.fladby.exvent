@@ -1,6 +1,6 @@
 # Exvent for Homey
 
-Homey app to control and monitor Exvent **eWind** and **eAir** ventilation systems over **Modbus TCP**.
+Homey app to control and monitor Exvent **eWind**, **eAir** and **EDA** ventilation systems over **Modbus TCP**.
 
 ## Features
 
@@ -10,11 +10,24 @@ Homey app to control and monitor Exvent **eWind** and **eAir** ventilation syste
 - Flow cards: action cards (set mode, temperature, eco mode, heating coil), condition cards (mode, heater, heat exchanger) and triggers (mode changed, heater changed, heat exchanger changed, filter alarm)
 - "Last poll time" shows when values were last refreshed — in your Homey's own timezone and language — and reads "No connection" while the unit is unreachable
 
+### EDA units
+
+Units with EDA automation, connected through a Freeway WEB adapter, have their own driver and a few extras:
+
+- Overpressure as the device's quick action, with its duration as a setting and a Flow card
+- Season control: allow or block heating and cooling, and the outdoor temperatures that block them
+- Heat pump readings: cooling active, defrosting, and the fan level set on the panel next to the level in effect
+- Service reminder on or off, and its interval
+
+EDA units have no eco mode, Enhanced ventilation mode or service countdown.
+
 ## Setup
 
 1. Activate **Modbus TCP** on the ventilation unit (in the eWind/eAir panel or app).
 2. Give the unit a **static IP address** (DHCP reservation) in your router.
 3. Add the device in Homey and enter the unit's IP address and port (default 502).
+
+For **EDA** units, open the Freeway WEB adapter's web interface, go to Configuration → Access control configuration, enter your Homey's IP address as the Modbus/TCP client and save. The adapter accepts Modbus connections from that one address only, so give Homey a static IP address too, and add the device with the adapter's IP address.
 
 ## Reliability
 
@@ -33,4 +46,8 @@ npx homey app validate --level publish  # full validation
 npx homey app run                       # run against your own Homey
 ```
 
+Use `npx homey app run --remote` with an EDA unit. Without `--remote` the app runs in Docker on your computer, and the Freeway WEB adapter refuses the connection because it only accepts Homey's IP address.
+
 CI validates every push and publishes tagged releases (`v*`) to the Homey App Store.
+
+[docs/README.md](docs/README.md) describes the EDA register map and what has been verified against a live unit.
