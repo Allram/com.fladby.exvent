@@ -70,6 +70,18 @@ export abstract class ExventModbusDevice extends Homey.Device {
     protected abstract readonly statusModeArgMap: Record<string, string>;
     protected abstract readonly onOffArgMap: Record<string, string>;
 
+    /**
+     * Whether writes use "write multiple coils/registers" (function codes 15
+     * and 16) instead of "write single" (5 and 6). Some gateways acknowledge
+     * a single write without passing it on to the unit.
+     */
+    protected readonly useMultipleWrites: boolean = false;
+
+    /** The Modbus unit ID to address, given the device's unitId setting. */
+    protected modbusUnitId(setting: unknown): number {
+      return MODBUS_UNIT_ID;
+    }
+
     registers: RegisterMap = {
       air_outside: [6, 1, 'INT16', 'Fresh air'],
       air_supply_HRC: [7, 1, 'INT16', 'Supply air after HRC'],
@@ -102,6 +114,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
     modbusOptions = {
       host: this.getSetting('address'),
       port: this.getSetting('port'),
+      unitId: this.modbusUnitId(this.getSetting('unitId')),
     };
 
     private intervalId: NodeJS.Timeout | null = null;
@@ -236,7 +249,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       this.teardownSocket();
       this.socket = new net.Socket();
       this.attachSocketListeners(this.socket);
-      this.client = new Modbus.client.TCP(this.socket, MODBUS_UNIT_ID, MODBUS_TIMEOUT);
+      this.client = new Modbus.client.TCP(this.socket, this.modbusOptions.unitId, MODBUS_TIMEOUT);
 
       const promise = new Promise<void>((resolve, reject) => {
         if (!this.socket) {
@@ -407,13 +420,17 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
     async sendHoldingRequest(register: number, value: number) {
       this.enqueueWrite(async () => {
-        await this.client.writeSingleRegister(register, value);
+        await (this.useMultipleWrites
+          ? this.client.writeMultipleRegisters(register, [value & 0xffff])
+          : this.client.writeSingleRegister(register, value));
       });
     }
 
     async sendCoilRequest(register: number, value: boolean) {
       this.enqueueWrite(async () => {
-        await this.client.writeSingleCoil(register, value);
+        await (this.useMultipleWrites
+          ? this.client.writeMultipleCoils(register, [value])
+          : this.client.writeSingleCoil(register, value));
       });
     }
 
@@ -646,10 +663,11 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
-      if (changedKeys.includes('address') || changedKeys.includes('port')) {
+      if (changedKeys.includes('address') || changedKeys.includes('port') || changedKeys.includes('unitId')) {
         try {
           this.modbusOptions.host = newSettings.address;
           this.modbusOptions.port = newSettings.port;
+          this.modbusOptions.unitId = this.modbusUnitId(newSettings.unitId);
           this.teardownSocket();
           this.connectionRetryDelay = CONNECTION_RETRY_MIN;
           await this.delay(1000);
