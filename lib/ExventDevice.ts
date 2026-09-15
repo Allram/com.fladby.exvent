@@ -40,12 +40,14 @@ function hookShutdownHandlers() {
 }
 
 export interface FlowCardIds {
-    ecomode: string;
+    /** Left out by drivers without eco mode. */
+    ecomode?: string;
     heatingcoil: string;
     heatingcoilArg: string;
     statusMode: string;
     setTemperature: string;
-    resetFilterReminder: string;
+    /** Left out by drivers whose units have no service day counter. */
+    resetFilterReminder?: string;
     statusModeIs: string;
     heatExchangerIs: string;
     heaterIs: string;
@@ -81,6 +83,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
     protected modbusUnitId(setting: unknown): number {
       return MODBUS_UNIT_ID;
     }
+
+    /** Whether the unit has the Enhanced ventilation mode (panel fan speed level 3 in HREG 50). */
+    protected readonly enhancedVentilation: boolean = true;
 
     registers: RegisterMap = {
       air_outside: [6, 1, 'INT16', 'Fresh air'],
@@ -380,7 +385,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
           await this.sendCoilRequest(10, false);
           // Leave enhanced ventilation by returning the panel fan speed to
           // level 2 (Home); harmless when already at level 2.
-          await this.sendHoldingRequest(50, 2);
+          if (this.enhancedVentilation) await this.sendHoldingRequest(50, 2);
           break;
         case '1':
           await this.sendCoilRequest(0, false);
@@ -402,6 +407,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         case '5':
           // Enhanced ventilation: normal operation at panel fan speed
           // level 3 ("Home-mode with high fan speeds", HREG 50).
+          if (!this.enhancedVentilation) return;
           await this.sendCoilRequest(0, false);
           await this.sendCoilRequest(1, false);
           await this.sendCoilRequest(3, false);
@@ -434,8 +440,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
       });
     }
 
-    private async syncCapabilities() {
-      const toAdd = [
+    /** Capabilities every device of this driver should have. */
+    protected capabilityIds(): string[] {
+      return [
         'efficiency.supplyEff',
         'efficiency.extractEff',
         'measure_temperature.step',
@@ -455,7 +462,10 @@ export abstract class ExventModbusDevice extends Homey.Device {
         this.statusModeCapability,
         'lastPollTime',
       ];
-      for (const capability of toAdd) {
+    }
+
+    private async syncCapabilities() {
+      for (const capability of this.capabilityIds()) {
         if (!this.hasCapability(capability)) {
           await this.addCapability(capability);
         }
@@ -466,14 +476,16 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (this.flowListenersRegistered) return;
       const cards = this.flowCardIds;
 
-      this.homey.flow.getActionCard(cards.ecomode)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          if (!device.isUsable()) return false;
-          await device.setMode('ecomode_mode', args.ecomode);
-          await device.sendCoilRequest(40, args.ecomode === '1');
-          return true;
-        });
+      if (cards.ecomode) {
+        this.homey.flow.getActionCard(cards.ecomode)
+          .registerRunListener(async (args: any) => {
+            const device = args.device as ExventModbusDevice;
+            if (!device.isUsable()) return false;
+            await device.setMode('ecomode_mode', args.ecomode);
+            await device.sendCoilRequest(40, args.ecomode === '1');
+            return true;
+          });
+      }
 
       this.homey.flow.getActionCard(cards.heatingcoil)
         .registerRunListener(async (args: any) => {
@@ -504,13 +516,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
       // HREG 710 (HREG_DAYS_RUNNING) counts days since the service reminder
       // was acknowledged; writing 0 restarts the filter change countdown.
-      this.homey.flow.getActionCard(cards.resetFilterReminder)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          if (!device.isUsable()) return false;
-          await device.sendHoldingRequest(710, 0);
-          return true;
-        });
+      if (cards.resetFilterReminder) {
+        this.homey.flow.getActionCard(cards.resetFilterReminder)
+          .registerRunListener(async (args: any) => {
+            const device = args.device as ExventModbusDevice;
+            if (!device.isUsable()) return false;
+            await device.sendHoldingRequest(710, 0);
+            return true;
+          });
+      }
 
       this.flowListenersRegistered = true;
     }
@@ -574,10 +588,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
         await this.sendHoldingRequest(135, value * 10);
       });
 
-      this.registerCapabilityListener('ecomode_mode', async (value) => {
-        if (!this.isUsable()) return;
-        await this.sendCoilRequest(40, value === '1');
-      });
+      if (this.hasCapability('ecomode_mode')) {
+        this.registerCapabilityListener('ecomode_mode', async (value) => {
+          if (!this.isUsable()) return;
+          await this.sendCoilRequest(40, value === '1');
+        });
+      }
 
       this.registerCapabilityListener('heat_exchanger_mode', async () => {
         if (!this.isUsable()) return;
@@ -858,13 +874,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
-      // Days until the filter change reminder: configured interval (HREG 538)
-      // minus days elapsed since last acknowledgement (HREG 710).
-      if (result['service_interval_days'] && result['service_interval_days'].value !== 'xxx'
-        && result['days_since_service_ack'] && result['days_since_service_ack'].value !== 'xxx') {
+      if (result['service_interval_days'] && result['service_interval_days'].value !== 'xxx') {
         const interval = Number(result['service_interval_days'].value);
-        const elapsed = Number(result['days_since_service_ack'].value);
-        await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
+        // Days until the service reminder: configured interval (HREG 538)
+        // minus days elapsed since last acknowledgement (HREG 710), on units
+        // that have the counter.
+        if (result['days_since_service_ack'] && result['days_since_service_ack'].value !== 'xxx') {
+          const elapsed = Number(result['days_since_service_ack'].value);
+          await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
+        }
         // Mirror the unit's actual interval in the device settings so the
         // settings page shows the truth. setSettings does not re-trigger
         // onSettings, so this cannot loop.
