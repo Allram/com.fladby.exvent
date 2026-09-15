@@ -705,16 +705,16 @@
       {
         "id": "heatingcoil_eAir",
         "title": {
-          "en": "Set heating coil",
-          "no": "Sett varmekolbe"
+          "en": "Set heating",
+          "no": "Sett varme"
         },
         "titleFormatted": {
-          "en": "Set heating coil to [[heatingcoil_eAir]]",
-          "no": "Sett varmekolbe til [[heatingcoil_eAir]]"
+          "en": "Set heating to [[heatingcoil_eAir]]",
+          "no": "Sett varme til [[heatingcoil_eAir]]"
         },
         "hint": {
-          "en": "Allows or blocks the unit from using its heating coil.",
-          "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
+          "en": "Allows or blocks heating of the supply air. Stored on the unit.",
+          "no": "Tillater eller sperrer oppvarming av tilluften. Lagres på aggregatet."
         },
         "args": [
           {
@@ -729,15 +729,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "allowed",
+                  "no": "tillatt"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "blocked",
+                  "no": "sperret"
                 }
               }
             ]
@@ -898,16 +898,16 @@
       {
         "id": "heatingcoil",
         "title": {
-          "en": "Set heating coil",
-          "no": "Sett varmekolbe"
+          "en": "Set heating",
+          "no": "Sett varme"
         },
         "titleFormatted": {
-          "en": "Set heating coil to [[heatingcoil]]",
-          "no": "Sett varmekolbe til [[heatingcoil]]"
+          "en": "Set heating to [[heatingcoil]]",
+          "no": "Sett varme til [[heatingcoil]]"
         },
         "hint": {
-          "en": "Allows or blocks the unit from using its heating coil.",
-          "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
+          "en": "Allows or blocks heating of the supply air. Stored on the unit.",
+          "no": "Tillater eller sperrer oppvarming av tilluften. Lagres på aggregatet."
         },
         "args": [
           {
@@ -922,15 +922,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "On",
-                  "no": "På"
+                  "en": "allowed",
+                  "no": "tillatt"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Off",
-                  "no": "Av"
+                  "en": "blocked",
+                  "no": "sperret"
                 }
               }
             ]
@@ -1142,8 +1142,8 @@
         },
         "heating_coil_state": {
           "title": {
-            "en": "Heating coil enabled",
-            "no": "Varmekolbe aktivert"
+            "en": "Heating allowed",
+            "no": "Varme tillatt"
           }
         },
         "alarm_b.desc": {
@@ -1392,8 +1392,8 @@
         },
         "heating_coil_state": {
           "title": {
-            "en": "Heating coil enabled",
-            "no": "Varmekolbe aktivert"
+            "en": "Heating allowed",
+            "no": "Varme tillatt"
           }
         },
         "alarm_b.desc": {
@@ -2010,33 +2010,33 @@
       "type": "enum",
       "uiComponent": "picker",
       "title": {
-        "en": "Heating coil enabled",
-        "no": "Varmekolbe aktivert"
+        "en": "Heating allowed",
+        "no": "Varme tillatt"
       },
       "desc": {
-        "en": "Lets the unit use the heating coil",
-        "no": "Lar anlegget bruke varmekolben"
+        "en": "Whether the unit may heat the supply air",
+        "no": "Om aggregatet får varme tilluften"
       },
       "getable": true,
       "setable": true,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Heating coil was enabled or disabled",
-        "no": "Varmekolbe ble slått på eller av"
+        "en": "Heating allowed changed",
+        "no": "Varme tillatt endret"
       },
       "values": [
         {
           "id": "1",
           "title": {
-            "en": "On",
-            "no": "På"
+            "en": "Allowed",
+            "no": "Tillatt"
           }
         },
         {
           "id": "0",
           "title": {
-            "en": "Off",
-            "no": "Av"
+            "en": "Blocked",
+            "no": "Sperret"
           }
         }
       ]

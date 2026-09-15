@@ -87,8 +87,8 @@
     },
     "heating_coil_state": {
       "title": {
-        "en": "Heating coil enabled",
-        "no": "Varmekolbe aktivert"
+        "en": "Heating allowed",
+        "no": "Varme tillatt"
       }
     },
     "alarm_b.desc": {

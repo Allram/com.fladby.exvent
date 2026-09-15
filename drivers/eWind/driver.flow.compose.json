@@ -36,16 +36,16 @@
     {
       "id": "heatingcoil",
       "title": {
-        "en": "Set heating coil",
-        "no": "Sett varmekolbe"
+        "en": "Set heating",
+        "no": "Sett varme"
       },
       "titleFormatted": {
-        "en": "Set heating coil to [[heatingcoil]]",
-        "no": "Sett varmekolbe til [[heatingcoil]]"
+        "en": "Set heating to [[heatingcoil]]",
+        "no": "Sett varme til [[heatingcoil]]"
       },
       "hint": {
-        "en": "Allows or blocks the unit from using its heating coil.",
-        "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
+        "en": "Allows or blocks heating of the supply air. Stored on the unit.",
+        "no": "Tillater eller sperrer oppvarming av tilluften. Lagres på aggregatet."
       },
       "args": [
         {
@@ -55,15 +55,15 @@
             {
               "id": "1",
               "label": {
-                "en": "On",
-                "no": "På"
+                "en": "allowed",
+                "no": "tillatt"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Off",
-                "no": "Av"
+                "en": "blocked",
+                "no": "sperret"
               }
             }
           ]
