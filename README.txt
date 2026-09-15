@@ -1,3 +1,3 @@
-Exvent eWind and eAir ventilation units connect over Modbus TCP and show up as a single device with live temperatures, humidity, heat recovery efficiency, fan speed and filter status. Home, Away, Fireplace, Enhanced ventilation, Boost and Off can be switched by hand or from a Flow, along with target temperature, eco mode and the heating coil.
+Exvent eWind and eAir ventilation units connect over Modbus TCP and show up as a single device with live temperatures, humidity, heat recovery efficiency, fan speed and filter status. Home, Away, Overpressure, Enhanced ventilation, Boost and Off can be switched by hand or from a Flow, along with target temperature, eco mode and the heating coil.
 
 Before adding the unit, enable Modbus TCP from the eWind or eAir panel and give the unit a fixed IP address in your router. You then only need that IP address and the port, which is 502 on a standard installation.

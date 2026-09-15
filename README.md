@@ -5,7 +5,7 @@ Homey app to control and monitor Exvent **eWind** and **eAir** ventilation syste
 ## Features
 
 - Live readings every 60 seconds: fresh/supply/extract/exhaust air temperatures, extract air humidity, heat recovery efficiency (supply and extract), fan speed level and temperature setpoint
-- Status and mode (Home / Away / Fireplace / Boost / Off), heater, heat exchanger and heating coil states, eco mode and filter alarm
+- Status and mode (Home / Away / Overpressure / Boost / Off), heater, heat exchanger and heating coil states, eco mode and filter alarm
 - Control from the device UI or Flows: set mode, target temperature, eco mode and heating coil
 - Flow cards: action cards (set mode, temperature, eco mode, heating coil), condition cards (mode, heater, heat exchanger) and triggers (mode changed, heater changed, heat exchanger changed, filter alarm)
 - "Last poll time" shows when values were last refreshed — in your Homey's own timezone and language — and reads "No connection" while the unit is unreachable
