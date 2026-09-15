@@ -1083,19 +1083,19 @@
         "measure_temperature.exhaustAir": {
           "title": {
             "en": "Exhaust air",
-            "no": "Utkast"
+            "no": "Avkast"
           }
         },
         "measure_temperature.extractAir": {
           "title": {
-            "en": "Extract air temperature",
+            "en": "Extract air",
             "no": "Avtrekk"
           }
         },
         "measure_temperature.outsideAir": {
           "title": {
             "en": "Fresh air",
-            "no": "Inntak"
+            "no": "Uteluft"
           }
         },
         "measure_temperature.supplyAirHRC": {
@@ -1113,19 +1113,19 @@
         "measure_humidity.extractAir": {
           "title": {
             "en": "Extract air humidity",
-            "no": "Avtrekksfuktighet"
+            "no": "Luftfuktighet avtrekk"
           }
         },
         "efficiency.supplyEff": {
           "title": {
             "en": "Supply air efficiency",
-            "no": "Tilluftseffektivitet"
+            "no": "Virkningsgrad tilluft"
           }
         },
         "efficiency.extractEff": {
           "title": {
             "en": "Extract air efficiency",
-            "no": "Avtrekkseffektivitet"
+            "no": "Virkningsgrad avtrekk"
           }
         },
         "heater_mode": {
@@ -1333,19 +1333,19 @@
         "measure_temperature.exhaustAir": {
           "title": {
             "en": "Exhaust air",
-            "no": "Utkast"
+            "no": "Avkast"
           }
         },
         "measure_temperature.extractAir": {
           "title": {
-            "en": "Extract air temperature",
+            "en": "Extract air",
             "no": "Avtrekk"
           }
         },
         "measure_temperature.outsideAir": {
           "title": {
             "en": "Fresh air",
-            "no": "Inntak"
+            "no": "Uteluft"
           }
         },
         "measure_temperature.supplyAirHRC": {
@@ -1363,19 +1363,19 @@
         "measure_humidity.extractAir": {
           "title": {
             "en": "Extract air humidity",
-            "no": "Avtrekksfuktighet"
+            "no": "Luftfuktighet avtrekk"
           }
         },
         "efficiency.supplyEff": {
           "title": {
             "en": "Supply air efficiency",
-            "no": "Tilluftseffektivitet"
+            "no": "Virkningsgrad tilluft"
           }
         },
         "efficiency.extractEff": {
           "title": {
             "en": "Extract air efficiency",
-            "no": "Avtrekkseffektivitet"
+            "no": "Virkningsgrad avtrekk"
           }
         },
         "heater_mode": {
@@ -1735,22 +1735,22 @@
       "icon": "/assets/efficiency.svg",
       "title": {
         "en": "Efficiency",
-        "no": "Effektivitet"
+        "no": "Virkningsgrad"
       },
       "desc": {
         "en": "Heat recovery efficiency",
-        "no": "Effektivitet for varmegjenvinning"
+        "no": "Virkningsgrad for varmegjenvinning"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
         "en": "Efficiency changed",
-        "no": "Effektivitet endret"
+        "no": "Virkningsgrad endret"
       },
       "insightsTitleFalse": {
         "en": "Efficiency changed",
-        "no": "Effektivitet endret"
+        "no": "Virkningsgrad endret"
       },
       "units": {
         "en": "%",

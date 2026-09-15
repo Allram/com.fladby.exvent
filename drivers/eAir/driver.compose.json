@@ -28,19 +28,19 @@
     "measure_temperature.exhaustAir": {
       "title": {
         "en": "Exhaust air",
-        "no": "Utkast"
+        "no": "Avkast"
       }
     },
     "measure_temperature.extractAir": {
       "title": {
-        "en": "Extract air temperature",
+        "en": "Extract air",
         "no": "Avtrekk"
       }
     },
     "measure_temperature.outsideAir": {
       "title": {
         "en": "Fresh air",
-        "no": "Inntak"
+        "no": "Uteluft"
       }
     },
     "measure_temperature.supplyAirHRC": {
@@ -58,19 +58,19 @@
     "measure_humidity.extractAir": {
       "title": {
         "en": "Extract air humidity",
-        "no": "Avtrekksfuktighet"
+        "no": "Luftfuktighet avtrekk"
       }
     },
     "efficiency.supplyEff": {
       "title": {
         "en": "Supply air efficiency",
-        "no": "Tilluftseffektivitet"
+        "no": "Virkningsgrad tilluft"
       }
     },
     "efficiency.extractEff": {
       "title": {
         "en": "Extract air efficiency",
-        "no": "Avtrekkseffektivitet"
+        "no": "Virkningsgrad avtrekk"
       }
     },
     "heater_mode": {
