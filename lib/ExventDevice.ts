@@ -87,6 +87,16 @@ export abstract class ExventModbusDevice extends Homey.Device {
     /** Whether the unit has the Enhanced ventilation mode (panel fan speed level 3 in HREG 50). */
     protected readonly enhancedVentilation: boolean = true;
 
+    /** The target temperatures the unit accepts, in °C. */
+    protected readonly setpointRange: [number, number] = [15, 22];
+
+    /**
+     * Holding registers the overpressure duration setting is written to. On
+     * eWind and eAir HREG 56 is the active duration, but the unit overwrites
+     * it at startup with the default in HREG 57, so both are written.
+     */
+    protected readonly overpressureDurationRegisters: number[] = [56, 57];
+
     registers: RegisterMap = {
       air_outside: [6, 1, 'INT16', 'Fresh air'],
       air_supply_HRC: [7, 1, 'INT16', 'Supply air after HRC'],
@@ -668,14 +678,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
-      // HREG 56 (HREG_OVP_TIME) is the active overpressure/fireplace duration,
-      // but the unit overwrites it at startup with the default in HREG 57
-      // (HREG_OVP_TIME_DEF) — write both so the setting survives a restart.
       if (changedKeys.includes('fireplace_duration_minutes')) {
         const minutes = Number(newSettings.fireplace_duration_minutes);
         if (Number.isInteger(minutes) && minutes >= 1 && minutes <= 60) {
-          await this.sendHoldingRequest(56, minutes);
-          await this.sendHoldingRequest(57, minutes);
+          for (const register of this.overpressureDurationRegisters) {
+            await this.sendHoldingRequest(register, minutes);
+          }
         }
       }
 
@@ -724,6 +732,28 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
     }
 
+    /**
+     * The status mode capability value for a HREG 44 reading, or undefined
+     * when the reading has no mode. `result` holds the rest of the same poll.
+     */
+    protected statusModeFromRegister(value: string, result: Record<string, Measurement>): string | undefined {
+      const statusModeMap: Record<string, string> = {
+        0: '0', 16: '1', 1024: '2', 512: '3',
+      };
+      // HREG 44 bits 128/256 are CO2/RH boosting: the unit running the
+      // level-3 fan speeds on its own. Shown as enhanced ventilation.
+      statusModeMap[128] = '5';
+      statusModeMap[256] = '5';
+      let mapped = statusModeMap[value];
+      // Manually selected enhanced ventilation: normal Home state but the
+      // panel fan speed is at level 3.
+      if (mapped === '0'
+        && result['fan_speed_level'] && Number(result['fan_speed_level'].value) === 3) {
+        mapped = '5';
+      }
+      return mapped;
+    }
+
     async processResult(result: Record<string, Measurement>) {
       if (!result) {
         return;
@@ -751,7 +781,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
       if (result['temperature_setpoint'] && result['temperature_setpoint'].value !== 'xxx') {
         const temperature = Number(result['temperature_setpoint'].value) / 10;
-        if (temperature >= 15 && temperature <= 22) {
+        if (temperature >= this.setpointRange[0] && temperature <= this.setpointRange[1]) {
           await this.setIfChanged('target_temperature.step', temperature);
         }
       }
@@ -783,20 +813,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
 
       if (result['status_mode'] && result['status_mode'].value !== 'xxx') {
-        const statusModeMap: Record<string, string> = {
-          0: '0', 16: '1', 1024: '2', 512: '3',
-        };
-        // HREG 44 bits 128/256 are CO2/RH boosting: the unit running the
-        // level-3 fan speeds on its own. Shown as enhanced ventilation.
-        statusModeMap[128] = '5';
-        statusModeMap[256] = '5';
-        let mapped = statusModeMap[result['status_mode'].value];
-        // Manually selected enhanced ventilation: normal Home state but the
-        // panel fan speed is at level 3.
-        if (mapped === '0'
-          && result['fan_speed_level'] && Number(result['fan_speed_level'].value) === 3) {
-          mapped = '5';
-        }
+        const mapped = this.statusModeFromRegister(result['status_mode'].value, result);
         if (mapped !== undefined) {
           // Panel changes, the unit's own CO2/RH boost and the boost timer
           // running out all change the mode without Homey asking for it. The
