@@ -154,16 +154,16 @@
     {
       "id": "reset_filter_reminder",
       "title": {
-        "en": "Reset filter change reminder",
-        "no": "Nullstill varsel om filterbytte"
+        "en": "Reset service reminder",
+        "no": "Nullstill servicepåminnelse"
       },
       "titleFormatted": {
-        "en": "Reset filter change reminder",
-        "no": "Nullstill varsel om filterbytte"
+        "en": "Reset service reminder",
+        "no": "Nullstill servicepåminnelse"
       },
       "hint": {
-        "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
-        "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
+        "en": "Restarts the countdown to the service reminder. Use after changing the filters or servicing the unit.",
+        "no": "Starter nedtellingen til servicepåminnelsen på nytt. Brukes etter filterbytte eller service."
       }
     }
   ],

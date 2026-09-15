@@ -838,16 +838,16 @@
       {
         "id": "reset_filter_reminder_eAir",
         "title": {
-          "en": "Reset filter change reminder",
-          "no": "Nullstill varsel om filterbytte"
+          "en": "Reset service reminder",
+          "no": "Nullstill servicepåminnelse"
         },
         "titleFormatted": {
-          "en": "Reset filter change reminder",
-          "no": "Nullstill varsel om filterbytte"
+          "en": "Reset service reminder",
+          "no": "Nullstill servicepåminnelse"
         },
         "hint": {
-          "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
-          "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
+          "en": "Restarts the countdown to the service reminder. Use after changing the filters or servicing the unit.",
+          "no": "Starter nedtellingen til servicepåminnelsen på nytt. Brukes etter filterbytte eller service."
         },
         "args": [
           {
@@ -1031,16 +1031,16 @@
       {
         "id": "reset_filter_reminder",
         "title": {
-          "en": "Reset filter change reminder",
-          "no": "Nullstill varsel om filterbytte"
+          "en": "Reset service reminder",
+          "no": "Nullstill servicepåminnelse"
         },
         "titleFormatted": {
-          "en": "Reset filter change reminder",
-          "no": "Nullstill varsel om filterbytte"
+          "en": "Reset service reminder",
+          "no": "Nullstill servicepåminnelse"
         },
         "hint": {
-          "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
-          "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
+          "en": "Restarts the countdown to the service reminder. Use after changing the filters or servicing the unit.",
+          "no": "Starter nedtellingen til servicepåminnelsen på nytt. Brukes etter filterbytte eller service."
         },
         "args": [
           {
@@ -1275,27 +1275,27 @@
         {
           "type": "group",
           "label": {
-            "en": "Filter",
-            "no": "Filter"
+            "en": "Service reminder",
+            "no": "Servicepåminnelse"
           },
           "children": [
             {
               "id": "filter_interval_days",
               "type": "number",
               "label": {
-                "en": "Days between filter changes",
-                "no": "Dager mellom filterbytter"
+                "en": "Days between reminders",
+                "no": "Dager mellom påminnelser"
               },
               "hint": {
-                "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed.",
-                "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring."
+                "en": "Number of days after a reset before the service reminder is raised. Stored on the unit when changed.",
+                "no": "Antall døgn etter nullstilling før servicepåminnelsen gis. Lagres på aggregatet ved endring."
               },
               "value": 120,
               "min": 1,
               "max": 365,
               "units": {
-                "en": "d",
-                "no": "d"
+                "en": "days",
+                "no": "døgn"
               }
             }
           ]
@@ -1525,27 +1525,27 @@
         {
           "type": "group",
           "label": {
-            "en": "Filter",
-            "no": "Filter"
+            "en": "Service reminder",
+            "no": "Servicepåminnelse"
           },
           "children": [
             {
               "id": "filter_interval_days",
               "type": "number",
               "label": {
-                "en": "Days between filter changes",
-                "no": "Dager mellom filterbytter"
+                "en": "Days between reminders",
+                "no": "Dager mellom påminnelser"
               },
               "hint": {
-                "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed.",
-                "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring."
+                "en": "Number of days after a reset before the service reminder is raised. Stored on the unit when changed.",
+                "no": "Antall døgn etter nullstilling før servicepåminnelsen gis. Lagres på aggregatet ved endring."
               },
               "value": 120,
               "min": 1,
               "max": 365,
               "units": {
-                "en": "d",
-                "no": "d"
+                "en": "days",
+                "no": "døgn"
               }
             }
           ]
@@ -1917,19 +1917,19 @@
       "uiComponent": "sensor",
       "icon": "/assets/remaining.svg",
       "title": {
-        "en": "Days until filter change",
-        "no": "Dager til filterbytte"
+        "en": "Days until service reminder",
+        "no": "Dager til servicepåminnelse"
       },
       "desc": {
-        "en": "Days remaining until the filter change reminder",
-        "no": "Dager igjen til varsel om filterbytte"
+        "en": "Days remaining until the service reminder",
+        "no": "Dager igjen til servicepåminnelsen"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "units": {
-        "en": "d",
-        "no": "d"
+        "en": "days",
+        "no": "døgn"
       },
       "min": 0,
       "step": 1
