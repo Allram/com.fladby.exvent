@@ -43,6 +43,8 @@ test('EDA holding registers batch without the MD-only registers', () => {
     [50, 1],
     [57, 1],
     [135, 1],
+    [164, 1],
+    [196, 1],
     [538, 1],
   ]);
   const addresses = Object.values(EDA_HOLDING_REGISTERS).map(([addr]) => addr);

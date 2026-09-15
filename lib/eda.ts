@@ -32,6 +32,8 @@ export const EDA_HOLDING_REGISTERS: RegisterMap = {
   // HREG 56 is the time left and read only; 57 is the duration itself.
   fireplace_duration: [57, 1, 'UINT16', 'Overpressure duration in minutes'],
   temperature_setpoint: [135, 1, 'INT16', 'Temperature setpoint'],
+  cooling_block_temperature: [164, 1, 'INT16', 'Outdoor temperature below which cooling is blocked'],
+  heating_block_temperature: [196, 1, 'INT16', 'Outdoor temperature above which heating is blocked'],
   service_interval_days: [538, 1, 'UINT16', 'Service reminder interval in days'],
 };
 
@@ -41,6 +43,7 @@ export const EDA_COILS: RegisterMap = {
   heat_exchanger_state: [30, 1, 'UINT32', 'Heat recovery running'],
   heater_status: [32, 1, 'UINT32', 'Heating running'],
   alarm_b_desc: [42, 1, 'UINT32', 'B alarm active'],
+  cooling_allowed: [52, 1, 'UINT32', 'Cooling allowed'],
   heating_coil: [54, 1, 'UINT32', 'Heating allowed'],
 };
 

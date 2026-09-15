@@ -20,7 +20,8 @@
     "edastatus",
     "edastatus_mode",
     "lastPollTime",
-    "heating_coil_state"
+    "heating_coil_state",
+    "cooling_allowed"
   ],
   "capabilitiesOptions": {
     "measure_temperature.exhaustAir": {
@@ -131,6 +132,12 @@
         "en": "Last poll",
         "no": "Siste polling"
       }
+    },
+    "cooling_allowed": {
+      "title": {
+        "en": "Cooling allowed",
+        "no": "Kjøling tillatt"
+      }
     }
   },
   "platforms": [
@@ -225,6 +232,81 @@
           "units": {
             "en": "min",
             "no": "min"
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Season control",
+        "no": "Sesongstyring"
+      },
+      "children": [
+        {
+          "id": "heating_allowed",
+          "type": "checkbox",
+          "value": true,
+          "label": {
+            "en": "Heating allowed",
+            "no": "Varme tillatt"
+          },
+          "hint": {
+            "en": "Whether the unit may heat the supply air. Turn off in summer so a cold night does not start heating. Stored on the unit.",
+            "no": "Om aggregatet får varme tilluften. Slå av om sommeren, så en kald natt ikke starter oppvarming. Lagres på aggregatet."
+          }
+        },
+        {
+          "id": "cooling_allowed",
+          "type": "checkbox",
+          "value": true,
+          "label": {
+            "en": "Cooling allowed",
+            "no": "Kjøling tillatt"
+          },
+          "hint": {
+            "en": "Whether the unit may cool the supply air. Turn off outside summer so a warm spell does not start cooling. Stored on the unit.",
+            "no": "Om aggregatet får kjøle tilluften. Slå av utenom sommeren, så en varm periode ikke starter kjøling. Lagres på aggregatet."
+          }
+        },
+        {
+          "id": "heating_block_temperature",
+          "type": "number",
+          "value": 25,
+          "min": -5,
+          "max": 25,
+          "step": 0.5,
+          "units": {
+            "en": "°C",
+            "no": "°C"
+          },
+          "label": {
+            "en": "Block heating above",
+            "no": "Sperr varme over"
+          },
+          "hint": {
+            "en": "Heating is blocked while the outdoor temperature is above this. Stored on the unit.",
+            "no": "Varme sperres så lenge utetemperaturen er over denne grensen. Lagres på aggregatet."
+          }
+        },
+        {
+          "id": "cooling_block_temperature",
+          "type": "number",
+          "value": 16,
+          "min": 5,
+          "max": 40,
+          "step": 0.5,
+          "units": {
+            "en": "°C",
+            "no": "°C"
+          },
+          "label": {
+            "en": "Block cooling below",
+            "no": "Sperr kjøling under"
+          },
+          "hint": {
+            "en": "Cooling is blocked while the outdoor temperature is below this. Stored on the unit.",
+            "no": "Kjøling sperres så lenge utetemperaturen er under denne grensen. Lagres på aggregatet."
           }
         }
       ]

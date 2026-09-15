@@ -110,6 +110,91 @@
           ]
         }
       ]
+    },
+    {
+      "id": "set-cooling_eda",
+      "title": {
+        "en": "Set cooling",
+        "no": "Sett kjøling"
+      },
+      "titleFormatted": {
+        "en": "Set cooling to [[allowed]]",
+        "no": "Sett kjøling til [[allowed]]"
+      },
+      "hint": {
+        "en": "Allows or blocks cooling of the supply air. Stored on the unit.",
+        "no": "Tillater eller sperrer kjøling av tilluften. Lagres på aggregatet."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "allowed",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "allowed",
+                "no": "tillatt"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "blocked",
+                "no": "sperret"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "set-heating-block-temperature_eda",
+      "title": {
+        "en": "Block heating above",
+        "no": "Sperr varme over"
+      },
+      "titleFormatted": {
+        "en": "Block heating above [[temperature]] °C",
+        "no": "Sperr varme over [[temperature]] °C"
+      },
+      "hint": {
+        "en": "Heating is blocked while the outdoor temperature is above this. Stored on the unit.",
+        "no": "Varme sperres så lenge utetemperaturen er over denne grensen. Lagres på aggregatet."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "temperature",
+          "min": -5,
+          "max": 25,
+          "step": 0.5
+        }
+      ]
+    },
+    {
+      "id": "set-cooling-block-temperature_eda",
+      "title": {
+        "en": "Block cooling below",
+        "no": "Sperr kjøling under"
+      },
+      "titleFormatted": {
+        "en": "Block cooling below [[temperature]] °C",
+        "no": "Sperr kjøling under [[temperature]] °C"
+      },
+      "hint": {
+        "en": "Cooling is blocked while the outdoor temperature is below this. Stored on the unit.",
+        "no": "Kjøling sperres så lenge utetemperaturen er under denne grensen. Lagres på aggregatet."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "temperature",
+          "min": 5,
+          "max": 40,
+          "step": 0.5
+        }
+      ]
     }
   ],
   "triggers": [
