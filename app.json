@@ -532,6 +532,82 @@
             ]
           }
         ]
+      },
+      {
+        "id": "defrosting_started_eda",
+        "title": {
+          "en": "Defrosting started",
+          "no": "Avriming startet"
+        },
+        "titleFormatted": {
+          "en": "Defrosting started",
+          "no": "Avriming startet"
+        },
+        "hint": {
+          "en": "The heat pump started defrosting. It stops heating or cooling while it does.",
+          "no": "Varmepumpen startet avriming. Den varmer eller kjøler ikke så lenge avrimingen pågår."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
+      },
+      {
+        "id": "defrosting_stopped_eda",
+        "title": {
+          "en": "Defrosting ended",
+          "no": "Avriming avsluttet"
+        },
+        "titleFormatted": {
+          "en": "Defrosting ended",
+          "no": "Avriming avsluttet"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
+      },
+      {
+        "id": "cooling_started_eda",
+        "title": {
+          "en": "Cooling started",
+          "no": "Kjøling startet"
+        },
+        "titleFormatted": {
+          "en": "Cooling started",
+          "no": "Kjøling startet"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
+      },
+      {
+        "id": "cooling_stopped_eda",
+        "title": {
+          "en": "Cooling stopped",
+          "no": "Kjøling stoppet"
+        },
+        "titleFormatted": {
+          "en": "Cooling stopped",
+          "no": "Kjøling stoppet"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -951,6 +1027,42 @@
                 }
               }
             ]
+          }
+        ]
+      },
+      {
+        "id": "defrosting_is_eda",
+        "title": {
+          "en": "Defrosting !{{is|is not}} in progress",
+          "no": "Avriming !{{pågår|pågår ikke}}"
+        },
+        "titleFormatted": {
+          "en": "Defrosting !{{is|is not}} in progress",
+          "no": "Avriming !{{pågår|pågår ikke}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
+      },
+      {
+        "id": "cooling_active_is_eda",
+        "title": {
+          "en": "Cooling !{{is|is not}} active",
+          "no": "Kjøling !{{er|er ikke}} i drift"
+        },
+        "titleFormatted": {
+          "en": "Cooling !{{is|is not}} active",
+          "no": "Kjøling !{{er|er ikke}} i drift"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
           }
         ]
       }
@@ -2085,11 +2197,14 @@
         "measure_temperature.supplyAirHRC",
         "measure_temperature.step",
         "heater_mode",
+        "cooling_active",
+        "defrosting",
         "heat_exchanger_mode",
         "target_temperature.step",
         "alarm_b.desc",
         "measure_humidity.extractAir",
         "fanspeed_level",
+        "fanspeed_level.panel",
         "edastatus",
         "edastatus_mode",
         "lastPollTime",
@@ -2210,6 +2325,16 @@
           "title": {
             "en": "Cooling allowed",
             "no": "Kjøling tillatt"
+          }
+        },
+        "fanspeed_level.panel": {
+          "title": {
+            "en": "Fan level set",
+            "no": "Viftenivå innstilt"
+          },
+          "units": {
+            "en": "%",
+            "no": "%"
           }
         }
       },
@@ -2428,6 +2553,26 @@
       "setable": false,
       "uiComponent": "sensor"
     },
+    "cooling_active": {
+      "type": "boolean",
+      "uiComponent": "sensor",
+      "icon": "/assets/status.svg",
+      "title": {
+        "en": "Cooling active",
+        "no": "Kjøling i drift"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Cooling started",
+        "no": "Kjøling startet"
+      },
+      "insightsTitleFalse": {
+        "en": "Cooling stopped",
+        "no": "Kjøling stoppet"
+      }
+    },
     "cooling_allowed": {
       "type": "enum",
       "uiComponent": "picker",
@@ -2463,6 +2608,26 @@
           }
         }
       ]
+    },
+    "defrosting": {
+      "type": "boolean",
+      "uiComponent": "sensor",
+      "icon": "/assets/heat_exchanger_mode.svg",
+      "title": {
+        "en": "Defrosting",
+        "no": "Avriming"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Defrosting started",
+        "no": "Avriming startet"
+      },
+      "insightsTitleFalse": {
+        "en": "Defrosting ended",
+        "no": "Avriming avsluttet"
+      }
     },
     "eAirstatus": {
       "type": "enum",

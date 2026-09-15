@@ -1,6 +1,8 @@
 import { ExventModbusDevice, FlowCardIds } from '../../lib/ExventDevice';
 import { Measurement, RegisterMap } from '../../lib/modbus';
-import { EDA_COILS, EDA_HOLDING_REGISTERS, edaStatusMode } from '../../lib/eda';
+import {
+  EDA_COILS, EDA_HOLDING_REGISTERS, edaDefrosting, edaStatusMode,
+} from '../../lib/eda';
 
 /** A device setting whose value lives on the unit. */
 interface UnitSetting {
@@ -67,7 +69,7 @@ class MyEdaDevice extends ExventModbusDevice {
     // No eco mode (coil 40 is reserved) and no service countdown (no HREG 710).
     return super.capabilityIds()
       .filter((id) => id !== 'ecomode_mode' && id !== 'filter_days_remaining')
-      .concat(['cooling_allowed']);
+      .concat(['cooling_allowed', 'cooling_active', 'defrosting', 'fanspeed_level.panel']);
   }
 
   protected statusModeFromRegister(value: string): string {
@@ -88,6 +90,13 @@ class MyEdaDevice extends ExventModbusDevice {
     onAction('set-cooling_eda', (device, args) => device.setUnitSetting('cooling_allowed', args.allowed === '1'));
     onAction('set-heating-block-temperature_eda', (device, args) => device.setUnitSetting('heating_block_temperature', args.temperature));
     onAction('set-cooling-block-temperature_eda', (device, args) => device.setUnitSetting('cooling_block_temperature', args.temperature));
+
+    const onCondition = (cardId: string, capabilityId: string) => {
+      this.homey.flow.getConditionCard(cardId)
+        .registerRunListener(async (args: any) => (args.device as MyEdaDevice).getCapabilityValue(capabilityId) === true);
+    };
+    onCondition('defrosting_is_eda', 'defrosting');
+    onCondition('cooling_active_is_eda', 'cooling_active');
   }
 
   registerCapabilityListeners() {
@@ -112,6 +121,21 @@ class MyEdaDevice extends ExventModbusDevice {
     const coolingAllowed = reading('cooling_allowed');
     if (coolingAllowed !== undefined) {
       await this.updateCapability('cooling_allowed', coolingAllowed === '1' ? '1' : '0');
+    }
+
+    const panelLevel = reading('fan_speed_panel');
+    if (panelLevel !== undefined) {
+      await this.updateCapability('fanspeed_level.panel', Number(panelLevel));
+    }
+
+    const cooling = reading('cooling_status');
+    if (cooling !== undefined) {
+      await this.updateState('cooling_active', cooling === '1', 'cooling_started_eda', 'cooling_stopped_eda');
+    }
+
+    const state = reading('status_mode');
+    if (state !== undefined) {
+      await this.updateState('defrosting', edaDefrosting(Number(state)), 'defrosting_started_eda', 'defrosting_stopped_eda');
     }
 
     // setSettings does not trigger onSettings, so mirroring cannot loop.
@@ -143,6 +167,21 @@ class MyEdaDevice extends ExventModbusDevice {
   private async updateCapability(id: string, value: unknown) {
     if (this.getCapabilityValue(id) === value) return;
     await this.setCapabilityValue(id, value).catch(this.error);
+  }
+
+  /**
+   * Updates an on/off reading and fires its started or stopped trigger. The
+   * unit changes these on its own, so the poll is the only place to see it.
+   * No trigger on the first reading after the device is added or the app starts.
+   */
+  private async updateState(id: string, value: boolean, startedCard: string, stoppedCard: string) {
+    const previous = this.getCapabilityValue(id);
+    await this.updateCapability(id, value);
+    if (typeof previous === 'boolean' && previous !== value) {
+      await this.homey.flow.getDeviceTriggerCard(value ? startedCard : stoppedCard)
+        .trigger(this)
+        .catch(this.error);
+    }
   }
 }
 

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { toBlocks } from '../lib/modbus';
 import {
-  EDA_COILS, EDA_HOLDING_REGISTERS, EDA_STATE, edaStatusMode,
+  EDA_COILS, EDA_HOLDING_REGISTERS, EDA_STATE, edaDefrosting, edaStatusMode,
 } from '../lib/eda';
 
 function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]> {
@@ -40,8 +40,7 @@ test('EDA holding registers batch without the MD-only registers', () => {
     [6, 8],
     [29, 2],
     [44, 2],
-    [50, 1],
-    [57, 1],
+    [50, 8], // 50..57
     [135, 1],
     [164, 1],
     [196, 1],
@@ -52,7 +51,16 @@ test('EDA holding registers batch without the MD-only registers', () => {
   assert.ok(!addresses.includes(710), 'HREG 710 does not exist on EDA');
 });
 
-test('EDA coils leave out eco mode', () => {
+test('EDA coils batch into a single request without eco mode', () => {
+  assert.deepEqual(blockSpans(toBlocks(EDA_COILS, 'coil')), [[28, 27]]); // 28..54
   const addresses = Object.values(EDA_COILS).map(([addr]) => addr);
   assert.ok(!addresses.includes(40), 'coil 40 is reserved on EDA');
+});
+
+test('EDA defrosting is the top bit, however the register is read', () => {
+  assert.equal(edaDefrosting(0), false);
+  assert.equal(edaDefrosting(EDA_STATE.OVERPRESSURE), false);
+  assert.equal(edaDefrosting(EDA_STATE.DEFROSTING), true);
+  assert.equal(edaDefrosting(EDA_STATE.DEFROSTING | EDA_STATE.AWAY), true);
+  assert.equal(edaDefrosting(-32768), true);
 });

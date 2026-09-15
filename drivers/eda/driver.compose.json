@@ -12,11 +12,14 @@
     "measure_temperature.supplyAirHRC",
     "measure_temperature.step",
     "heater_mode",
+    "cooling_active",
+    "defrosting",
     "heat_exchanger_mode",
     "target_temperature.step",
     "alarm_b.desc",
     "measure_humidity.extractAir",
     "fanspeed_level",
+    "fanspeed_level.panel",
     "edastatus",
     "edastatus_mode",
     "lastPollTime",
@@ -137,6 +140,16 @@
       "title": {
         "en": "Cooling allowed",
         "no": "Kjøling tillatt"
+      }
+    },
+    "fanspeed_level.panel": {
+      "title": {
+        "en": "Fan level set",
+        "no": "Viftenivå innstilt"
+      },
+      "units": {
+        "en": "%",
+        "no": "%"
       }
     }
   },

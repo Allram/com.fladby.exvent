@@ -29,6 +29,9 @@ export const EDA_HOLDING_REGISTERS: RegisterMap = {
   // Percent on EC fans, and the level in effect after boost, overpressure
   // and heat pump overrides. Read only on EDA.
   fan_speed_level: [50, 1, 'UINT16', 'Ventilation level in effect'],
+  // The level selected on the panel. Heat pump units run the fans at 70% or
+  // more while the heat pump runs, whatever the panel says.
+  fan_speed_panel: [53, 1, 'UINT16', 'Ventilation level selected on the panel'],
   // HREG 56 is the time left and read only; 57 is the duration itself.
   fireplace_duration: [57, 1, 'UINT16', 'Overpressure duration in minutes'],
   temperature_setpoint: [135, 1, 'INT16', 'Temperature setpoint'],
@@ -40,6 +43,7 @@ export const EDA_HOLDING_REGISTERS: RegisterMap = {
 // Coil 40 (eco mode) is reserved on EDA, and HREG 710 (days since the
 // service reminder) does not exist.
 export const EDA_COILS: RegisterMap = {
+  cooling_status: [28, 1, 'UINT32', 'Cooling running'],
   heat_exchanger_state: [30, 1, 'UINT32', 'Heat recovery running'],
   heater_status: [32, 1, 'UINT32', 'Heating running'],
   alarm_b_desc: [42, 1, 'UINT32', 'B alarm active'],
@@ -60,4 +64,12 @@ export function edaStatusMode(state: number): string {
   if (bits & EDA_STATE.BOOST) return '3';
   if (bits & (EDA_STATE.AWAY | EDA_STATE.LONG_AWAY)) return '1';
   return '0';
+}
+
+/**
+ * Whether the heat pump is defrosting. The bit is named after the EDX line
+ * with an outdoor unit, but units with an integrated heat pump set it too.
+ */
+export function edaDefrosting(state: number): boolean {
+  return ((state & 0xffff) & EDA_STATE.DEFROSTING) !== 0;
 }

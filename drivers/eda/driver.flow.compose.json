@@ -333,6 +333,58 @@
           ]
         }
       ]
+    },
+    {
+      "id": "defrosting_started_eda",
+      "title": {
+        "en": "Defrosting started",
+        "no": "Avriming startet"
+      },
+      "titleFormatted": {
+        "en": "Defrosting started",
+        "no": "Avriming startet"
+      },
+      "hint": {
+        "en": "The heat pump started defrosting. It stops heating or cooling while it does.",
+        "no": "Varmepumpen startet avriming. Den varmer eller kjøler ikke så lenge avrimingen pågår."
+      },
+      "args": []
+    },
+    {
+      "id": "defrosting_stopped_eda",
+      "title": {
+        "en": "Defrosting ended",
+        "no": "Avriming avsluttet"
+      },
+      "titleFormatted": {
+        "en": "Defrosting ended",
+        "no": "Avriming avsluttet"
+      },
+      "args": []
+    },
+    {
+      "id": "cooling_started_eda",
+      "title": {
+        "en": "Cooling started",
+        "no": "Kjøling startet"
+      },
+      "titleFormatted": {
+        "en": "Cooling started",
+        "no": "Kjøling startet"
+      },
+      "args": []
+    },
+    {
+      "id": "cooling_stopped_eda",
+      "title": {
+        "en": "Cooling stopped",
+        "no": "Kjøling stoppet"
+      },
+      "titleFormatted": {
+        "en": "Cooling stopped",
+        "no": "Kjøling stoppet"
+      },
+      "args": []
     }
   ],
   "conditions": [
@@ -455,6 +507,30 @@
           ]
         }
       ]
+    },
+    {
+      "id": "defrosting_is_eda",
+      "title": {
+        "en": "Defrosting !{{is|is not}} in progress",
+        "no": "Avriming !{{pågår|pågår ikke}}"
+      },
+      "titleFormatted": {
+        "en": "Defrosting !{{is|is not}} in progress",
+        "no": "Avriming !{{pågår|pågår ikke}}"
+      },
+      "args": []
+    },
+    {
+      "id": "cooling_active_is_eda",
+      "title": {
+        "en": "Cooling !{{is|is not}} active",
+        "no": "Kjøling !{{er|er ikke}} i drift"
+      },
+      "titleFormatted": {
+        "en": "Cooling !{{is|is not}} active",
+        "no": "Kjøling !{{er|er ikke}} i drift"
+      },
+      "args": []
     }
   ]
 }
