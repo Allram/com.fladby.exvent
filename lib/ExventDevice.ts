@@ -716,7 +716,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * Fires one of the *_changed trigger cards. The new value is passed as
      * trigger state so the card's dropdown argument can be compared against it.
      */
-    private async fireModeChanged(cardId: string, mode: string) {
+    protected async fireModeChanged(cardId: string, mode: string) {
       await this.homey.flow.getDeviceTriggerCard(cardId)
         .trigger(this, {}, { mode })
         .catch(this.error);

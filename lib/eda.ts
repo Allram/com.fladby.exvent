@@ -73,3 +73,8 @@ export function edaStatusMode(state: number): string {
 export function edaDefrosting(state: number): boolean {
   return ((state & 0xffff) & EDA_STATE.DEFROSTING) !== 0;
 }
+
+/** Whether overpressure is on, including while the unit is stopped. */
+export function edaOverpressure(state: number): boolean {
+  return ((state & 0xffff) & EDA_STATE.OVERPRESSURE) !== 0;
+}

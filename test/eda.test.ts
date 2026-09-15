@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { toBlocks } from '../lib/modbus';
 import {
-  EDA_COILS, EDA_HOLDING_REGISTERS, EDA_STATE, edaDefrosting, edaStatusMode,
+  EDA_COILS, EDA_HOLDING_REGISTERS, EDA_STATE, edaDefrosting, edaOverpressure, edaStatusMode,
 } from '../lib/eda';
 
 function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]> {
@@ -63,4 +63,11 @@ test('EDA defrosting is the top bit, however the register is read', () => {
   assert.equal(edaDefrosting(EDA_STATE.DEFROSTING), true);
   assert.equal(edaDefrosting(EDA_STATE.DEFROSTING | EDA_STATE.AWAY), true);
   assert.equal(edaDefrosting(-32768), true);
+});
+
+test('EDA overpressure follows its bit alone', () => {
+  assert.equal(edaOverpressure(0), false);
+  assert.equal(edaOverpressure(EDA_STATE.OVERPRESSURE), true);
+  assert.equal(edaOverpressure(EDA_STATE.OVERPRESSURE | EDA_STATE.STOP), true);
+  assert.equal(edaOverpressure(EDA_STATE.BOOST | EDA_STATE.DEFROSTING), false);
 });

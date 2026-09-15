@@ -1,7 +1,7 @@
 import { ExventModbusDevice, FlowCardIds } from '../../lib/ExventDevice';
 import { Measurement, RegisterMap } from '../../lib/modbus';
 import {
-  EDA_COILS, EDA_HOLDING_REGISTERS, edaDefrosting, edaStatusMode,
+  EDA_COILS, EDA_HOLDING_REGISTERS, edaDefrosting, edaOverpressure, edaStatusMode,
 } from '../../lib/eda';
 
 /** A device setting whose value lives on the unit. */
@@ -69,7 +69,7 @@ class MyEdaDevice extends ExventModbusDevice {
     // No eco mode (coil 40 is reserved) and no service countdown (no HREG 710).
     return super.capabilityIds()
       .filter((id) => id !== 'ecomode_mode' && id !== 'filter_days_remaining')
-      .concat(['cooling_allowed', 'cooling_active', 'defrosting', 'fanspeed_level.panel']);
+      .concat(['cooling_allowed', 'cooling_active', 'defrosting', 'fanspeed_level.panel', 'overpressure']);
   }
 
   protected statusModeFromRegister(value: string): string {
@@ -105,6 +105,15 @@ class MyEdaDevice extends ExventModbusDevice {
       if (!this.getAvailable()) return;
       await this.setUnitSetting('cooling_allowed', value === '1');
     });
+
+    // The quick action. Turning it off returns the unit to Home, as the
+    // mode picker does.
+    this.registerCapabilityListener('overpressure', async (value) => {
+      if (!this.getAvailable()) return;
+      const mode = value ? '2' : '0';
+      await this.setStatusModeValue(mode);
+      await this.fireModeChanged(this.flowCardIds.statusModeChanged, mode);
+    });
   }
 
   async onSettings(event: { newSettings: Record<string, any>; changedKeys: string[] }) {
@@ -136,6 +145,7 @@ class MyEdaDevice extends ExventModbusDevice {
     const state = reading('status_mode');
     if (state !== undefined) {
       await this.updateState('defrosting', edaDefrosting(Number(state)), 'defrosting_started_eda', 'defrosting_stopped_eda');
+      await this.updateCapability('overpressure', edaOverpressure(Number(state)));
     }
 
     // setSettings does not trigger onSettings, so mirroring cannot loop.

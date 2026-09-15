@@ -24,7 +24,8 @@
     "edastatus_mode",
     "lastPollTime",
     "heating_coil_state",
-    "cooling_allowed"
+    "cooling_allowed",
+    "overpressure"
   ],
   "capabilitiesOptions": {
     "measure_temperature.exhaustAir": {

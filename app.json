@@ -2209,7 +2209,8 @@
         "edastatus_mode",
         "lastPollTime",
         "heating_coil_state",
-        "cooling_allowed"
+        "cooling_allowed",
+        "overpressure"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -3247,6 +3248,27 @@
       "insightsTitleFalse": {
         "en": "Last poll changed",
         "no": "Siste polling endret"
+      }
+    },
+    "overpressure": {
+      "type": "boolean",
+      "uiComponent": null,
+      "uiQuickAction": true,
+      "icon": "/assets/statusmode.svg",
+      "title": {
+        "en": "Overpressure",
+        "no": "Overtrykk"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Overpressure started",
+        "no": "Overtrykk startet"
+      },
+      "insightsTitleFalse": {
+        "en": "Overpressure ended",
+        "no": "Overtrykk avsluttet"
       }
     }
   }
