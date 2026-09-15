@@ -91,6 +91,7 @@ class MyEdaDevice extends ExventModbusDevice {
     onAction('set-cooling_eda', (device, args) => device.setUnitSetting('cooling_allowed', args.allowed === '1'));
     onAction('set-heating-block-temperature_eda', (device, args) => device.setUnitSetting('heating_block_temperature', args.temperature));
     onAction('set-cooling-block-temperature_eda', (device, args) => device.setUnitSetting('cooling_block_temperature', args.temperature));
+    onAction('set-overpressure-duration_eda', (device, args) => device.setOverpressureDuration(args.minutes));
 
     const onCondition = (cardId: string, capabilityId: string) => {
       this.homey.flow.getConditionCard(cardId)
@@ -165,6 +166,14 @@ class MyEdaDevice extends ExventModbusDevice {
   async setUnitSetting(id: string, value: boolean | number) {
     await this.writeUnitSetting(UNIT_SETTINGS[id], value);
     await this.setSettings({ [id]: value }).catch(this.error);
+  }
+
+  /** Writes the overpressure duration and shows it in the device settings. */
+  async setOverpressureDuration(minutes: number) {
+    for (const register of this.overpressureDurationRegisters) {
+      await this.sendHoldingRequest(register, minutes);
+    }
+    await this.setSettings({ fireplace_duration_minutes: minutes }).catch(this.error);
   }
 
   private async writeUnitSetting(setting: UnitSetting, value: unknown) {

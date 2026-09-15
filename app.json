@@ -1679,6 +1679,35 @@
             "step": 0.5
           }
         ]
+      },
+      {
+        "id": "set-overpressure-duration_eda",
+        "title": {
+          "en": "Set overpressure duration",
+          "no": "Sett varighet for overtrykk"
+        },
+        "titleFormatted": {
+          "en": "Set overpressure duration to [[minutes]] min",
+          "no": "Sett varighet for overtrykk til [[minutes]] min"
+        },
+        "hint": {
+          "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit, and applies the next time overpressure starts.",
+          "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet, og gjelder neste gang overtrykk starter."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "type": "range",
+            "name": "minutes",
+            "min": 1,
+            "max": 60,
+            "step": 1
+          }
+        ]
       }
     ]
   },
