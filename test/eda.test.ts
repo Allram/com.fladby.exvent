@@ -51,8 +51,8 @@ test('EDA holding registers batch without the MD-only registers', () => {
   assert.ok(!addresses.includes(710), 'HREG 710 does not exist on EDA');
 });
 
-test('EDA coils batch into a single request without eco mode', () => {
-  assert.deepEqual(blockSpans(toBlocks(EDA_COILS, 'coil')), [[28, 27]]); // 28..54
+test('EDA coils batch into two requests without eco mode', () => {
+  assert.deepEqual(blockSpans(toBlocks(EDA_COILS, 'coil')), [[16, 27], [49, 6]]); // 16..42, 49..54
   const addresses = Object.values(EDA_COILS).map(([addr]) => addr);
   assert.ok(!addresses.includes(40), 'coil 40 is reserved on EDA');
 });

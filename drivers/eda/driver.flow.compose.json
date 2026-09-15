@@ -197,6 +197,30 @@
       ]
     },
     {
+      "id": "set-fan-level_eda",
+      "title": {
+        "en": "Set fan level",
+        "no": "Sett viftenivå"
+      },
+      "titleFormatted": {
+        "en": "Set fan level to [[level]] %",
+        "no": "Sett viftenivå til [[level]] %"
+      },
+      "hint": {
+        "en": "Sets the fan level selected on the unit, as on its panel. Boost, overpressure and a running heat pump can raise it for a while.",
+        "no": "Setter viftenivået som er valgt på aggregatet, som på panelet. Boost, overtrykk og varmepumpe i drift kan øke det en stund."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "level",
+          "min": 20,
+          "max": 100,
+          "step": 1
+        }
+      ]
+    },
+    {
       "id": "set-overpressure-duration_eda",
       "title": {
         "en": "Set overpressure duration",

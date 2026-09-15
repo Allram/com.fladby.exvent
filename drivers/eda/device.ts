@@ -70,7 +70,7 @@ class MyEdaDevice extends ExventModbusDevice {
     // No eco mode (coil 40 is reserved) and no service countdown (no HREG 710).
     return super.capabilityIds()
       .filter((id) => id !== 'ecomode_mode' && id !== 'filter_days_remaining')
-      .concat(['cooling_allowed', 'cooling_active', 'defrosting', 'fanspeed_level.panel', 'overpressure']);
+      .concat(['cooling_allowed', 'cooling_active', 'defrosting', 'fanspeed_level_set', 'overpressure']);
   }
 
   protected statusModeFromRegister(value: string): string {
@@ -79,7 +79,7 @@ class MyEdaDevice extends ExventModbusDevice {
 
   registerFlowListeners() {
     super.registerFlowListeners();
-    const onAction = (cardId: string, action: (device: MyEdaDevice, args: any) => Promise<void>) => {
+    const onAction = (cardId: string, action: (device: MyEdaDevice, args: any) => Promise<unknown>) => {
       this.homey.flow.getActionCard(cardId)
         .registerRunListener(async (args: any) => {
           const device = args.device as MyEdaDevice;
@@ -92,6 +92,7 @@ class MyEdaDevice extends ExventModbusDevice {
     onAction('set-heating-block-temperature_eda', (device, args) => device.setUnitSetting('heating_block_temperature', args.temperature));
     onAction('set-cooling-block-temperature_eda', (device, args) => device.setUnitSetting('cooling_block_temperature', args.temperature));
     onAction('set-overpressure-duration_eda', (device, args) => device.setOverpressureDuration(args.minutes));
+    onAction('set-fan-level_eda', (device, args) => device.setFanLevel(args.level));
 
     const onCondition = (cardId: string, capabilityId: string) => {
       this.homey.flow.getConditionCard(cardId)
@@ -107,6 +108,22 @@ class MyEdaDevice extends ExventModbusDevice {
       if (!this.getAvailable()) return;
       await this.setUnitSetting('cooling_allowed', value === '1');
     });
+
+    if (this.hasCapability('fanspeed_level_set')) {
+      this.registerCapabilityListener('fanspeed_level_set', async (value) => {
+        if (!this.getAvailable()) return;
+        // Percent sliders in Homey run from 0 to 1, like dim. The slider
+        // shows the full range so its middle is 50%, but the unit's lowest
+        // level is 20%. Homey stores the dragged value once this listener
+        // returns, so move the slider up to what was written afterwards.
+        const percent = await this.setFanLevel(value * 100);
+        if (percent !== Math.round(value * 100)) {
+          this.homey.setTimeout(() => {
+            this.updateCapability('fanspeed_level_set', percent / 100).catch(this.error);
+          }, 500);
+        }
+      });
+    }
 
     // The quick action. Turning it off returns the unit to Home, as the
     // mode picker does.
@@ -134,9 +151,22 @@ class MyEdaDevice extends ExventModbusDevice {
       await this.updateCapability('cooling_allowed', coolingAllowed === '1' ? '1' : '0');
     }
 
+    // The fan level is a percentage only on EC fans; AC fans take steps 1-8,
+    // which the slider cannot show, so AC units do not get it.
+    const fanType = reading('fan_type');
+    if (fanType !== undefined) {
+      this.ecFans = fanType === '1';
+      if (!this.ecFans && this.hasCapability('fanspeed_level_set')) {
+        await this.removeCapability('fanspeed_level_set').catch(this.error);
+      }
+    }
+
+    // Holding registers and coils arrive in separate calls, so the level is
+    // kept until the fan type is known.
     const panelLevel = reading('fan_speed_panel');
-    if (panelLevel !== undefined) {
-      await this.updateCapability('fanspeed_level.panel', Number(panelLevel));
+    if (panelLevel !== undefined) this.panelLevel = Number(panelLevel);
+    if (this.ecFans && this.panelLevel !== undefined && this.hasCapability('fanspeed_level_set')) {
+      await this.updateCapability('fanspeed_level_set', this.panelLevel / 100);
     }
 
     const cooling = reading('cooling_status');
@@ -166,6 +196,26 @@ class MyEdaDevice extends ExventModbusDevice {
   async setUnitSetting(id: string, value: boolean | number) {
     await this.writeUnitSetting(UNIT_SETTINGS[id], value);
     await this.setSettings({ [id]: value }).catch(this.error);
+  }
+
+  /** Whether the unit has EC fans, from coil 16; unknown until the first poll. */
+  private ecFans: boolean | undefined;
+
+  /** The last reading of HREG 53. */
+  private panelLevel: number | undefined;
+
+  /**
+   * Writes the fan level selected on the panel (HREG 53), in percent, kept
+   * within the unit's 20-100%. Returns the level written.
+   */
+  async setFanLevel(level: number): Promise<number> {
+    if (this.ecFans !== true) {
+      throw new Error(this.homey.__('fanLevelUnsupported'));
+    }
+    const percent = Math.min(100, Math.max(20, Math.round(Number(level))));
+    await this.sendHoldingRequest(this.registers['fan_speed_panel'][0], percent);
+    await this.updateCapability('fanspeed_level_set', percent / 100);
+    return percent;
   }
 
   /** Writes the overpressure duration and shows it in the device settings. */

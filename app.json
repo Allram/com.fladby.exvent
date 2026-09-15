@@ -1683,6 +1683,35 @@
         ]
       },
       {
+        "id": "set-fan-level_eda",
+        "title": {
+          "en": "Set fan level",
+          "no": "Sett viftenivå"
+        },
+        "titleFormatted": {
+          "en": "Set fan level to [[level]] %",
+          "no": "Sett viftenivå til [[level]] %"
+        },
+        "hint": {
+          "en": "Sets the fan level selected on the unit, as on its panel. Boost, overpressure and a running heat pump can raise it for a while.",
+          "no": "Setter viftenivået som er valgt på aggregatet, som på panelet. Boost, overtrykk og varmepumpe i drift kan øke det en stund."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "type": "range",
+            "name": "level",
+            "min": 20,
+            "max": 100,
+            "step": 1
+          }
+        ]
+      },
+      {
         "id": "set-overpressure-duration_eda",
         "title": {
           "en": "Set overpressure duration",
@@ -2235,7 +2264,7 @@
         "alarm_b.desc",
         "measure_humidity.extractAir",
         "fanspeed_level",
-        "fanspeed_level.panel",
+        "fanspeed_level_set",
         "edastatus",
         "edastatus_mode",
         "lastPollTime",
@@ -2359,14 +2388,10 @@
             "no": "Kjøling tillatt"
           }
         },
-        "fanspeed_level.panel": {
+        "fanspeed_level_set": {
           "title": {
             "en": "Fan level set",
             "no": "Viftenivå innstilt"
-          },
-          "units": {
-            "en": "%",
-            "no": "%"
           }
         }
       },
@@ -3140,6 +3165,30 @@
         "en": "Fan level changed",
         "no": "Viftenivå endret"
       }
+    },
+    "fanspeed_level_set": {
+      "type": "number",
+      "uiComponent": "slider",
+      "icon": "/assets/fanspeed.svg",
+      "title": {
+        "en": "Fan level set",
+        "no": "Viftenivå innstilt"
+      },
+      "desc": {
+        "en": "The fan level selected on the unit, 20% at the lowest. The unit can raise it for a while, for boost, overpressure or a running heat pump.",
+        "no": "Viftenivået som er valgt på aggregatet, minst 20 %. Aggregatet kan øke det en stund, ved boost, overtrykk eller når varmepumpen går."
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "units": {
+        "en": "%",
+        "no": "%"
+      },
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "decimals": 2
     },
     "filter_days_remaining": {
       "type": "number",

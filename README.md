@@ -16,7 +16,8 @@ Units with EDA automation, connected through a Freeway WEB adapter, have their o
 
 - Overpressure as the device's quick action, with its duration as a setting and a Flow card
 - Season control: allow or block heating and cooling, and the outdoor temperatures that block them
-- Heat pump readings: cooling active, defrosting, and the fan level set on the panel next to the level in effect
+- Fan level in percent, set with a slider or a Flow card (units with EC fans), next to the level in effect
+- Heat pump readings: cooling active and defrosting
 - Service reminder on or off, and its interval
 
 EDA units have no eco mode, Enhanced ventilation mode or service countdown.

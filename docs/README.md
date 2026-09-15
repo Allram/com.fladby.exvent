@@ -120,6 +120,7 @@ Register 644 sets how long the heat pump stays off after a defrost cycle.
 | Address | Meaning | In the app |
 | --- | --- | --- |
 | Coils 0, 1, 3, 10 | Stop, away, overpressure, manual boost | Mode picker, overpressure quick action |
+| Coil 16 | Fan type, EC 1 / AC 0 | Fan level slider only on EC fans |
 | Coil 28 | Cooling in operation | Cooling active |
 | Coil 30 | Heat recovery running | Heat exchanger |
 | Coil 32 | Heating in operation | Heating active |
@@ -131,7 +132,8 @@ Register 644 sets how long the heat pump stays off after a defrost cycle.
 | Holding 29, 30 | Heat recovery efficiency | Readings |
 | Holding 44 | Status bit field | Mode, defrosting, overpressure |
 | Holding 45 | Temperature control step | Status |
-| Holding 50, 53 | Fan level in effect, fan level set on the panel | Readings |
+| Holding 50 | Fan level in effect | Reading |
+| Holding 53 | Fan level set on the panel, 20–100% on EC fans | Slider and flow card |
 | Holding 57 | Overpressure duration in minutes | Device setting |
 | Holding 135 | Temperature setpoint, ×10 | Target temperature |
 | Holding 164, 196 | Outdoor temperature below which cooling and above which heating are blocked, ×10 | Device settings |

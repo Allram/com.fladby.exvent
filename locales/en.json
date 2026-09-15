@@ -14,6 +14,7 @@
     "connecting": "Adding device…"
   },
   "noConnection": "No connection",
+  "fanLevelUnsupported": "The fan level can only be set in percent on units with EC fans",
   "Unreachable": "Unreachable",
   "Off": "Off",
   "NA": "Information not available"

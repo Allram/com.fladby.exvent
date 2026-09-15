@@ -19,7 +19,7 @@
     "alarm_b.desc",
     "measure_humidity.extractAir",
     "fanspeed_level",
-    "fanspeed_level.panel",
+    "fanspeed_level_set",
     "edastatus",
     "edastatus_mode",
     "lastPollTime",
@@ -143,14 +143,10 @@
         "no": "Kjøling tillatt"
       }
     },
-    "fanspeed_level.panel": {
+    "fanspeed_level_set": {
       "title": {
         "en": "Fan level set",
         "no": "Viftenivå innstilt"
-      },
-      "units": {
-        "en": "%",
-        "no": "%"
       }
     }
   },
