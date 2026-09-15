@@ -333,6 +333,19 @@
       },
       "children": [
         {
+          "id": "service_reminder",
+          "type": "checkbox",
+          "value": true,
+          "label": {
+            "en": "Service reminder",
+            "no": "Servicepåminnelse"
+          },
+          "hint": {
+            "en": "Whether the unit raises a B alarm reminding you to service it and change the filters. Stored on the unit.",
+            "no": "Om aggregatet gir en B-alarm som minner deg på service og filterbytte. Lagres på aggregatet."
+          }
+        },
+        {
           "id": "filter_interval_days",
           "type": "number",
           "label": {

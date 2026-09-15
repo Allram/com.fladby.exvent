@@ -47,6 +47,7 @@ export const EDA_COILS: RegisterMap = {
   heat_exchanger_state: [30, 1, 'UINT32', 'Heat recovery running'],
   heater_status: [32, 1, 'UINT32', 'Heating running'],
   alarm_b_desc: [42, 1, 'UINT32', 'B alarm active'],
+  service_reminder: [49, 1, 'UINT32', 'Service reminder on'],
   cooling_allowed: [52, 1, 'UINT32', 'Cooling allowed'],
   heating_coil: [54, 1, 'UINT32', 'Heating allowed'],
 };

@@ -21,6 +21,7 @@ const UNIT_SETTINGS: Record<string, UnitSetting> = {
   cooling_allowed: { key: 'cooling_allowed', coil: true },
   heating_block_temperature: { key: 'heating_block_temperature', scale: 10 },
   cooling_block_temperature: { key: 'cooling_block_temperature', scale: 10 },
+  service_reminder: { key: 'service_reminder', coil: true },
 };
 
 /**
