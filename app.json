@@ -51,16 +51,16 @@
       {
         "id": "alarm_b_triggered2",
         "title": {
-          "en": "Filter alarm",
-          "no": "Filteralarm"
+          "en": "Filter alarm triggered",
+          "no": "Filteralarm utløst"
         },
         "titleFormatted": {
           "en": "The filter alarm went off",
           "no": "Filteralarmen ble utløst"
         },
         "hint": {
-          "en": "The unit reports that the filter needs replacing.",
-          "no": "Anlegget melder at filteret må byttes."
+          "en": "The unit reports that the filters need replacing.",
+          "no": "Aggregatet melder at filtrene må byttes."
         },
         "args": [
           {
@@ -159,15 +159,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -197,15 +197,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -215,16 +215,16 @@
       {
         "id": "alarm_b_triggered",
         "title": {
-          "en": "Filter alarm",
-          "no": "Filteralarm"
+          "en": "Filter alarm triggered",
+          "no": "Filteralarm utløst"
         },
         "titleFormatted": {
           "en": "The filter alarm went off",
           "no": "Filteralarmen ble utløst"
         },
         "hint": {
-          "en": "The unit reports that the filter needs replacing.",
-          "no": "Anlegget melder at filteret må byttes."
+          "en": "The unit reports that the filters need replacing.",
+          "no": "Aggregatet melder at filtrene må byttes."
         },
         "args": [
           {
@@ -323,15 +323,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -361,15 +361,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -467,15 +467,15 @@
               {
                 "id": "on",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "off",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -505,15 +505,15 @@
               {
                 "id": "on",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "off",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -609,15 +609,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -647,15 +647,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -687,15 +687,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -880,15 +880,15 @@
               {
                 "id": "1",
                 "label": {
-                  "en": "Active",
-                  "no": "Aktiv"
+                  "en": "on",
+                  "no": "på"
                 }
               },
               {
                 "id": "0",
                 "label": {
-                  "en": "Inactive",
-                  "no": "Inaktiv"
+                  "en": "off",
+                  "no": "av"
                 }
               }
             ]
@@ -1154,7 +1154,7 @@
         },
         "fanspeed_level": {
           "title": {
-            "en": "Fan speed level",
+            "en": "Fan level",
             "no": "Viftenivå"
           }
         },
@@ -1187,7 +1187,7 @@
         },
         "lastPollTime": {
           "title": {
-            "en": "Last poll time",
+            "en": "Last poll",
             "no": "Siste polling"
           }
         }
@@ -1225,7 +1225,7 @@
               },
               "hint": {
                 "en": "The fixed IP address of the ventilation unit on your network.",
-                "no": "Den faste IP-adressen ventilasjonsanlegget har i nettverket ditt."
+                "no": "Den faste IP-adressen aggregatet har i nettverket ditt."
               }
             },
             {
@@ -1239,7 +1239,7 @@
               },
               "hint": {
                 "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
-                "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
+                "no": "Modbus TCP-porten til aggregatet. Denne er 502 på et standardoppsett."
               }
             }
           ]
@@ -1259,8 +1259,8 @@
                 "no": "Varighet for overtrykk"
               },
               "hint": {
-                "en": "How many minutes overpressure stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
-                "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+                "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit when changed.",
+                "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring."
               },
               "value": 10,
               "min": 1,
@@ -1404,7 +1404,7 @@
         },
         "fanspeed_level": {
           "title": {
-            "en": "Fan speed level",
+            "en": "Fan level",
             "no": "Viftenivå"
           }
         },
@@ -1437,7 +1437,7 @@
         },
         "lastPollTime": {
           "title": {
-            "en": "Last poll time",
+            "en": "Last poll",
             "no": "Siste polling"
           }
         }
@@ -1475,7 +1475,7 @@
               },
               "hint": {
                 "en": "The fixed IP address of the ventilation unit on your network.",
-                "no": "Den faste IP-adressen ventilasjonsanlegget har i nettverket ditt."
+                "no": "Den faste IP-adressen aggregatet har i nettverket ditt."
               }
             },
             {
@@ -1489,7 +1489,7 @@
               },
               "hint": {
                 "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
-                "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
+                "no": "Modbus TCP-porten til aggregatet. Denne er 502 på et standardoppsett."
               }
             }
           ]
@@ -1509,8 +1509,8 @@
                 "no": "Varighet for overtrykk"
               },
               "hint": {
-                "en": "How many minutes overpressure stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
-                "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+                "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit when changed.",
+                "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring."
               },
               "value": 10,
               "min": 1,
@@ -1589,8 +1589,8 @@
         {
           "id": "0",
           "title": {
-            "en": "No heating/cooling",
-            "no": "Ingen varming/kjøling"
+            "en": "No heating or cooling",
+            "no": "Ingen varme eller kjøling"
           }
         },
         {
@@ -1697,18 +1697,18 @@
     "ecomode_mode": {
       "type": "enum",
       "title": {
-        "en": "Ecomode",
+        "en": "Eco mode",
         "no": "Økomodus"
       },
       "getable": true,
       "setable": true,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Ecomode changed",
+        "en": "Eco mode changed",
         "no": "Økomodus endret"
       },
       "insightsTitleFalse": {
-        "en": "Ecomode changed",
+        "en": "Eco mode changed",
         "no": "Økomodus endret"
       },
       "uiComponent": "picker",
@@ -1783,8 +1783,8 @@
         {
           "id": "0",
           "title": {
-            "en": "No heating/cooling",
-            "no": "Ingen varming/kjøling"
+            "en": "No heating or cooling",
+            "no": "Ingen varme eller kjøling"
           }
         },
         {
@@ -1893,22 +1893,22 @@
       "uiComponent": "sensor",
       "icon": "/assets/fanspeed.svg",
       "title": {
-        "en": "Fan speed level",
+        "en": "Fan level",
         "no": "Viftenivå"
       },
       "desc": {
-        "en": "Fan speed level, from 1 to 4",
+        "en": "Fan level, from 1 to 4",
         "no": "Viftenivå, fra 1 til 4"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Fan speed level changed",
+        "en": "Fan level changed",
         "no": "Viftenivå endret"
       },
       "insightsTitleFalse": {
-        "en": "Fan speed level changed",
+        "en": "Fan level changed",
         "no": "Viftenivå endret"
       }
     },
@@ -2046,22 +2046,22 @@
       "uiComponent": "sensor",
       "icon": "/assets/efficiency.svg",
       "title": {
-        "en": "Last poll time",
+        "en": "Last poll",
         "no": "Siste polling"
       },
       "desc": {
         "en": "When the values were last read from the unit",
-        "no": "Når verdiene sist ble lest fra anlegget"
+        "no": "Når verdiene sist ble lest fra aggregatet"
       },
       "getable": true,
       "setable": false,
       "insights": true,
       "insightsTitleTrue": {
-        "en": "Last poll time changed",
+        "en": "Last poll changed",
         "no": "Siste polling endret"
       },
       "insightsTitleFalse": {
-        "en": "Last poll time changed",
+        "en": "Last poll changed",
         "no": "Siste polling endret"
       }
     }

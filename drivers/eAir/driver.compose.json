@@ -99,7 +99,7 @@
     },
     "fanspeed_level": {
       "title": {
-        "en": "Fan speed level",
+        "en": "Fan level",
         "no": "Viftenivå"
       }
     },
@@ -132,7 +132,7 @@
     },
     "lastPollTime": {
       "title": {
-        "en": "Last poll time",
+        "en": "Last poll",
         "no": "Siste polling"
       }
     }
@@ -170,7 +170,7 @@
           },
           "hint": {
             "en": "The fixed IP address of the ventilation unit on your network.",
-            "no": "Den faste IP-adressen ventilasjonsanlegget har i nettverket ditt."
+            "no": "Den faste IP-adressen aggregatet har i nettverket ditt."
           }
         },
         {
@@ -184,7 +184,7 @@
           },
           "hint": {
             "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
-            "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
+            "no": "Modbus TCP-porten til aggregatet. Denne er 502 på et standardoppsett."
           }
         }
       ]
@@ -204,8 +204,8 @@
             "no": "Varighet for overtrykk"
           },
           "hint": {
-            "en": "How many minutes overpressure stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
-            "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+            "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit when changed.",
+            "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring."
           },
           "value": 10,
           "min": 1,

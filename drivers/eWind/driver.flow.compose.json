@@ -18,15 +18,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -171,16 +171,16 @@
     {
       "id": "alarm_b_triggered",
       "title": {
-        "en": "Filter alarm",
-        "no": "Filteralarm"
+        "en": "Filter alarm triggered",
+        "no": "Filteralarm utløst"
       },
       "titleFormatted": {
         "en": "The filter alarm went off",
         "no": "Filteralarmen ble utløst"
       },
       "hint": {
-        "en": "The unit reports that the filter needs replacing.",
-        "no": "Anlegget melder at filteret må byttes."
+        "en": "The unit reports that the filters need replacing.",
+        "no": "Aggregatet melder at filtrene må byttes."
       },
       "args": []
     },
@@ -263,15 +263,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -296,15 +296,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -392,15 +392,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -425,15 +425,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]

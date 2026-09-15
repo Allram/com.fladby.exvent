@@ -1,9 +1,9 @@
 {
   "pair": {
-    "title_eWind": "Legg til eWind-ventilasjonsanlegg",
-    "title_eAir": "Legg til eAir-ventilasjonsanlegg",
-    "intro_eWind": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eWind-anlegget. Husk å aktivere Modbus TCP i eWind-appen, og gi anlegget en statisk IP-adresse i ruteren.",
-    "intro_eAir": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eAir-anlegget. Husk å aktivere Modbus TCP i eAir-appen, og gi anlegget en statisk IP-adresse i ruteren.",
+    "title_eWind": "Legg til eWind-ventilasjonsaggregat",
+    "title_eAir": "Legg til eAir-ventilasjonsaggregat",
+    "intro_eWind": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eWind-aggregatet. Husk å aktivere Modbus TCP i eWind-appen, og gi aggregatet en statisk IP-adresse i ruteren.",
+    "intro_eAir": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eAir-aggregatet. Husk å aktivere Modbus TCP i eAir-appen, og gi aggregatet en statisk IP-adresse i ruteren.",
     "nosettings": "Vennligst fyll ut alle feltene.",
     "invalidip": "Skriv inn en gyldig IP-adresse og port (1–65535).",
     "address": "IP-adresse",
