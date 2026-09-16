@@ -1,18 +1,18 @@
 {
   "type": "enum",
   "title": {
-    "en": "Eco mode",
+    "en": "Ecomode",
     "no": "Økomodus"
   },
   "getable": true,
   "setable": true,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Eco mode changed",
+    "en": "Ecomode changed",
     "no": "Økomodus endret"
   },
   "insightsTitleFalse": {
-    "en": "Eco mode changed",
+    "en": "Ecomode changed",
     "no": "Økomodus endret"
   },
   "uiComponent": "picker",

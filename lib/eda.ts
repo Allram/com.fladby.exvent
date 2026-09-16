@@ -55,6 +55,32 @@ export const EDA_COILS: RegisterMap = {
 };
 
 /**
+ * Coils of the unit's modes: overpressure, manual boost, away, long away, max
+ * heating and max cooling. The unit does not turn one off when another is
+ * turned on, so only one may be set at a time (as in eda-modbus-bridge).
+ * Listed in the order the unit ranks them, so the mode being left is turned
+ * off first: writes go out a second apart.
+ */
+export const EDA_MODE_COILS = [3, 10, 1, 2, 6, 7];
+
+/**
+ * Status values ('0' no heating or cooling, '1' cooling, '2' heat recovery,
+ * '3' heating, '4' starting up, '5' stopped, '6' waiting to change step,
+ * '7' summer night cooling, '8' heat recovery cleaning, '9' defrosting) by
+ * value of holding register 45, the temperature control step. Register
+ * values 0, 1, 2, 4, 7 and 8 map as on eWind and eAir; 5, 6, 9 and 10 exist
+ * only on EDA.
+ */
+const EDA_STATUS: Record<number, string> = {
+  0: '0', 1: '1', 2: '2', 4: '3', 5: '6', 6: '7', 7: '4', 8: '5', 9: '8', 10: '9',
+};
+
+/** The status for a value of holding register 45, or undefined for values the register list does not name. */
+export function edaStatus(step: number): string | undefined {
+  return EDA_STATUS[step];
+}
+
+/**
  * The status mode ('0' home, '1' away, '2' overpressure, '3' boost, '4' off)
  * for a value of the state bit field. Several bits can be set at once, such
  * as overpressure during a heat pump defrost, so the register cannot be

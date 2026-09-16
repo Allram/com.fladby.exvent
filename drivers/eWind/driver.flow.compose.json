@@ -18,15 +18,15 @@
             {
               "id": "1",
               "label": {
-                "en": "on",
-                "no": "på"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "off",
-                "no": "av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -36,16 +36,16 @@
     {
       "id": "heatingcoil",
       "title": {
-        "en": "Set heating",
-        "no": "Sett varme"
+        "en": "Set heating coil",
+        "no": "Sett varmekolbe"
       },
       "titleFormatted": {
-        "en": "Set heating to [[heatingcoil]]",
-        "no": "Sett varme til [[heatingcoil]]"
+        "en": "Set heating coil to [[heatingcoil]]",
+        "no": "Sett varmekolbe til [[heatingcoil]]"
       },
       "hint": {
-        "en": "Allows or blocks heating of the supply air. Stored on the unit.",
-        "no": "Tillater eller sperrer oppvarming av tilluften. Lagres på aggregatet."
+        "en": "Allows or blocks the unit from using its heating coil.",
+        "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
       },
       "args": [
         {
@@ -55,15 +55,15 @@
             {
               "id": "1",
               "label": {
-                "en": "allowed",
-                "no": "tillatt"
+                "en": "On",
+                "no": "På"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "blocked",
-                "no": "sperret"
+                "en": "Off",
+                "no": "Av"
               }
             }
           ]
@@ -122,8 +122,8 @@
             {
               "id": "2",
               "label": {
-                "en": "Overpressure",
-                "no": "Overtrykk"
+                "en": "Fireplace",
+                "no": "Peismodus"
               }
             },
             {
@@ -154,16 +154,16 @@
     {
       "id": "reset_filter_reminder",
       "title": {
-        "en": "Reset service reminder",
-        "no": "Nullstill servicepåminnelse"
+        "en": "Reset filter change reminder",
+        "no": "Nullstill varsel om filterbytte"
       },
       "titleFormatted": {
-        "en": "Reset service reminder",
-        "no": "Nullstill servicepåminnelse"
+        "en": "Reset filter change reminder",
+        "no": "Nullstill varsel om filterbytte"
       },
       "hint": {
-        "en": "Restarts the countdown to the service reminder. Use after changing the filters or servicing the unit.",
-        "no": "Starter nedtellingen til servicepåminnelsen på nytt. Brukes etter filterbytte eller service."
+        "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
+        "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
       }
     }
   ],
@@ -171,16 +171,16 @@
     {
       "id": "alarm_b_triggered",
       "title": {
-        "en": "Filter alarm triggered",
-        "no": "Filteralarm utløst"
+        "en": "Filter alarm",
+        "no": "Filteralarm"
       },
       "titleFormatted": {
         "en": "The filter alarm went off",
         "no": "Filteralarmen ble utløst"
       },
       "hint": {
-        "en": "The unit reports that the filters need replacing.",
-        "no": "Aggregatet melder at filtrene må byttes."
+        "en": "The unit reports that the filter needs replacing.",
+        "no": "Anlegget melder at filteret må byttes."
       },
       "args": []
     },
@@ -216,8 +216,8 @@
             {
               "id": "2",
               "label": {
-                "en": "Overpressure",
-                "no": "Overtrykk"
+                "en": "Fireplace",
+                "no": "Peismodus"
               }
             },
             {
@@ -263,15 +263,15 @@
             {
               "id": "1",
               "label": {
-                "en": "on",
-                "no": "på"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "off",
-                "no": "av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -296,15 +296,15 @@
             {
               "id": "1",
               "label": {
-                "en": "on",
-                "no": "på"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "off",
-                "no": "av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -345,8 +345,8 @@
             {
               "id": "2",
               "label": {
-                "en": "Overpressure",
-                "no": "Overtrykk"
+                "en": "Fireplace",
+                "no": "Peismodus"
               }
             },
             {
@@ -392,15 +392,15 @@
             {
               "id": "1",
               "label": {
-                "en": "on",
-                "no": "på"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "off",
-                "no": "av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]
@@ -425,15 +425,15 @@
             {
               "id": "1",
               "label": {
-                "en": "on",
-                "no": "på"
+                "en": "Active",
+                "no": "Aktiv"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "off",
-                "no": "av"
+                "en": "Inactive",
+                "no": "Inaktiv"
               }
             }
           ]

@@ -1,6 +1,6 @@
 {
   "id": "com.fladby.exvent",
-  "version": "4.10.1",
+  "version": "4.11.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#88B943",
@@ -29,6 +29,14 @@
   "author": {
     "name": "Vegard Fladby",
     "email": "vegard.fladby@gmail.com"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Magnus Fonn Tømte",
+        "website": "https://github.com/magnustomte"
+      }
+    ]
   },
   "bugs": {
     "url": "https://github.com/Allram/com.fladby.exvent/issues"

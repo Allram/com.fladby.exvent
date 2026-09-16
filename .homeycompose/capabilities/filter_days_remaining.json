@@ -3,19 +3,19 @@
   "uiComponent": "sensor",
   "icon": "/assets/remaining.svg",
   "title": {
-    "en": "Days until service reminder",
-    "no": "Dager til servicepåminnelse"
+    "en": "Days until filter change",
+    "no": "Dager til filterbytte"
   },
   "desc": {
-    "en": "Days remaining until the service reminder",
-    "no": "Dager igjen til servicepåminnelsen"
+    "en": "Days remaining until the filter change reminder",
+    "no": "Dager igjen til varsel om filterbytte"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "units": {
-    "en": "days",
-    "no": "døgn"
+    "en": "d",
+    "no": "d"
   },
   "min": 0,
   "step": 1

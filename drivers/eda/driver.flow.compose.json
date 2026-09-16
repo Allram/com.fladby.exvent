@@ -3,12 +3,12 @@
     {
       "id": "heatingcoil_eda",
       "title": {
-        "en": "Set heating",
-        "no": "Sett varme"
+        "en": "Allow or block heating",
+        "no": "Tillat eller sperr varme"
       },
       "titleFormatted": {
-        "en": "Set heating to [[heatingcoil]]",
-        "no": "Sett varme til [[heatingcoil]]"
+        "en": "[[heatingcoil]] heating",
+        "no": "[[heatingcoil]] varme"
       },
       "hint": {
         "en": "Allows or blocks heating of the supply air. Stored on the unit.",
@@ -22,15 +22,15 @@
             {
               "id": "1",
               "label": {
-                "en": "allowed",
-                "no": "tillatt"
+                "en": "Allow",
+                "no": "Tillat"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "blocked",
-                "no": "sperret"
+                "en": "Block",
+                "no": "Sperr"
               }
             }
           ]
@@ -114,12 +114,12 @@
     {
       "id": "set-cooling_eda",
       "title": {
-        "en": "Set cooling",
-        "no": "Sett kjøling"
+        "en": "Allow or block cooling",
+        "no": "Tillat eller sperr kjøling"
       },
       "titleFormatted": {
-        "en": "Set cooling to [[allowed]]",
-        "no": "Sett kjøling til [[allowed]]"
+        "en": "[[allowed]] cooling",
+        "no": "[[allowed]] kjøling"
       },
       "hint": {
         "en": "Allows or blocks cooling of the supply air. Stored on the unit.",
@@ -133,15 +133,15 @@
             {
               "id": "1",
               "label": {
-                "en": "allowed",
-                "no": "tillatt"
+                "en": "Allow",
+                "no": "Tillat"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "blocked",
-                "no": "sperret"
+                "en": "Block",
+                "no": "Sperr"
               }
             }
           ]
@@ -159,7 +159,7 @@
         "no": "Sperr varme over [[temperature]] °C"
       },
       "hint": {
-        "en": "Heating is blocked while the outdoor temperature is above this. Stored on the unit.",
+        "en": "Heating is blocked while the outdoor temperature is above this temperature. Stored on the unit.",
         "no": "Varme sperres så lenge utetemperaturen er over denne grensen. Lagres på aggregatet."
       },
       "args": [
@@ -183,7 +183,7 @@
         "no": "Sperr kjøling under [[temperature]] °C"
       },
       "hint": {
-        "en": "Cooling is blocked while the outdoor temperature is below this. Stored on the unit.",
+        "en": "Cooling is blocked while the outdoor temperature is below this temperature. Stored on the unit.",
         "no": "Kjøling sperres så lenge utetemperaturen er under denne grensen. Lagres på aggregatet."
       },
       "args": [
@@ -198,6 +198,7 @@
     },
     {
       "id": "set-fan-level_eda",
+      "$filter": "capabilities=fanspeed_level_set",
       "title": {
         "en": "Set fan level",
         "no": "Sett viftenivå"
@@ -207,8 +208,8 @@
         "no": "Sett viftenivå til [[level]] %"
       },
       "hint": {
-        "en": "Sets the fan level selected on the unit, as on its panel. Boost, overpressure and a running heat pump can raise it for a while.",
-        "no": "Setter viftenivået som er valgt på aggregatet, som på panelet. Boost, overtrykk og varmepumpe i drift kan øke det en stund."
+        "en": "Sets the unit's fan level, just like its panel. Only for units with EC fans. Boost, overpressure and a running heat pump can raise it for a while.",
+        "no": "Stiller inn viftenivået på aggregatet, akkurat som panelet. Bare for aggregater med EC-vifter. Boost, overtrykk og varmepumpe i drift kan øke det en stund."
       },
       "args": [
         {
@@ -232,7 +233,7 @@
       },
       "hint": {
         "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit, and applies the next time overpressure starts.",
-        "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet, og gjelder neste gang overtrykk starter."
+        "no": "Hvor mange minutter overtrykket varer før aggregatet går tilbake til normal drift. Lagres på aggregatet, og gjelder neste gang overtrykk starter."
       },
       "args": [
         {

@@ -18,9 +18,11 @@ const CONFIRM_POLL_DELAY_MS = 3000;
  * unit's own boost flags can linger for one cycle after the fan speed is back.
  */
 const MODE_WRITE_SETTLE_MS = 2 * POLL_INTERVAL;
+/** The coil that turns each status mode on, on units with exclusive mode coils. Home has none. */
+const MODE_COILS = new Map<string, number | null>([['0', null], ['1', 1], ['2', 3], ['3', 10]]);
 
 /**
- * Every active device across both drivers, so the process shutdown handlers
+ * Every active device across all drivers, so the process shutdown handlers
  * can close all sockets — not just the last-initialized device.
  */
 // eslint-disable-next-line no-use-before-define
@@ -58,15 +60,19 @@ export interface FlowCardIds {
 }
 
 /**
- * Shared implementation for the eWind and eAir drivers. The subclasses only
- * provide capability names and flow card ids — the Modbus registers and all
- * connection, polling and write logic are identical for both device types.
+ * Shared implementation for all drivers. eWind and eAir only provide
+ * capability names and flow card ids and use the defaults below; EDA also
+ * overrides the registers, write function codes, mode coils and status
+ * decoding through the protected hooks. Connection, polling and the write
+ * queue are shared.
  */
 export abstract class ExventModbusDevice extends Homey.Device {
     /** e.g. 'eWindstatus' */
     protected abstract readonly statusCapability: string;
     /** e.g. 'eWindstatus_mode' */
     protected abstract readonly statusModeCapability: string;
+    /** The writable capability that allows or blocks heating (coil 54). */
+    protected readonly heatingCoilCapability: string = 'heating_coil_state';
     protected abstract readonly flowCardIds: FlowCardIds;
     /** Condition-card dropdown ids mapped to capability values ({} when they already match). */
     protected abstract readonly statusModeArgMap: Record<string, string>;
@@ -79,8 +85,11 @@ export abstract class ExventModbusDevice extends Homey.Device {
      */
     protected readonly useMultipleWrites: boolean = false;
 
-    /** The Modbus unit ID to address, given the device's unitId setting. */
-    protected modbusUnitId(setting: unknown): number {
+    /**
+     * The Modbus unit ID to address, given the device's unit_id setting.
+     * Called without it at startup; drivers with the setting read it then.
+     */
+    protected modbusUnitId(setting?: unknown): number {
       return MODBUS_UNIT_ID;
     }
 
@@ -96,6 +105,14 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * it at startup with the default in HREG 57, so both are written.
      */
     protected readonly overpressureDurationRegisters: number[] = [56, 57];
+
+    /**
+     * Mode coils of which only one may be on. When set, Home, Away,
+     * Overpressure and Boost start the unit, turn their own coil on and then
+     * all the others off; Off only sets the stop coil. Empty on eWind and
+     * eAir, which keep the sequences in setStatusModeValue.
+     */
+    protected readonly exclusiveModeCoils: number[] = [];
 
     registers: RegisterMap = {
       air_outside: [6, 1, 'INT16', 'Fresh air'],
@@ -129,7 +146,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
     modbusOptions = {
       host: this.getSetting('address'),
       port: this.getSetting('port'),
-      unitId: this.modbusUnitId(this.getSetting('unitId')),
+      unitId: this.modbusUnitId(),
     };
 
     private intervalId: NodeJS.Timeout | null = null;
@@ -165,7 +182,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * Guard against acting on stale/deleted devices; Homey returns 404 when a
      * flow or capability change targets a missing device entry.
      */
-    private isUsable(): boolean {
+    protected isUsable(): boolean {
       return this.isActive && this.getAvailable();
     }
 
@@ -387,50 +404,73 @@ export abstract class ExventModbusDevice extends Homey.Device {
      */
     async setStatusModeValue(value: string) {
       this.lastModeWriteAt = Date.now();
-      switch (value) {
-        case '0':
-          await this.sendCoilRequest(0, false);
-          await this.sendCoilRequest(1, false);
-          await this.sendCoilRequest(3, false);
-          await this.sendCoilRequest(10, false);
-          // Leave enhanced ventilation by returning the panel fan speed to
-          // level 2 (Home); harmless when already at level 2.
-          if (this.enhancedVentilation) await this.sendHoldingRequest(50, 2);
-          break;
-        case '1':
-          await this.sendCoilRequest(0, false);
-          await this.sendCoilRequest(10, false);
-          await this.sendCoilRequest(1, true);
-          break;
-        case '2':
-          await this.sendCoilRequest(0, false);
-          await this.sendCoilRequest(10, false);
-          await this.sendCoilRequest(3, true);
-          break;
-        case '3':
-          await this.sendCoilRequest(0, false);
-          await this.sendCoilRequest(10, true);
-          break;
-        case '4':
-          await this.sendCoilRequest(0, true);
-          break;
-        case '5':
-          // Enhanced ventilation: normal operation at panel fan speed
-          // level 3 ("Home-mode with high fan speeds", HREG 50).
-          if (!this.enhancedVentilation) return;
-          await this.sendCoilRequest(0, false);
-          await this.sendCoilRequest(1, false);
-          await this.sendCoilRequest(3, false);
-          await this.sendCoilRequest(10, false);
-          await this.sendHoldingRequest(50, 3);
-          break;
-        default:
-          break;
+      const modeCoil = MODE_COILS.get(value);
+      if (this.exclusiveModeCoils.length > 0 && modeCoil !== undefined) {
+        // Start the unit and turn the chosen mode on before the others go
+        // off, so a unit that is running does not pass through Home between
+        // two modes. The others go off in the order the subclass lists them.
+        await this.sendCoilRequest(0, false);
+        if (modeCoil !== null) await this.sendCoilRequest(modeCoil, true);
+        for (const coil of this.exclusiveModeCoils) {
+          if (coil !== modeCoil) await this.sendCoilRequest(coil, false);
+        }
+      } else {
+        switch (value) {
+          case '0':
+            await this.sendCoilRequest(0, false);
+            await this.sendCoilRequest(1, false);
+            await this.sendCoilRequest(3, false);
+            await this.sendCoilRequest(10, false);
+            // Leave enhanced ventilation by returning the panel fan speed to
+            // level 2 (Home); harmless when already at level 2.
+            if (this.enhancedVentilation) await this.sendHoldingRequest(50, 2);
+            break;
+          case '1':
+            await this.sendCoilRequest(0, false);
+            await this.sendCoilRequest(10, false);
+            await this.sendCoilRequest(1, true);
+            break;
+          case '2':
+            await this.sendCoilRequest(0, false);
+            await this.sendCoilRequest(10, false);
+            await this.sendCoilRequest(3, true);
+            break;
+          case '3':
+            await this.sendCoilRequest(0, false);
+            await this.sendCoilRequest(10, true);
+            break;
+          case '4':
+            await this.sendCoilRequest(0, true);
+            break;
+          case '5':
+            // Enhanced ventilation: normal operation at panel fan speed
+            // level 3 ("Home-mode with high fan speeds", HREG 50).
+            if (!this.enhancedVentilation) return;
+            await this.sendCoilRequest(0, false);
+            await this.sendCoilRequest(1, false);
+            await this.sendCoilRequest(3, false);
+            await this.sendCoilRequest(10, false);
+            await this.sendHoldingRequest(50, 3);
+            break;
+          default:
+            break;
+        }
       }
       this.enqueueWrite(async () => {
         if (this.isActive) {
           await this.setCapabilityValue(this.statusModeCapability, value);
         }
+      });
+    }
+
+    /**
+     * Ends the echo window of the last mode write once every write queued so
+     * far has gone out, so the poll after that fires the mode trigger again
+     * when the unit changes mode.
+     */
+    protected endModeWriteSettleAfterQueue() {
+      this.enqueueWrite(async () => {
+        this.lastModeWriteAt = 0;
       });
     }
 
@@ -461,7 +501,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         'measure_temperature.supplyAirHRC',
         'ecomode_mode',
         'heater_mode',
-        'heating_coil_state',
+        this.heatingCoilCapability,
         'heat_exchanger_mode',
         'target_temperature.step',
         'alarm_b.desc',
@@ -501,7 +541,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         .registerRunListener(async (args: any) => {
           const device = args.device as ExventModbusDevice;
           if (!device.isUsable()) return false;
-          await device.setMode('heating_coil_state', args[cards.heatingcoilArg]);
+          await device.setMode(device.heatingCoilCapability, args[cards.heatingcoilArg]);
           await device.sendCoilRequest(54, args[cards.heatingcoilArg] === '1');
           return true;
         });
@@ -598,7 +638,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         await this.sendHoldingRequest(135, value * 10);
       });
 
-      if (this.hasCapability('ecomode_mode')) {
+      if (cards.ecomode) {
         this.registerCapabilityListener('ecomode_mode', async (value) => {
           if (!this.isUsable()) return;
           await this.sendCoilRequest(40, value === '1');
@@ -619,7 +659,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
           .catch(this.error);
       });
 
-      this.registerCapabilityListener('heating_coil_state', async (value) => {
+      this.registerCapabilityListener(this.heatingCoilCapability, async (value) => {
         if (!this.isUsable()) return;
         let coilValue: boolean | null = null;
         if (value === true || value === '1' || value === 'true') {
@@ -687,11 +727,11 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
-      if (changedKeys.includes('address') || changedKeys.includes('port') || changedKeys.includes('unitId')) {
+      if (changedKeys.includes('address') || changedKeys.includes('port') || changedKeys.includes('unit_id')) {
         try {
           this.modbusOptions.host = newSettings.address;
           this.modbusOptions.port = newSettings.port;
-          this.modbusOptions.unitId = this.modbusUnitId(newSettings.unitId);
+          this.modbusOptions.unitId = this.modbusUnitId(newSettings.unit_id);
           this.teardownSocket();
           this.connectionRetryDelay = CONNECTION_RETRY_MIN;
           await this.delay(1000);
@@ -722,7 +762,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         .catch(this.error);
     }
 
-    private async setIfChanged(capabilityId: string, value: any) {
+    protected async setIfChanged(capabilityId: string, value: any) {
       try {
         const current = this.getCapabilityValue(capabilityId);
         if (current === value) return;
@@ -730,6 +770,23 @@ export abstract class ExventModbusDevice extends Homey.Device {
       } catch (_) {
         // Ignore capability errors (e.g., device deleted)
       }
+    }
+
+    /**
+     * Whether the poll may copy a value read from the unit into a device
+     * setting. A driver can hold a value back, for example while its own
+     * write of that setting is still on the way to the unit.
+     */
+    protected mayMirrorSetting(id: string, value: number | boolean): boolean {
+      return true;
+    }
+
+    /** The status capability value for a HREG 45 reading, or undefined when it has none. */
+    protected statusFromRegister(value: string): string | undefined {
+      const statusMap: Record<string, string> = {
+        0: '0', 1: '1', 2: '2', 4: '3', 7: '4', 8: '5',
+      };
+      return statusMap[value];
     }
 
     /**
@@ -803,10 +860,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
 
       if (result['status'] && result['status'].value !== 'xxx') {
-        const statusMap: Record<string, string> = {
-          0: '0', 1: '1', 2: '2', 4: '3', 7: '4', 8: '5',
-        };
-        const mapped = statusMap[result['status'].value];
+        const mapped = this.statusFromRegister(result['status'].value);
         if (mapped !== undefined) {
           await this.setIfChanged(this.statusCapability, mapped);
         }
@@ -860,7 +914,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (result['heating_coil'] && result['heating_coil'].value !== 'xxx') {
         const { value } = result['heating_coil'];
         if (value === '0' || value === '1') {
-          await this.setIfChanged('heating_coil_state', value);
+          await this.setIfChanged(this.heatingCoilCapability, value);
         }
       }
 
@@ -886,7 +940,8 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (result['fireplace_duration'] && result['fireplace_duration'].value !== 'xxx') {
         const minutes = Number(result['fireplace_duration'].value);
         if (this.isActive && minutes >= 1 && minutes <= 60
-          && this.getSetting('fireplace_duration_minutes') !== minutes) {
+          && this.getSetting('fireplace_duration_minutes') !== minutes
+          && this.mayMirrorSetting('fireplace_duration_minutes', minutes)) {
           await this.setSettings({ fireplace_duration_minutes: minutes }).catch(this.error);
         }
       }
@@ -896,14 +951,20 @@ export abstract class ExventModbusDevice extends Homey.Device {
         // Days until the service reminder: configured interval (HREG 538)
         // minus days elapsed since last acknowledgement (HREG 710), on units
         // that have the counter.
-        if (result['days_since_service_ack'] && result['days_since_service_ack'].value !== 'xxx') {
-          const elapsed = Number(result['days_since_service_ack'].value);
+        const counter = result['days_since_service_ack'];
+        const counterRead = counter !== undefined && counter.value !== 'xxx';
+        if (counterRead) {
+          const elapsed = Number(counter.value);
           await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
         }
         // Mirror the unit's actual interval in the device settings so the
-        // settings page shows the truth. setSettings does not re-trigger
+        // settings page shows the truth. On units with the counter this waits
+        // for a poll that read both registers. setSettings does not re-trigger
         // onSettings, so this cannot loop.
-        if (this.isActive && interval >= 1 && this.getSetting('filter_interval_days') !== interval) {
+        const hasCounter = 'days_since_service_ack' in this.registers;
+        if (this.isActive && (counterRead || !hasCounter)
+          && interval >= 1 && this.getSetting('filter_interval_days') !== interval
+          && this.mayMirrorSetting('filter_interval_days', interval)) {
           await this.setSettings({ filter_interval_days: interval }).catch(this.error);
         }
       }

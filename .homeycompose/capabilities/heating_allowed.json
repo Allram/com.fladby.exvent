@@ -1,0 +1,35 @@
+{
+  "type": "enum",
+  "uiComponent": "picker",
+  "title": {
+    "en": "Heating allowed",
+    "no": "Varme tillatt"
+  },
+  "desc": {
+    "en": "Whether the unit may heat the supply air",
+    "no": "Om aggregatet får varme tilluften"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Heating allowed changed",
+    "no": "Varme tillatt endret"
+  },
+  "values": [
+    {
+      "id": "1",
+      "title": {
+        "en": "Allowed",
+        "no": "Tillatt"
+      }
+    },
+    {
+      "id": "0",
+      "title": {
+        "en": "Blocked",
+        "no": "Sperret"
+      }
+    }
+  ]
+}

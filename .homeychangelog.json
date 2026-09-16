@@ -274,5 +274,9 @@
   "4.10.1": {
     "en": "The Mode changed, Heating coil changed and Heat exchanger changed triggers still did not match in 4.10.0. Their check read a device that a device trigger card never passes along, so it failed before it could compare anything.",
     "no": "Utløserne Modus endret, Varmekolbe endret og Varmeveksler endret traff fortsatt ikke i 4.10.0. Sjekken leste en enhet som et enhetsutløserkort aldri sender med, så den feilet før den rakk å sammenligne noe."
+  },
+  "4.11.0": {
+    "en": "Exvent units with EDA automation can now be added through a Freeway WEB adapter, thanks to Magnus Fonn Tømte. You can switch modes, set the temperature, turn overpressure on and off with a tap on the device, and choose when heating and cooling are allowed. On units with EC fans you can also set the fan level, and units with a heat pump show when they cool or defrost. On eWind and eAir, a tap on the device no longer changes the filter alarm, and eAir has a new device image.",
+    "no": "Exvent-anlegg med EDA-styring kan nå legges til via en Freeway WEB-adapter, takket være Magnus Fonn Tømte. Du kan bytte modus, stille inn temperaturen, slå overtrykk av og på med et trykk på enheten og velge når varme og kjøling er tillatt. På anlegg med EC-vifter kan du også stille inn viftenivået, og anlegg med varmepumpe viser når de kjøler eller avrimer. På eWind og eAir endrer et trykk på enheten ikke lenger filteralarmen, og eAir har fått et nytt enhetsbilde."
   }
 }

@@ -4,22 +4,22 @@
   "icon": "/assets/efficiency.svg",
   "title": {
     "en": "Efficiency",
-    "no": "Virkningsgrad"
+    "no": "Effektivitet"
   },
   "desc": {
     "en": "Heat recovery efficiency",
-    "no": "Virkningsgrad for varmegjenvinning"
+    "no": "Effektivitet for varmegjenvinning"
   },
   "getable": true,
   "setable": false,
   "insights": true,
   "insightsTitleTrue": {
     "en": "Efficiency changed",
-    "no": "Virkningsgrad endret"
+    "no": "Effektivitet endret"
   },
   "insightsTitleFalse": {
     "en": "Efficiency changed",
-    "no": "Virkningsgrad endret"
+    "no": "Effektivitet endret"
   },
   "units": {
     "en": "%",

@@ -23,7 +23,7 @@
     "edastatus",
     "edastatus_mode",
     "lastPollTime",
-    "heating_coil_state",
+    "heating_allowed",
     "cooling_allowed",
     "overpressure"
   ],
@@ -88,7 +88,7 @@
         "no": "Varmeveksler"
       }
     },
-    "heating_coil_state": {
+    "heating_allowed": {
       "title": {
         "en": "Heating allowed",
         "no": "Varme tillatt"
@@ -145,8 +145,8 @@
     },
     "fanspeed_level_set": {
       "title": {
-        "en": "Fan level set",
-        "no": "Viftenivå innstilt"
+        "en": "Selected fan level",
+        "no": "Valgt viftenivå"
       }
     }
   },
@@ -201,7 +201,7 @@
           }
         },
         {
-          "id": "unitId",
+          "id": "unit_id",
           "type": "number",
           "value": 1,
           "min": 1,
@@ -213,7 +213,7 @@
           },
           "hint": {
             "en": "A Freeway WEB adapter presents the unit on ID 1. Only change this if your setup differs.",
-            "no": "En Freeway WEB-adapter presenterer aggregatet på ID 1. Endre bare hvis oppsettet ditt avviker."
+            "no": "En Freeway WEB-adapter bruker ID 1 for aggregatet. Endre bare hvis oppsettet ditt er annerledes."
           }
         }
       ]
@@ -234,7 +234,7 @@
           },
           "hint": {
             "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit when changed, and follows changes made on the unit's panel.",
-            "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring, og følger endringer gjort på panelet."
+            "no": "Hvor mange minutter overtrykket varer før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring, og følger endringer gjort på panelet."
           },
           "value": 10,
           "min": 1,
@@ -295,7 +295,7 @@
             "no": "Sperr varme over"
           },
           "hint": {
-            "en": "Heating is blocked while the outdoor temperature is above this. Stored on the unit.",
+            "en": "Heating is blocked while the outdoor temperature is above this temperature. Stored on the unit.",
             "no": "Varme sperres så lenge utetemperaturen er over denne grensen. Lagres på aggregatet."
           }
         },
@@ -315,7 +315,7 @@
             "no": "Sperr kjøling under"
           },
           "hint": {
-            "en": "Cooling is blocked while the outdoor temperature is below this. Stored on the unit.",
+            "en": "Cooling is blocked while the outdoor temperature is below this temperature. Stored on the unit.",
             "no": "Kjøling sperres så lenge utetemperaturen er under denne grensen. Lagres på aggregatet."
           }
         }
@@ -350,14 +350,14 @@
           },
           "hint": {
             "en": "Number of days between service reminders. Exvent recommends changing the filters every six months. Stored on the unit when changed.",
-            "no": "Antall døgn mellom hver servicepåminnelse. Exvent anbefaler filterbytte hvert halvår. Lagres på aggregatet ved endring."
+            "no": "Antall dager mellom hver servicepåminnelse. Exvent anbefaler filterbytte hvert halvår. Lagres på aggregatet ved endring."
           },
           "value": 180,
           "min": 1,
           "max": 365,
           "units": {
             "en": "days",
-            "no": "døgn"
+            "no": "dager"
           }
         }
       ]

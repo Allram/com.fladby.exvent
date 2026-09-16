@@ -59,6 +59,34 @@
         "en": "Stopped",
         "no": "Stoppet"
       }
+    },
+    {
+      "id": "6",
+      "title": {
+        "en": "Waiting to change step",
+        "no": "Venter på trinnbytte"
+      }
+    },
+    {
+      "id": "7",
+      "title": {
+        "en": "Summer night cooling",
+        "no": "Sommernattkjøling"
+      }
+    },
+    {
+      "id": "8",
+      "title": {
+        "en": "Heat recovery cleaning",
+        "no": "Rengjøring av varmegjenvinner"
+      }
+    },
+    {
+      "id": "9",
+      "title": {
+        "en": "Defrosting",
+        "no": "Avriming"
+      }
     }
   ]
 }

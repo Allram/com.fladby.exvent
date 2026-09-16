@@ -21,6 +21,8 @@ declare namespace Homey {
       getData(): any;
       getSetting(key: string): any;
       setSettings(settings: Record<string, any>): Promise<void>;
+      getStoreValue(key: string): any;
+      setStoreValue(key: string, value: any): Promise<void>;
       hasCapability(capabilityId: string): boolean;
       addCapability(capabilityId: string): Promise<void>;
       removeCapability(capabilityId: string): Promise<void>;

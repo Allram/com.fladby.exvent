@@ -1,26 +1,27 @@
 # Exvent for Homey
 
-Homey app to control and monitor Exvent **eWind**, **eAir** and **EDA** ventilation systems over **Modbus TCP**.
+Homey app to control and monitor Exvent **eWind** and **eAir** ventilation systems, and units with **EDA** automation behind a Freeway WEB adapter, over **Modbus TCP**.
 
 ## Features
 
 - Live readings every 60 seconds: fresh/supply/extract/exhaust air temperatures, extract air humidity, heat recovery efficiency (supply and extract), fan speed level and temperature setpoint
-- Status and mode (Home / Away / Overpressure / Boost / Off), heater, heat exchanger and heating coil states, eco mode and filter alarm
+- Status and mode (Home / Away / Fireplace / Enhanced ventilation / Boost / Off), heating coil (running and enabled) and heat exchanger states, eco mode, filter alarm and days until filter change
 - Control from the device UI or Flows: set mode, target temperature, eco mode and heating coil
-- Flow cards: action cards (set mode, temperature, eco mode, heating coil), condition cards (mode, heater, heat exchanger) and triggers (mode changed, heater changed, heat exchanger changed, filter alarm)
+- Flow cards: action cards (set mode, temperature, eco mode, heating coil, reset filter change reminder), condition cards (mode, heating coil, heat exchanger) and triggers (mode changed, heating coil changed, heat exchanger changed, filter alarm)
+- Device settings written to the unit: fireplace mode duration and days between filter changes
 - "Last poll time" shows when values were last refreshed — in your Homey's own timezone and language — and reads "No connection" while the unit is unreachable
 
 ### EDA units
 
 Units with EDA automation, connected through a Freeway WEB adapter, have their own driver and a few extras:
 
-- Overpressure as the device's quick action, with its duration as a setting and a Flow card
+- Overpressure instead of Fireplace in the mode list, and as the device's quick action, with its duration as a setting and a Flow card
 - Season control: allow or block heating and cooling, and the outdoor temperatures that block them
 - Fan level in percent, set with a slider or a Flow card (units with EC fans), next to the level in effect
 - Heat pump readings: cooling active and defrosting
 - Service reminder on or off, and its interval
 
-EDA units have no eco mode, Enhanced ventilation mode or service countdown.
+EDA units have no eco mode, Enhanced ventilation mode or countdown to the next filter change.
 
 ## Setup
 
@@ -32,7 +33,7 @@ For **EDA** units, open the Freeway WEB adapter's web interface, go to Configura
 
 ## Reliability
 
-- Registers are read in batched Modbus requests (6 requests per poll) to keep the load on the unit's Modbus module low, with automatic fallback to individual reads
+- Registers are read in a handful of batched Modbus requests per poll to keep the load on the unit's Modbus module low, with automatic fallback to individual reads
 - Writes are serialized through a queue with spacing between commands, so simultaneous Flows and manual changes can't conflict
 - Automatic reconnection with backoff when the unit drops off the network; a confirmation poll a few seconds after every command shows the unit's actual state
 
@@ -52,3 +53,7 @@ Use `npx homey app run --remote` with an EDA unit. Without `--remote` the app ru
 CI validates every push and publishes tagged releases (`v*`) to the Homey App Store.
 
 [docs/README.md](docs/README.md) describes the EDA register map and what has been verified against a live unit.
+
+## Credits
+
+The EDA driver was contributed by [Magnus Fonn Tømte](https://github.com/magnustomte).

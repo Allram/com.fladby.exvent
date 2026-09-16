@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { toBlocks } from '../lib/modbus';
 import {
-  EDA_COILS, EDA_HOLDING_REGISTERS, EDA_STATE, edaDefrosting, edaOverpressure, edaStatusMode,
+  EDA_COILS, EDA_HOLDING_REGISTERS, EDA_MODE_COILS, EDA_STATE, edaDefrosting, edaOverpressure, edaStatus, edaStatusMode,
 } from '../lib/eda';
 
 function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]> {
@@ -70,4 +70,21 @@ test('EDA overpressure follows its bit alone', () => {
   assert.equal(edaOverpressure(EDA_STATE.OVERPRESSURE), true);
   assert.equal(edaOverpressure(EDA_STATE.OVERPRESSURE | EDA_STATE.STOP), true);
   assert.equal(edaOverpressure(EDA_STATE.BOOST | EDA_STATE.DEFROSTING), false);
+});
+
+test('EDA status covers every temperature control step in the register list', () => {
+  // 0 nothing, 1 cooling, 2 heat recovery, 4 heating, 5 step delay, 6 summer
+  // night cooling, 7 startup, 8 stop, 9 HR clean, 10 EXT unit defrost
+  const steps = [0, 1, 2, 4, 5, 6, 7, 8, 9, 10].map(edaStatus);
+  assert.deepEqual(steps, ['0', '1', '2', '3', '6', '7', '4', '5', '8', '9']);
+  assert.equal(new Set(steps).size, steps.length);
+  assert.equal(edaStatus(3), undefined);
+  assert.equal(edaStatus(11), undefined);
+});
+
+test('EDA mode coils are the unit modes, without the stop coil', () => {
+  // Away, long away, overpressure, max heating, max cooling, manual boost;
+  // not stop (coil 0), which is not a mode.
+  assert.deepEqual(EDA_MODE_COILS, [3, 10, 1, 2, 6, 7]);
+  assert.ok(!EDA_MODE_COILS.includes(0));
 });

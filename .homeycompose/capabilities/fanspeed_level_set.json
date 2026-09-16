@@ -3,8 +3,8 @@
   "uiComponent": "slider",
   "icon": "/assets/fanspeed.svg",
   "title": {
-    "en": "Fan level set",
-    "no": "Viftenivå innstilt"
+    "en": "Selected fan level",
+    "no": "Valgt viftenivå"
   },
   "desc": {
     "en": "The fan level selected on the unit, 20% at the lowest. The unit can raise it for a while, for boost, overpressure or a running heat pump.",

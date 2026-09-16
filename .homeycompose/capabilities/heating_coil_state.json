@@ -2,33 +2,33 @@
   "type": "enum",
   "uiComponent": "picker",
   "title": {
-    "en": "Heating allowed",
-    "no": "Varme tillatt"
+    "en": "Heating coil enabled",
+    "no": "Varmekolbe aktivert"
   },
   "desc": {
-    "en": "Whether the unit may heat the supply air",
-    "no": "Om aggregatet får varme tilluften"
+    "en": "Lets the unit use the heating coil",
+    "no": "Lar anlegget bruke varmekolben"
   },
   "getable": true,
   "setable": true,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Heating allowed changed",
-    "no": "Varme tillatt endret"
+    "en": "Heating coil was enabled or disabled",
+    "no": "Varmekolbe ble slått på eller av"
   },
   "values": [
     {
       "id": "1",
       "title": {
-        "en": "Allowed",
-        "no": "Tillatt"
+        "en": "On",
+        "no": "På"
       }
     },
     {
       "id": "0",
       "title": {
-        "en": "Blocked",
-        "no": "Sperret"
+        "en": "Off",
+        "no": "Av"
       }
     }
   ]

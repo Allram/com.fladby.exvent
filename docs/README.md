@@ -41,6 +41,10 @@ so the copy here is preserved from the [Internet Archive snapshot of
 sha256  1d95e4232a2316c095f5d961a3fe4dee315b4ede8c4daa3df74199637377c090
 ```
 
+> **License:** the PDF is © Enervent. It is redistributed unmodified, for reference only, and is
+> **not** covered by this repository's GPL-3.0 license. `docs/` is listed in `.homeyignore`, so
+> the file is never part of the app package.
+
 This supersedes the older Finnish edition (`eda_modbus_rekisterilista_2011-02-16.pdf`, 17
 February 2011), which circulates on forums and covers the same registers in less detail. Use
 this file instead.
@@ -119,7 +123,7 @@ Register 644 sets how long the heat pump stays off after a defrost cycle.
 
 | Address | Meaning | In the app |
 | --- | --- | --- |
-| Coils 0, 1, 3, 10 | Stop, away, overpressure, manual boost | Mode picker, overpressure quick action |
+| Coils 0–3, 6, 7, 10 | Stop, away, long away, overpressure, max heating, max cooling, manual boost | Mode picker, overpressure quick action; turning a mode on turns the others off |
 | Coil 16 | Fan type, EC 1 / AC 0 | Fan level slider only on EC fans |
 | Coil 28 | Cooling in operation | Cooling active |
 | Coil 30 | Heat recovery running | Heat exchanger |
