@@ -1,0 +1,243 @@
+<style type="text/css">
+  .pairing {
+    max-width: 340px;
+    margin: 0 auto;
+    padding: 8px 4px;
+  }
+  .pairing .intro {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 20px;
+  }
+  .pairing .field {
+    margin-bottom: 16px;
+  }
+  .pairing label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .pairing input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #fff;
+    color: inherit;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .pairing input:focus {
+    border-color: #0091ff;
+    box-shadow: 0 0 0 3px rgba(0, 145, 255, 0.15);
+  }
+  .pairing .connect-button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #9ca3af;
+    background: #e5e7eb;
+    border: none;
+    border-radius: 10px;
+    cursor: default;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .pairing .connect-button.ready {
+    color: #fff;
+    background: #0091ff;
+    cursor: pointer;
+  }
+  .pairing .connect-button.busy {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .pairing .error {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 14px;
+    font-size: 14px;
+    border-radius: 10px;
+    background: rgba(255, 99, 0, 0.12);
+    color: #d33c19;
+  }
+  @media (prefers-color-scheme: dark) {
+    .pairing .intro { color: #9ca3af; }
+    .pairing input {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .pairing .connect-button {
+      color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .pairing .connect-button.ready {
+      color: #fff;
+      background: #0091ff;
+    }
+    .pairing .error { color: #ff8a5c; }
+  }
+</style>
+
+<div class="pairing">
+  <p class="intro" data-i18n="pair.intro_eda"></p>
+  <div class="field">
+    <label for="address" data-i18n="pair.address">IP address</label>
+    <input type="text" id="address" placeholder="192.168.1.100" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+  </div>
+  <div class="field">
+    <label for="port" data-i18n="pair.port">Port</label>
+    <input type="number" id="port" placeholder="502" value="502" min="1" max="65535" required>
+  </div>
+  <button type="button" id="connect" class="connect-button" data-i18n="pair.connect" disabled>Connect</button>
+  <p id="error" class="error"></p>
+</div>
+
+
+<script type="text/javascript">
+  // Modelled on the pre-4.6.0 pairing page that provably worked in Homey's
+  // pairing webview: jQuery's $(function(){}) for binding, the global __()
+  // translation helper and Homey.addDevice() with a callback. Each of them
+  // falls back to the SDK3-documented equivalent when missing, and script
+  // errors are surfaced in the error box instead of failing silently.
+  function t(key) {
+    try { if (typeof __ === 'function') return __(key); } catch (e) {}
+    try { if (typeof Homey !== 'undefined' && typeof Homey.__ === 'function') return Homey.__(key); } catch (e) {}
+    return key;
+  }
+
+  function showError(msg) {
+    var box = document.getElementById('error');
+    if (!box) return;
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
+
+  function hideError() {
+    var box = document.getElementById('error');
+    if (box) box.style.display = 'none';
+  }
+
+  window.onerror = function (msg, src, line) {
+    try { showError('Script error: ' + msg + (line ? ' (line ' + line + ')' : '')); } catch (e) {}
+  };
+
+  function isValidHost(value) {
+    var ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if (ipv4.test(value)) {
+      return value.split('.').every(function (octet) { return Number(octet) <= 255; });
+    }
+    return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$/.test(value);
+  }
+
+  function updateButtonState() {
+    var button = document.getElementById('connect');
+    var address = document.getElementById('address');
+    var port = document.getElementById('port');
+    if (!button || !address || !port || button.classList.contains('busy')) return;
+    var ready = address.value.trim() !== '' && port.value !== '';
+    button.classList.toggle('ready', ready);
+    button.disabled = !ready;
+  }
+
+  function addDevice() {
+    var button = document.getElementById('connect');
+    if (!button || button.classList.contains('busy')) return;
+    var address = document.getElementById('address').value.trim();
+    var portValue = document.getElementById('port').value;
+    var port = Number(portValue);
+
+    hideError();
+
+    if (!address || !portValue) {
+      showError(t('pair.nosettings'));
+      return;
+    }
+    if (!isValidHost(address) || !Number.isInteger(port) || port < 1 || port > 65535) {
+      showError(t('pair.invalidip'));
+      return;
+    }
+
+    button.disabled = true;
+    button.classList.add('busy');
+    button.textContent = t('pair.connecting');
+
+    function onFail(error) {
+      button.classList.remove('busy');
+      button.textContent = t('pair.connect');
+      updateButtonState();
+      showError((error && error.message) || String(error));
+    }
+
+    var deviceId = Math.random().toString(36).substring(2, 7).toLowerCase();
+    var payload = {
+      name: 'EDA',
+      data: { id: deviceId },
+      settings: { address: address, port: port },
+    };
+    try {
+      if (typeof Homey.addDevice === 'function') {
+        Homey.addDevice(payload, function (error) {
+          if (error) onFail(error);
+          else Homey.done();
+        });
+      } else {
+        Homey.createDevice(payload).then(function () { Homey.done(); }).catch(onFail);
+      }
+    } catch (e) {
+      onFail(e);
+    }
+  }
+
+  function initPairing() {
+    updateButtonState();
+    var address = document.getElementById('address');
+    if (address) address.focus();
+  }
+
+  if (typeof $ === 'function') {
+    $(function () {
+      $('#connect').on('click', addDevice);
+      $('#address, #port').on('input keyup change', updateButtonState);
+      $('#address, #port').on('keydown', function (event) {
+        if (event.key === 'Enter') addDevice();
+      });
+      initPairing();
+    });
+  } else {
+    if (!window.__exventPairingBound) {
+      window.__exventPairingBound = true;
+      document.addEventListener('input', function (event) {
+        var id = event.target && event.target.id;
+        if (id === 'address' || id === 'port') updateButtonState();
+      }, true);
+      document.addEventListener('keyup', function (event) {
+        var id = event.target && event.target.id;
+        if (id === 'address' || id === 'port') updateButtonState();
+        if (event.key === 'Enter' && (id === 'address' || id === 'port')) addDevice();
+      }, true);
+      document.addEventListener('click', function (event) {
+        var target = event.target;
+        while (target && target !== document) {
+          if (target.id === 'connect') { addDevice(); return; }
+          target = target.parentNode;
+        }
+      }, true);
+    }
+    (function waitForMarkup() {
+      if (!document.getElementById('connect')) {
+        setTimeout(waitForMarkup, 50);
+        return;
+      }
+      initPairing();
+    })();
+  }
+
+  try { Homey.setTitle(t('pair.title_eda')); } catch (e) {}
+</script>

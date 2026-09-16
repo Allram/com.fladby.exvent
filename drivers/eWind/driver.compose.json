@@ -28,19 +28,19 @@
     "measure_temperature.exhaustAir": {
       "title": {
         "en": "Exhaust air",
-        "no": "Utkast"
+        "no": "Avkast"
       }
     },
     "measure_temperature.extractAir": {
       "title": {
-        "en": "Extract air temperature",
+        "en": "Extract air",
         "no": "Avtrekk"
       }
     },
     "measure_temperature.outsideAir": {
       "title": {
         "en": "Fresh air",
-        "no": "Inntak"
+        "no": "Uteluft"
       }
     },
     "measure_temperature.supplyAirHRC": {
@@ -58,19 +58,19 @@
     "measure_humidity.extractAir": {
       "title": {
         "en": "Extract air humidity",
-        "no": "Avtrekksfuktighet"
+        "no": "Luftfuktighet avtrekk"
       }
     },
     "efficiency.supplyEff": {
       "title": {
         "en": "Supply air efficiency",
-        "no": "Tilluftseffektivitet"
+        "no": "Virkningsgrad tilluft"
       }
     },
     "efficiency.extractEff": {
       "title": {
         "en": "Extract air efficiency",
-        "no": "Avtrekkseffektivitet"
+        "no": "Virkningsgrad avtrekk"
       }
     },
     "heater_mode": {
@@ -87,8 +87,8 @@
     },
     "heating_coil_state": {
       "title": {
-        "en": "Heating coil enabled",
-        "no": "Varmekolbe aktivert"
+        "en": "Heating allowed",
+        "no": "Varme tillatt"
       }
     },
     "alarm_b.desc": {
@@ -99,7 +99,7 @@
     },
     "fanspeed_level": {
       "title": {
-        "en": "Fan speed level",
+        "en": "Fan level",
         "no": "Viftenivå"
       }
     },
@@ -132,7 +132,7 @@
     },
     "lastPollTime": {
       "title": {
-        "en": "Last poll time",
+        "en": "Last poll",
         "no": "Siste polling"
       }
     }
@@ -170,7 +170,7 @@
           },
           "hint": {
             "en": "The fixed IP address of the ventilation unit on your network.",
-            "no": "Den faste IP-adressen ventilasjonsanlegget har i nettverket ditt."
+            "no": "Den faste IP-adressen aggregatet har i nettverket ditt."
           }
         },
         {
@@ -184,7 +184,7 @@
           },
           "hint": {
             "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
-            "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
+            "no": "Modbus TCP-porten til aggregatet. Denne er 502 på et standardoppsett."
           }
         }
       ]
@@ -192,20 +192,20 @@
     {
       "type": "group",
       "label": {
-        "en": "Fireplace mode",
-        "no": "Peismodus"
+        "en": "Overpressure",
+        "no": "Overtrykk"
       },
       "children": [
         {
           "id": "fireplace_duration_minutes",
           "type": "number",
           "label": {
-            "en": "Fireplace mode duration",
-            "no": "Varighet for peismodus"
+            "en": "Overpressure duration",
+            "no": "Varighet for overtrykk"
           },
           "hint": {
-            "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
-            "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+            "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit when changed.",
+            "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring."
           },
           "value": 10,
           "min": 1,
@@ -220,27 +220,27 @@
     {
       "type": "group",
       "label": {
-        "en": "Filter",
-        "no": "Filter"
+        "en": "Service reminder",
+        "no": "Servicepåminnelse"
       },
       "children": [
         {
           "id": "filter_interval_days",
           "type": "number",
           "label": {
-            "en": "Days between filter changes",
-            "no": "Dager mellom filterbytter"
+            "en": "Days between reminders",
+            "no": "Dager mellom påminnelser"
           },
           "hint": {
-            "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed.",
-            "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring."
+            "en": "Number of days after a reset before the service reminder is raised. Stored on the unit when changed.",
+            "no": "Antall døgn etter nullstilling før servicepåminnelsen gis. Lagres på aggregatet ved endring."
           },
           "value": 120,
           "min": 1,
           "max": 365,
           "units": {
-            "en": "d",
-            "no": "d"
+            "en": "days",
+            "no": "døgn"
           }
         }
       ]

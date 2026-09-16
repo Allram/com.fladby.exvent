@@ -40,13 +40,6 @@
       }
     },
     {
-      "id": "5",
-      "title": {
-        "en": "Enhanced ventilation",
-        "no": "Forsterket ventilasjon"
-      }
-    },
-    {
       "id": "3",
       "title": {
         "en": "Boost",
@@ -59,8 +52,6 @@
         "en": "Off",
         "no": "Av"
       }
-    }    
+    }
   ]
 }
-
-

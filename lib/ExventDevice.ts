@@ -40,12 +40,14 @@ function hookShutdownHandlers() {
 }
 
 export interface FlowCardIds {
-    ecomode: string;
+    /** Left out by drivers without eco mode. */
+    ecomode?: string;
     heatingcoil: string;
     heatingcoilArg: string;
     statusMode: string;
     setTemperature: string;
-    resetFilterReminder: string;
+    /** Left out by drivers whose units have no service day counter. */
+    resetFilterReminder?: string;
     statusModeIs: string;
     heatExchangerIs: string;
     heaterIs: string;
@@ -69,6 +71,31 @@ export abstract class ExventModbusDevice extends Homey.Device {
     /** Condition-card dropdown ids mapped to capability values ({} when they already match). */
     protected abstract readonly statusModeArgMap: Record<string, string>;
     protected abstract readonly onOffArgMap: Record<string, string>;
+
+    /**
+     * Whether writes use "write multiple coils/registers" (function codes 15
+     * and 16) instead of "write single" (5 and 6). Some gateways acknowledge
+     * a single write without passing it on to the unit.
+     */
+    protected readonly useMultipleWrites: boolean = false;
+
+    /** The Modbus unit ID to address, given the device's unitId setting. */
+    protected modbusUnitId(setting: unknown): number {
+      return MODBUS_UNIT_ID;
+    }
+
+    /** Whether the unit has the Enhanced ventilation mode (panel fan speed level 3 in HREG 50). */
+    protected readonly enhancedVentilation: boolean = true;
+
+    /** The target temperatures the unit accepts, in °C. */
+    protected readonly setpointRange: [number, number] = [15, 22];
+
+    /**
+     * Holding registers the overpressure duration setting is written to. On
+     * eWind and eAir HREG 56 is the active duration, but the unit overwrites
+     * it at startup with the default in HREG 57, so both are written.
+     */
+    protected readonly overpressureDurationRegisters: number[] = [56, 57];
 
     registers: RegisterMap = {
       air_outside: [6, 1, 'INT16', 'Fresh air'],
@@ -102,6 +129,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
     modbusOptions = {
       host: this.getSetting('address'),
       port: this.getSetting('port'),
+      unitId: this.modbusUnitId(this.getSetting('unitId')),
     };
 
     private intervalId: NodeJS.Timeout | null = null;
@@ -236,7 +264,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       this.teardownSocket();
       this.socket = new net.Socket();
       this.attachSocketListeners(this.socket);
-      this.client = new Modbus.client.TCP(this.socket, MODBUS_UNIT_ID, MODBUS_TIMEOUT);
+      this.client = new Modbus.client.TCP(this.socket, this.modbusOptions.unitId, MODBUS_TIMEOUT);
 
       const promise = new Promise<void>((resolve, reject) => {
         if (!this.socket) {
@@ -367,7 +395,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
           await this.sendCoilRequest(10, false);
           // Leave enhanced ventilation by returning the panel fan speed to
           // level 2 (Home); harmless when already at level 2.
-          await this.sendHoldingRequest(50, 2);
+          if (this.enhancedVentilation) await this.sendHoldingRequest(50, 2);
           break;
         case '1':
           await this.sendCoilRequest(0, false);
@@ -389,6 +417,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         case '5':
           // Enhanced ventilation: normal operation at panel fan speed
           // level 3 ("Home-mode with high fan speeds", HREG 50).
+          if (!this.enhancedVentilation) return;
           await this.sendCoilRequest(0, false);
           await this.sendCoilRequest(1, false);
           await this.sendCoilRequest(3, false);
@@ -407,18 +436,23 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
     async sendHoldingRequest(register: number, value: number) {
       this.enqueueWrite(async () => {
-        await this.client.writeSingleRegister(register, value);
+        await (this.useMultipleWrites
+          ? this.client.writeMultipleRegisters(register, [value & 0xffff])
+          : this.client.writeSingleRegister(register, value));
       });
     }
 
     async sendCoilRequest(register: number, value: boolean) {
       this.enqueueWrite(async () => {
-        await this.client.writeSingleCoil(register, value);
+        await (this.useMultipleWrites
+          ? this.client.writeMultipleCoils(register, [value])
+          : this.client.writeSingleCoil(register, value));
       });
     }
 
-    private async syncCapabilities() {
-      const toAdd = [
+    /** Capabilities every device of this driver should have. */
+    protected capabilityIds(): string[] {
+      return [
         'efficiency.supplyEff',
         'efficiency.extractEff',
         'measure_temperature.step',
@@ -438,7 +472,10 @@ export abstract class ExventModbusDevice extends Homey.Device {
         this.statusModeCapability,
         'lastPollTime',
       ];
-      for (const capability of toAdd) {
+    }
+
+    private async syncCapabilities() {
+      for (const capability of this.capabilityIds()) {
         if (!this.hasCapability(capability)) {
           await this.addCapability(capability);
         }
@@ -449,14 +486,16 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (this.flowListenersRegistered) return;
       const cards = this.flowCardIds;
 
-      this.homey.flow.getActionCard(cards.ecomode)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          if (!device.isUsable()) return false;
-          await device.setMode('ecomode_mode', args.ecomode);
-          await device.sendCoilRequest(40, args.ecomode === '1');
-          return true;
-        });
+      if (cards.ecomode) {
+        this.homey.flow.getActionCard(cards.ecomode)
+          .registerRunListener(async (args: any) => {
+            const device = args.device as ExventModbusDevice;
+            if (!device.isUsable()) return false;
+            await device.setMode('ecomode_mode', args.ecomode);
+            await device.sendCoilRequest(40, args.ecomode === '1');
+            return true;
+          });
+      }
 
       this.homey.flow.getActionCard(cards.heatingcoil)
         .registerRunListener(async (args: any) => {
@@ -487,13 +526,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
       // HREG 710 (HREG_DAYS_RUNNING) counts days since the service reminder
       // was acknowledged; writing 0 restarts the filter change countdown.
-      this.homey.flow.getActionCard(cards.resetFilterReminder)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          if (!device.isUsable()) return false;
-          await device.sendHoldingRequest(710, 0);
-          return true;
-        });
+      if (cards.resetFilterReminder) {
+        this.homey.flow.getActionCard(cards.resetFilterReminder)
+          .registerRunListener(async (args: any) => {
+            const device = args.device as ExventModbusDevice;
+            if (!device.isUsable()) return false;
+            await device.sendHoldingRequest(710, 0);
+            return true;
+          });
+      }
 
       this.flowListenersRegistered = true;
     }
@@ -557,10 +598,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
         await this.sendHoldingRequest(135, value * 10);
       });
 
-      this.registerCapabilityListener('ecomode_mode', async (value) => {
-        if (!this.isUsable()) return;
-        await this.sendCoilRequest(40, value === '1');
-      });
+      if (this.hasCapability('ecomode_mode')) {
+        this.registerCapabilityListener('ecomode_mode', async (value) => {
+          if (!this.isUsable()) return;
+          await this.sendCoilRequest(40, value === '1');
+        });
+      }
 
       this.registerCapabilityListener('heat_exchanger_mode', async () => {
         if (!this.isUsable()) return;
@@ -635,21 +678,20 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
-      // HREG 56 (HREG_OVP_TIME) is the active overpressure/fireplace duration,
-      // but the unit overwrites it at startup with the default in HREG 57
-      // (HREG_OVP_TIME_DEF) — write both so the setting survives a restart.
       if (changedKeys.includes('fireplace_duration_minutes')) {
         const minutes = Number(newSettings.fireplace_duration_minutes);
         if (Number.isInteger(minutes) && minutes >= 1 && minutes <= 60) {
-          await this.sendHoldingRequest(56, minutes);
-          await this.sendHoldingRequest(57, minutes);
+          for (const register of this.overpressureDurationRegisters) {
+            await this.sendHoldingRequest(register, minutes);
+          }
         }
       }
 
-      if (changedKeys.includes('address') || changedKeys.includes('port')) {
+      if (changedKeys.includes('address') || changedKeys.includes('port') || changedKeys.includes('unitId')) {
         try {
           this.modbusOptions.host = newSettings.address;
           this.modbusOptions.port = newSettings.port;
+          this.modbusOptions.unitId = this.modbusUnitId(newSettings.unitId);
           this.teardownSocket();
           this.connectionRetryDelay = CONNECTION_RETRY_MIN;
           await this.delay(1000);
@@ -674,7 +716,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * Fires one of the *_changed trigger cards. The new value is passed as
      * trigger state so the card's dropdown argument can be compared against it.
      */
-    private async fireModeChanged(cardId: string, mode: string) {
+    protected async fireModeChanged(cardId: string, mode: string) {
       await this.homey.flow.getDeviceTriggerCard(cardId)
         .trigger(this, {}, { mode })
         .catch(this.error);
@@ -688,6 +730,28 @@ export abstract class ExventModbusDevice extends Homey.Device {
       } catch (_) {
         // Ignore capability errors (e.g., device deleted)
       }
+    }
+
+    /**
+     * The status mode capability value for a HREG 44 reading, or undefined
+     * when the reading has no mode. `result` holds the rest of the same poll.
+     */
+    protected statusModeFromRegister(value: string, result: Record<string, Measurement>): string | undefined {
+      const statusModeMap: Record<string, string> = {
+        0: '0', 16: '1', 1024: '2', 512: '3',
+      };
+      // HREG 44 bits 128/256 are CO2/RH boosting: the unit running the
+      // level-3 fan speeds on its own. Shown as enhanced ventilation.
+      statusModeMap[128] = '5';
+      statusModeMap[256] = '5';
+      let mapped = statusModeMap[value];
+      // Manually selected enhanced ventilation: normal Home state but the
+      // panel fan speed is at level 3.
+      if (mapped === '0'
+        && result['fan_speed_level'] && Number(result['fan_speed_level'].value) === 3) {
+        mapped = '5';
+      }
+      return mapped;
     }
 
     async processResult(result: Record<string, Measurement>) {
@@ -717,7 +781,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
       if (result['temperature_setpoint'] && result['temperature_setpoint'].value !== 'xxx') {
         const temperature = Number(result['temperature_setpoint'].value) / 10;
-        if (temperature >= 15 && temperature <= 22) {
+        if (temperature >= this.setpointRange[0] && temperature <= this.setpointRange[1]) {
           await this.setIfChanged('target_temperature.step', temperature);
         }
       }
@@ -749,20 +813,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
 
       if (result['status_mode'] && result['status_mode'].value !== 'xxx') {
-        const statusModeMap: Record<string, string> = {
-          0: '0', 16: '1', 1024: '2', 512: '3',
-        };
-        // HREG 44 bits 128/256 are CO2/RH boosting: the unit running the
-        // level-3 fan speeds on its own. Shown as enhanced ventilation.
-        statusModeMap[128] = '5';
-        statusModeMap[256] = '5';
-        let mapped = statusModeMap[result['status_mode'].value];
-        // Manually selected enhanced ventilation: normal Home state but the
-        // panel fan speed is at level 3.
-        if (mapped === '0'
-          && result['fan_speed_level'] && Number(result['fan_speed_level'].value) === 3) {
-          mapped = '5';
-        }
+        const mapped = this.statusModeFromRegister(result['status_mode'].value, result);
         if (mapped !== undefined) {
           // Panel changes, the unit's own CO2/RH boost and the boost timer
           // running out all change the mode without Homey asking for it. The
@@ -840,13 +891,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
-      // Days until the filter change reminder: configured interval (HREG 538)
-      // minus days elapsed since last acknowledgement (HREG 710).
-      if (result['service_interval_days'] && result['service_interval_days'].value !== 'xxx'
-        && result['days_since_service_ack'] && result['days_since_service_ack'].value !== 'xxx') {
+      if (result['service_interval_days'] && result['service_interval_days'].value !== 'xxx') {
         const interval = Number(result['service_interval_days'].value);
-        const elapsed = Number(result['days_since_service_ack'].value);
-        await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
+        // Days until the service reminder: configured interval (HREG 538)
+        // minus days elapsed since last acknowledgement (HREG 710), on units
+        // that have the counter.
+        if (result['days_since_service_ack'] && result['days_since_service_ack'].value !== 'xxx') {
+          const elapsed = Number(result['days_since_service_ack'].value);
+          await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
+        }
         // Mirror the unit's actual interval in the device settings so the
         // settings page shows the truth. setSettings does not re-trigger
         // onSettings, so this cannot loop.

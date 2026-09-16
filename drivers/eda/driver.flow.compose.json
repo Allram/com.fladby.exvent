@@ -1,40 +1,7 @@
 {
   "actions": [
     {
-      "id": "ecomode",
-      "title": {
-        "en": "Set eco mode",
-        "no": "Sett økomodus"
-      },
-      "titleFormatted": {
-        "en": "Set eco mode to [[ecomode]]",
-        "no": "Sett økomodus til [[ecomode]]"
-      },
-      "args": [
-        {
-          "type": "dropdown",
-          "name": "ecomode",
-          "values": [
-            {
-              "id": "1",
-              "label": {
-                "en": "on",
-                "no": "på"
-              }
-            },
-            {
-              "id": "0",
-              "label": {
-                "en": "off",
-                "no": "av"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "heatingcoil",
+      "id": "heatingcoil_eda",
       "title": {
         "en": "Set heating",
         "no": "Sett varme"
@@ -71,7 +38,7 @@
       ]
     },
     {
-      "id": "set-temperature",
+      "id": "set-temperature_eda",
       "title": {
         "en": "Set target temperature",
         "no": "Sett ønsket temperatur"
@@ -84,14 +51,14 @@
         {
           "type": "range",
           "name": "temperature",
-          "min": 15,
-          "max": 22,
+          "min": 10,
+          "max": 30,
           "step": 1
         }
       ]
     },
     {
-      "id": "status-mode",
+      "id": "status-mode_eda",
       "title": {
         "en": "Set mode",
         "no": "Sett modus"
@@ -127,13 +94,6 @@
               }
             },
             {
-              "id": "5",
-              "label": {
-                "en": "Enhanced ventilation",
-                "no": "Forsterket ventilasjon"
-              }
-            },
-            {
               "id": "3",
               "label": {
                 "en": "Boost",
@@ -152,24 +112,142 @@
       ]
     },
     {
-      "id": "reset_filter_reminder",
+      "id": "set-cooling_eda",
       "title": {
-        "en": "Reset service reminder",
-        "no": "Nullstill servicepåminnelse"
+        "en": "Set cooling",
+        "no": "Sett kjøling"
       },
       "titleFormatted": {
-        "en": "Reset service reminder",
-        "no": "Nullstill servicepåminnelse"
+        "en": "Set cooling to [[allowed]]",
+        "no": "Sett kjøling til [[allowed]]"
       },
       "hint": {
-        "en": "Restarts the countdown to the service reminder. Use after changing the filters or servicing the unit.",
-        "no": "Starter nedtellingen til servicepåminnelsen på nytt. Brukes etter filterbytte eller service."
-      }
+        "en": "Allows or blocks cooling of the supply air. Stored on the unit.",
+        "no": "Tillater eller sperrer kjøling av tilluften. Lagres på aggregatet."
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "allowed",
+          "values": [
+            {
+              "id": "1",
+              "label": {
+                "en": "allowed",
+                "no": "tillatt"
+              }
+            },
+            {
+              "id": "0",
+              "label": {
+                "en": "blocked",
+                "no": "sperret"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "set-heating-block-temperature_eda",
+      "title": {
+        "en": "Block heating above",
+        "no": "Sperr varme over"
+      },
+      "titleFormatted": {
+        "en": "Block heating above [[temperature]] °C",
+        "no": "Sperr varme over [[temperature]] °C"
+      },
+      "hint": {
+        "en": "Heating is blocked while the outdoor temperature is above this. Stored on the unit.",
+        "no": "Varme sperres så lenge utetemperaturen er over denne grensen. Lagres på aggregatet."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "temperature",
+          "min": -5,
+          "max": 25,
+          "step": 0.5
+        }
+      ]
+    },
+    {
+      "id": "set-cooling-block-temperature_eda",
+      "title": {
+        "en": "Block cooling below",
+        "no": "Sperr kjøling under"
+      },
+      "titleFormatted": {
+        "en": "Block cooling below [[temperature]] °C",
+        "no": "Sperr kjøling under [[temperature]] °C"
+      },
+      "hint": {
+        "en": "Cooling is blocked while the outdoor temperature is below this. Stored on the unit.",
+        "no": "Kjøling sperres så lenge utetemperaturen er under denne grensen. Lagres på aggregatet."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "temperature",
+          "min": 5,
+          "max": 40,
+          "step": 0.5
+        }
+      ]
+    },
+    {
+      "id": "set-fan-level_eda",
+      "title": {
+        "en": "Set fan level",
+        "no": "Sett viftenivå"
+      },
+      "titleFormatted": {
+        "en": "Set fan level to [[level]] %",
+        "no": "Sett viftenivå til [[level]] %"
+      },
+      "hint": {
+        "en": "Sets the fan level selected on the unit, as on its panel. Boost, overpressure and a running heat pump can raise it for a while.",
+        "no": "Setter viftenivået som er valgt på aggregatet, som på panelet. Boost, overtrykk og varmepumpe i drift kan øke det en stund."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "level",
+          "min": 20,
+          "max": 100,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "set-overpressure-duration_eda",
+      "title": {
+        "en": "Set overpressure duration",
+        "no": "Sett varighet for overtrykk"
+      },
+      "titleFormatted": {
+        "en": "Set overpressure duration to [[minutes]] min",
+        "no": "Sett varighet for overtrykk til [[minutes]] min"
+      },
+      "hint": {
+        "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit, and applies the next time overpressure starts.",
+        "no": "Hvor mange minutter overtrykk er aktiv før aggregatet går tilbake til normal drift. Lagres på aggregatet, og gjelder neste gang overtrykk starter."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "minutes",
+          "min": 1,
+          "max": 60,
+          "step": 1
+        }
+      ]
     }
   ],
   "triggers": [
     {
-      "id": "alarm_b_triggered",
+      "id": "alarm_b_triggered_eda",
       "title": {
         "en": "Filter alarm triggered",
         "no": "Filteralarm utløst"
@@ -179,13 +257,13 @@
         "no": "Filteralarmen ble utløst"
       },
       "hint": {
-        "en": "The unit reports that the filters need replacing.",
-        "no": "Aggregatet melder at filtrene må byttes."
+        "en": "The unit reports that the filters need replacing or that service is due.",
+        "no": "Aggregatet melder at filtrene må byttes eller at det er tid for service."
       },
       "args": []
     },
     {
-      "id": "eWindstatus_mode_changed",
+      "id": "edastatus_mode_changed",
       "title": {
         "en": "Mode changed",
         "no": "Modus endret"
@@ -221,13 +299,6 @@
               }
             },
             {
-              "id": "5",
-              "label": {
-                "en": "Enhanced ventilation",
-                "no": "Forsterket ventilasjon"
-              }
-            },
-            {
               "id": "3",
               "label": {
                 "en": "Boost",
@@ -246,7 +317,7 @@
       ]
     },
     {
-      "id": "heat_exchanger_mode_changed",
+      "id": "heat_exchanger_mode_changed_eda",
       "title": {
         "en": "Heat exchanger changed",
         "no": "Varmeveksler endret"
@@ -279,14 +350,14 @@
       ]
     },
     {
-      "id": "heater_mode_changed",
+      "id": "heater_mode_changed_eda",
       "title": {
-        "en": "Heating coil changed",
-        "no": "Varmekolbe endret"
+        "en": "Heating changed",
+        "no": "Varme endret"
       },
       "titleFormatted": {
-        "en": "Heating coil changed to [[mode_title]]",
-        "no": "Varmekolbe endret til [[mode_title]]"
+        "en": "Heating changed to [[mode_title]]",
+        "no": "Varme endret til [[mode_title]]"
       },
       "args": [
         {
@@ -310,11 +381,63 @@
           ]
         }
       ]
+    },
+    {
+      "id": "defrosting_started_eda",
+      "title": {
+        "en": "Defrosting started",
+        "no": "Avriming startet"
+      },
+      "titleFormatted": {
+        "en": "Defrosting started",
+        "no": "Avriming startet"
+      },
+      "hint": {
+        "en": "The heat pump started defrosting. It stops heating or cooling while it does.",
+        "no": "Varmepumpen startet avriming. Den varmer eller kjøler ikke så lenge avrimingen pågår."
+      },
+      "args": []
+    },
+    {
+      "id": "defrosting_stopped_eda",
+      "title": {
+        "en": "Defrosting ended",
+        "no": "Avriming avsluttet"
+      },
+      "titleFormatted": {
+        "en": "Defrosting ended",
+        "no": "Avriming avsluttet"
+      },
+      "args": []
+    },
+    {
+      "id": "cooling_started_eda",
+      "title": {
+        "en": "Cooling started",
+        "no": "Kjøling startet"
+      },
+      "titleFormatted": {
+        "en": "Cooling started",
+        "no": "Kjøling startet"
+      },
+      "args": []
+    },
+    {
+      "id": "cooling_stopped_eda",
+      "title": {
+        "en": "Cooling stopped",
+        "no": "Kjøling stoppet"
+      },
+      "titleFormatted": {
+        "en": "Cooling stopped",
+        "no": "Kjøling stoppet"
+      },
+      "args": []
     }
   ],
   "conditions": [
     {
-      "id": "eWindstatus_mode_is",
+      "id": "edastatus_mode_is",
       "title": {
         "en": "Mode is",
         "no": "Modus er"
@@ -350,13 +473,6 @@
               }
             },
             {
-              "id": "5",
-              "label": {
-                "en": "Enhanced ventilation",
-                "no": "Forsterket ventilasjon"
-              }
-            },
-            {
               "id": "3",
               "label": {
                 "en": "Boost",
@@ -375,7 +491,7 @@
       ]
     },
     {
-      "id": "heat_exchanger_mode_is",
+      "id": "heat_exchanger_mode_is_eda",
       "title": {
         "en": "Heat exchanger is",
         "no": "Varmeveksler er"
@@ -408,14 +524,14 @@
       ]
     },
     {
-      "id": "heater_mode_is",
+      "id": "heater_mode_is_eda",
       "title": {
-        "en": "Heating coil is",
-        "no": "Varmekolbe er"
+        "en": "Heating is",
+        "no": "Varme er"
       },
       "titleFormatted": {
-        "en": "Heating coil is [[mode]]",
-        "no": "Varmekolbe er [[mode]]"
+        "en": "Heating is [[mode]]",
+        "no": "Varme er [[mode]]"
       },
       "args": [
         {
@@ -439,6 +555,30 @@
           ]
         }
       ]
+    },
+    {
+      "id": "defrosting_is_eda",
+      "title": {
+        "en": "Defrosting !{{is|is not}} in progress",
+        "no": "Avriming !{{pågår|pågår ikke}}"
+      },
+      "titleFormatted": {
+        "en": "Defrosting !{{is|is not}} in progress",
+        "no": "Avriming !{{pågår|pågår ikke}}"
+      },
+      "args": []
+    },
+    {
+      "id": "cooling_active_is_eda",
+      "title": {
+        "en": "Cooling !{{is|is not}} active",
+        "no": "Kjøling !{{er|er ikke}} i drift"
+      },
+      "titleFormatted": {
+        "en": "Cooling !{{is|is not}} active",
+        "no": "Kjøling !{{er|er ikke}} i drift"
+      },
+      "args": []
     }
   ]
 }

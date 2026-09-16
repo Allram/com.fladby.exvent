@@ -42,8 +42,8 @@
     {
       "id": "3",
       "title": {
-        "en": "Heating coil active",
-        "no": "Varmekolbe aktiv"
+        "en": "Heating",
+        "no": "Varme"
       }
     },
     {
@@ -56,8 +56,8 @@
     {
       "id": "5",
       "title": {
-        "en": "Dehumidification",
-        "no": "Avfukting"
+        "en": "Stopped",
+        "no": "Stoppet"
       }
     }
   ]

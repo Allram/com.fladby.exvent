@@ -18,15 +18,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -36,16 +36,16 @@
     {
       "id": "heatingcoil_eAir",
       "title": {
-        "en": "Set heating coil",
-        "no": "Sett varmekolbe"
+        "en": "Set heating",
+        "no": "Sett varme"
       },
       "titleFormatted": {
-        "en": "Set heating coil to [[heatingcoil_eAir]]",
-        "no": "Sett varmekolbe til [[heatingcoil_eAir]]"
+        "en": "Set heating to [[heatingcoil_eAir]]",
+        "no": "Sett varme til [[heatingcoil_eAir]]"
       },
       "hint": {
-        "en": "Allows or blocks the unit from using its heating coil.",
-        "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
+        "en": "Allows or blocks heating of the supply air. Stored on the unit.",
+        "no": "Tillater eller sperrer oppvarming av tilluften. Lagres på aggregatet."
       },
       "args": [
         {
@@ -55,15 +55,15 @@
             {
               "id": "1",
               "label": {
-                "en": "On",
-                "no": "På"
+                "en": "allowed",
+                "no": "tillatt"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Off",
-                "no": "Av"
+                "en": "blocked",
+                "no": "sperret"
               }
             }
           ]
@@ -122,8 +122,8 @@
             {
               "id": "2",
               "label": {
-                "en": "Fireplace",
-                "no": "Peismodus"
+                "en": "Overpressure",
+                "no": "Overtrykk"
               }
             },
             {
@@ -154,16 +154,16 @@
     {
       "id": "reset_filter_reminder_eAir",
       "title": {
-        "en": "Reset filter change reminder",
-        "no": "Nullstill varsel om filterbytte"
+        "en": "Reset service reminder",
+        "no": "Nullstill servicepåminnelse"
       },
       "titleFormatted": {
-        "en": "Reset filter change reminder",
-        "no": "Nullstill varsel om filterbytte"
+        "en": "Reset service reminder",
+        "no": "Nullstill servicepåminnelse"
       },
       "hint": {
-        "en": "Resets the unit's filter/service day counter to 0. Use after replacing the filter.",
-        "no": "Nullstiller anleggets dagteller for filter/service. Brukes etter filterbytte."
+        "en": "Restarts the countdown to the service reminder. Use after changing the filters or servicing the unit.",
+        "no": "Starter nedtellingen til servicepåminnelsen på nytt. Brukes etter filterbytte eller service."
       }
     }
   ],
@@ -171,16 +171,16 @@
     {
       "id": "alarm_b_triggered2",
       "title": {
-        "en": "Filter alarm",
-        "no": "Filteralarm"
+        "en": "Filter alarm triggered",
+        "no": "Filteralarm utløst"
       },
       "titleFormatted": {
         "en": "The filter alarm went off",
         "no": "Filteralarmen ble utløst"
       },
       "hint": {
-        "en": "The unit reports that the filter needs replacing.",
-        "no": "Anlegget melder at filteret må byttes."
+        "en": "The unit reports that the filters need replacing.",
+        "no": "Aggregatet melder at filtrene må byttes."
       },
       "args": []
     },
@@ -216,8 +216,8 @@
             {
               "id": "2",
               "label": {
-                "en": "Fireplace",
-                "no": "Peismodus"
+                "en": "Overpressure",
+                "no": "Overtrykk"
               }
             },
             {
@@ -263,15 +263,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -296,15 +296,15 @@
             {
               "id": "1",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "0",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -345,8 +345,8 @@
             {
               "id": "fireplace",
               "label": {
-                "en": "Fireplace",
-                "no": "Peismodus"
+                "en": "Overpressure",
+                "no": "Overtrykk"
               }
             },
             {
@@ -392,15 +392,15 @@
             {
               "id": "on",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "off",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]
@@ -425,15 +425,15 @@
             {
               "id": "on",
               "label": {
-                "en": "Active",
-                "no": "Aktiv"
+                "en": "on",
+                "no": "på"
               }
             },
             {
               "id": "off",
               "label": {
-                "en": "Inactive",
-                "no": "Inaktiv"
+                "en": "off",
+                "no": "av"
               }
             }
           ]

@@ -1,0 +1,21 @@
+{
+  "type": "boolean",
+  "uiComponent": null,
+  "uiQuickAction": true,
+  "icon": "/assets/statusmode.svg",
+  "title": {
+    "en": "Overpressure",
+    "no": "Overtrykk"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Overpressure started",
+    "no": "Overtrykk startet"
+  },
+  "insightsTitleFalse": {
+    "en": "Overpressure ended",
+    "no": "Overtrykk avsluttet"
+  }
+}

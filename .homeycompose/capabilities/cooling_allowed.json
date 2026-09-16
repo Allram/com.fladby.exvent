@@ -1,20 +1,21 @@
 {
   "type": "enum",
   "uiComponent": "picker",
+  "icon": "/assets/status.svg",
   "title": {
-    "en": "Heating allowed",
-    "no": "Varme tillatt"
+    "en": "Cooling allowed",
+    "no": "Kjøling tillatt"
   },
   "desc": {
-    "en": "Whether the unit may heat the supply air",
-    "no": "Om aggregatet får varme tilluften"
+    "en": "Whether the unit may cool the supply air",
+    "no": "Om aggregatet får kjøle tilluften"
   },
   "getable": true,
   "setable": true,
   "insights": true,
   "insightsTitleTrue": {
-    "en": "Heating allowed changed",
-    "no": "Varme tillatt endret"
+    "en": "Cooling allowed changed",
+    "no": "Kjøling tillatt endret"
   },
   "values": [
     {

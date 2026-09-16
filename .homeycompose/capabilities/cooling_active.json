@@ -1,0 +1,20 @@
+{
+  "type": "boolean",
+  "uiComponent": "sensor",
+  "icon": "/assets/status.svg",
+  "title": {
+    "en": "Cooling active",
+    "no": "Kjøling i drift"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Cooling started",
+    "no": "Kjøling startet"
+  },
+  "insightsTitleFalse": {
+    "en": "Cooling stopped",
+    "no": "Kjøling stoppet"
+  }
+}

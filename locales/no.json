@@ -1,9 +1,11 @@
 {
   "pair": {
-    "title_eWind": "Legg til eWind-ventilasjonsanlegg",
-    "title_eAir": "Legg til eAir-ventilasjonsanlegg",
-    "intro_eWind": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eWind-anlegget. Husk å aktivere Modbus TCP i eWind-appen, og gi anlegget en statisk IP-adresse i ruteren.",
-    "intro_eAir": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eAir-anlegget. Husk å aktivere Modbus TCP i eAir-appen, og gi anlegget en statisk IP-adresse i ruteren.",
+    "title_eWind": "Legg til eWind-ventilasjonsaggregat",
+    "title_eAir": "Legg til eAir-ventilasjonsaggregat",
+    "intro_eWind": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eWind-aggregatet. Husk å aktivere Modbus TCP i eWind-appen, og gi aggregatet en statisk IP-adresse i ruteren.",
+    "intro_eAir": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eAir-aggregatet. Husk å aktivere Modbus TCP i eAir-appen, og gi aggregatet en statisk IP-adresse i ruteren.",
+    "title_eda": "Legg til EDA-ventilasjonsaggregat",
+    "intro_eda": "Skriv inn IP-adressen og porten til Freeway WEB-adapteren som er koblet til EDA-aggregatet. Aktiver først Modbus/TCP i adapterens eget webgrensesnitt: under Configuration → Access control configuration skriver du IP-adressen til Homey i «IP address of Modbus/TCP client» og klikker Save Modbus/TCP. Før det avviser adapteren tilkoblinger på port 502. Gi både adapteren og Homey en statisk IP-adresse i ruteren.",
     "nosettings": "Vennligst fyll ut alle feltene.",
     "invalidip": "Skriv inn en gyldig IP-adresse og port (1–65535).",
     "address": "IP-adresse",
@@ -12,6 +14,7 @@
     "connecting": "Legger til enhet…"
   },
   "noConnection": "Ingen forbindelse",
+  "fanLevelUnsupported": "Viftenivået kan bare settes i prosent på aggregater med EC-vifter",
   "Unreachable": "Utilgjengelig",
   "Off": "Av",
   "NA": "Ikke tilgjengelig"
