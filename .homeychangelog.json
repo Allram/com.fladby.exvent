@@ -278,5 +278,9 @@
   "4.11.0": {
     "en": "Exvent units with EDA automation can now be added through a Freeway WEB adapter, thanks to Magnus Fonn Tømte. You can switch modes, set the temperature, turn overpressure on and off with a tap on the device, and choose when heating and cooling are allowed. On units with EC fans you can also set the fan level, and units with a heat pump show when they cool or defrost. On eWind and eAir, a tap on the device no longer changes the filter alarm, and eAir has a new device image.",
     "no": "Exvent-anlegg med EDA-styring kan nå legges til via en Freeway WEB-adapter, takket være Magnus Fonn Tømte. Du kan bytte modus, stille inn temperaturen, slå overtrykk av og på med et trykk på enheten og velge når varme og kjøling er tillatt. På anlegg med EC-vifter kan du også stille inn viftenivået, og anlegg med varmepumpe viser når de kjøler eller avrimer. På eWind og eAir endrer et trykk på enheten ikke lenger filteralarmen, og eAir har fått et nytt enhetsbilde."
+  },
+  "4.11.1": {
+    "en": "Overpressure on units with EDA automation now lasts as long as the duration set in Homey. The unit used a duration of its own, so overpressure could end early — 20 minutes in Homey could stop after 10.",
+    "no": "Overtrykk på anlegg med EDA-styring varer nå like lenge som varigheten du har satt i Homey. Anlegget brukte sin egen varighet, så overtrykket kunne slutte for tidlig — 20 minutter i Homey kunne stoppe etter 10."
   }
 }
