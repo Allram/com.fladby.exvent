@@ -98,7 +98,6 @@ class MyEdaDevice extends ExventModbusDevice {
   protected readonly useMultipleWrites = true;
   protected readonly enhancedVentilation = false;
   protected readonly setpointRange: [number, number] = [10, 30];
-  protected readonly overpressureDurationRegisters = [57];
   // Home, Away, Overpressure and Boost turn the other mode coils off, so
   // Home also ends a long away set on the panel. Off only sets the stop coil:
   // stopping is not one of the modes, and the unit keeps its mode for when it

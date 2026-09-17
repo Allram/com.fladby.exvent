@@ -7,7 +7,7 @@ import {
 afterEach(cleanupDevices);
 
 const EDA_HREG = {
-  6: 52, 7: 160, 8: 190, 9: 70, 10: 215, 13: 38, 29: 81, 30: 79, 44: 0, 45: 2, 50: 50, 53: 50, 57: 10, 135: 210, 164: 160, 196: 250, 538: 180,
+  6: 52, 7: 160, 8: 190, 9: 70, 10: 215, 13: 38, 29: 81, 30: 79, 44: 0, 45: 2, 50: 50, 53: 50, 56: 10, 57: 10, 135: 210, 164: 160, 196: 250, 538: 180,
 };
 const EDA_COILS = {
   16: true, 30: true, 49: true, 52: true, 54: true,
@@ -265,7 +265,7 @@ test('EDA status follows every temperature control step', async () => {
 const EDA_NUMBER_SETTINGS: Array<[string, number, number]> = [
   ['heating_block_temperature', 196, 10],
   ['cooling_block_temperature', 164, 10],
-  ['fireplace_duration_minutes', 57, 1],
+  ['fireplace_duration_minutes', 56, 1],
   ['filter_interval_days', 538, 1],
 ];
 
@@ -328,7 +328,7 @@ test('EDA mirrored settings follow writes that arrived', async () => {
   await device.onSettings({ oldSettings: { ...device.settings }, newSettings: { ...device.settings, ...changed }, changedKeys: Object.keys(changed) });
   Object.assign(device.settings, changed);
   await settle(device);
-  assert.deepEqual(unit.writes, ['FC16 unit 1 hreg 57=15', 'FC16 unit 1 hreg 196=65486', 'FC16 unit 1 hreg 164=175']);
+  assert.deepEqual(unit.writes, ['FC16 unit 1 hreg 56=15', 'FC16 unit 1 hreg 57=15', 'FC16 unit 1 hreg 196=65486', 'FC16 unit 1 hreg 164=175']);
   await device.pollDevice();
   assert.deepEqual(device.events.filter((event: string) => event.startsWith('setSettings')), []);
   assert.equal(device.settings.heating_block_temperature, -5);
@@ -355,7 +355,7 @@ test('EDA writes skip values outside the settings range', async () => {
   await card('set-cooling-block-temperature_eda')({ device, temperature: 5 });
   await card('set-overpressure-duration_eda')({ device, minutes: 60 });
   await settle(device);
-  assert.deepEqual(unit.writes, ['FC16 unit 1 hreg 196=250', 'FC16 unit 1 hreg 164=50', 'FC16 unit 1 hreg 57=60']);
+  assert.deepEqual(unit.writes, ['FC16 unit 1 hreg 196=250', 'FC16 unit 1 hreg 164=50', 'FC16 unit 1 hreg 56=60', 'FC16 unit 1 hreg 57=60']);
   assert.deepEqual(device.events, [
     'setSettings {"heating_block_temperature":25}', 'setSettings {"cooling_block_temperature":5}', 'setSettings {"fireplace_duration_minutes":60}',
   ]);
