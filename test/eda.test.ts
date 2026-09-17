@@ -40,14 +40,14 @@ test('EDA holding registers batch without the MD-only registers', () => {
     [6, 8],
     [29, 2],
     [44, 2],
-    [50, 8], // 50..57
+    [50, 7], // 50..56
     [135, 1],
     [164, 1],
     [196, 1],
     [538, 1],
   ]);
   const addresses = Object.values(EDA_HOLDING_REGISTERS).map(([addr]) => addr);
-  assert.ok(!addresses.includes(56), 'HREG 56 is read only on EDA');
+  assert.ok(addresses.includes(56), 'HREG 56 is the overpressure duration in use');
   assert.ok(!addresses.includes(710), 'HREG 710 does not exist on EDA');
 });
 

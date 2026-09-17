@@ -33,8 +33,11 @@ export const EDA_HOLDING_REGISTERS: RegisterMap = {
   // AC fans. Heat pump units run the fans at 70% or more while the heat pump
   // runs, whatever the panel says.
   fan_speed_panel: [53, 1, 'UINT16', 'Ventilation level selected on the panel'],
-  // HREG 56 is the time left and read only; 57 is the duration itself.
-  fireplace_duration: [57, 1, 'UINT16', 'Overpressure duration in minutes'],
+  // HREG 56 is the duration the unit uses when overpressure starts, and is
+  // writable. The register list calls it the time left, but it does not count
+  // down: with 56 = 10 and 57 = 20 overpressure ran 10 minutes, and after
+  // writing 56 = 20 it ran 20. The shared class writes 57 as well.
+  fireplace_duration: [56, 1, 'UINT16', 'Overpressure duration in minutes'],
   temperature_setpoint: [135, 1, 'INT16', 'Temperature setpoint'],
   cooling_block_temperature: [164, 1, 'INT16', 'Outdoor temperature below which cooling is blocked'],
   heating_block_temperature: [196, 1, 'INT16', 'Outdoor temperature above which heating is blocked'],

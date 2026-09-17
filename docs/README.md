@@ -138,7 +138,7 @@ Register 644 sets how long the heat pump stays off after a defrost cycle.
 | Holding 45 | Temperature control step | Status |
 | Holding 50 | Fan level in effect | Reading |
 | Holding 53 | Fan level set on the panel, 20–100% on EC fans | Slider and flow card |
-| Holding 57 | Overpressure duration in minutes | Device setting |
+| Holding 56, 57 | Overpressure duration in minutes; 56 is the one the unit uses | Device setting |
 | Holding 135 | Temperature setpoint, ×10 | Target temperature |
 | Holding 164, 196 | Outdoor temperature below which cooling and above which heating are blocked, ×10 | Device settings |
 | Holding 538 | Service reminder interval in days, 180 by default | Device setting |
@@ -151,7 +151,10 @@ on the unit's panel shows up in Homey.
 The shared device class in `lib/ExventDevice.ts` was written for the MD register lists. These
 MD registers mean something else on EDA, or are missing, and the `eda` driver avoids them:
 
-- **Holding register 56** is the overpressure time *left* and read only. The duration is 57.
+- **Holding register 56** is the overpressure duration the unit uses, despite the register list
+  calling it the time left and read only. It is writable and does not count down. With 56 = 10 and
+  57 = 20 overpressure ran for 10 minutes; after writing 56 = 20 it ran for 20. The driver writes
+  both, like eWind and eAir.
 - **Holding register 710** (days since the service reminder) does not exist; reading it returns
   "Illegal data address". There is no service countdown or reset card on EDA.
 - **Holding register 50** is the ventilation level in effect, in percent (20–100) on EC fans,

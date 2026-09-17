@@ -102,7 +102,8 @@ export abstract class ExventModbusDevice extends Homey.Device {
     /**
      * Holding registers the overpressure duration setting is written to. On
      * eWind and eAir HREG 56 is the active duration, but the unit overwrites
-     * it at startup with the default in HREG 57, so both are written.
+     * it at startup with the default in HREG 57, so both are written. EDA
+     * units run overpressure for the minutes in HREG 56 too.
      */
     protected readonly overpressureDurationRegisters: number[] = [56, 57];
 
