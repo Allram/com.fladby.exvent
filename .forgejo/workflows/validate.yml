@@ -10,10 +10,10 @@ jobs:
   validate:
     runs-on: docker
     steps:
-      # This instance runs with REQUIRE_SIGNIN_VIEW, and it rejects the
-      # Authorization header actions/checkout installs, so git falls back to
-      # prompting and dies with "could not read Username". Clone by hand with
-      # the run token in the URL, the same way Allram/MagicMatch does.
+      # Clone by hand with the run token in the URL (instance runs with
+      # REQUIRE_SIGNIN_VIEW). This works and is kept, but actions/checkout@v4
+      # also works against this instance: the "could not read Username"
+      # failures in August 2026 came from the Authelia bypass, fixed 2026-08-09.
       - name: Checkout
         run: |
           git init -q .
