@@ -279,7 +279,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * with the connect event, an error, a close, or CONNECT_TIMEOUT_MS.
      */
     connectSocket() {
-      if (!this.isActive || this.connectingPromise) return;
+      // A live connection is kept: callers that want a new one (a changed
+      // address) tear the old one down first.
+      if (!this.isActive || this.connectingPromise || this.isConnected) return;
       this.teardownSocket();
       const socket = new net.Socket();
       this.socket = socket;
@@ -518,9 +520,10 @@ export abstract class ExventModbusDevice extends Homey.Device {
             item.reject(new Error(this.homey.__('writeFailed')));
             continue;
           }
-          const { client } = this;
+          let client: any = null;
           try {
             await this.ensureConnected();
+            client = this.client;
             await item.op();
             this.writeQueue.shift();
             item.resolve();
@@ -539,7 +542,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
               // transaction stream out of step: start over on a new connection.
               // An out-of-sync write most likely reached the unit already; all
               // writes are absolute values, so sending it again is harmless.
-              if ((failure === 'timeout' || failure === 'outOfSync') && this.client === client) this.teardownSocket();
+              if ((failure === 'timeout' || failure === 'outOfSync') && client && this.client === client) this.teardownSocket();
               this.log(`Write ${item.label} ${failure === 'outOfSync' ? 'unconfirmed' : 'failed'} (${describeError(err)}), trying again`);
             }
           }
