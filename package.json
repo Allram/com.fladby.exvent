@@ -1,6 +1,6 @@
 {
   "name": "com.fladby.exvent",
-  "version": "4.12.0",
+  "version": "5.0.0",
   "main": "app.ts",
   "scripts": {
     "build": "tsc",
