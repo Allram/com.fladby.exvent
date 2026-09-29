@@ -1,7 +1,7 @@
 {
   "type": "string",
   "uiComponent": "sensor",
-  "icon": "/assets/efficiency.svg",
+  "icon": "/assets/clock.svg",
   "title": {
     "en": "Last poll time",
     "no": "Siste polling"
@@ -11,14 +11,5 @@
     "no": "Når verdiene sist ble lest fra anlegget"
   },
   "getable": true,
-  "setable": false,
-  "insights": true,
-  "insightsTitleTrue": {
-    "en": "Last poll time changed",
-    "no": "Siste polling endret"
-  },
-  "insightsTitleFalse": {
-    "en": "Last poll time changed",
-    "no": "Siste polling endret"
-  }
+  "setable": false
 }

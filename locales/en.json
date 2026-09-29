@@ -11,11 +11,40 @@
     "address": "IP address",
     "port": "Port",
     "connect": "Connect",
-    "connecting": "Adding device…"
+    "connecting": "Adding device…",
+    "test": {
+      "duplicate": "This unit has already been added to Homey.",
+      "refused": "The unit refused the connection. Check that Modbus TCP is turned on in the unit app and that the port is right.",
+      "refused_eda": "The adapter refused the connection. Did you enter the IP address of Homey under Access control configuration in Freeway WEB?",
+      "timeout": "The address does not answer. Check the IP address and that the unit is on.",
+      "notExvent": "The address answers, but not as an Exvent unit. Check the IP address and the port.",
+      "notEda": "This looks like an eWind or eAir unit. Use that driver instead.",
+      "failed": "The connection failed"
+    },
+    "testing": "Checking the connection…",
+    "addAnyway": "Add anyway",
+    "autoConnect": "If you add it anyway, the device connects by itself once the unit answers.",
+    "scriptError": "Error on the page:"
   },
   "noConnection": "No connection",
   "fanLevelUnsupported": "The fan level can only be set in percent on units with EC fans",
-  "Unreachable": "Unreachable",
-  "Off": "Off",
-  "NA": "Information not available"
+  "noConnectionWarning": "The ventilation unit does not answer. The values may be out of date.",
+  "writeFailedWarning": "A command did not reach the ventilation unit.",
+  "writeFailed": "The command did not reach the ventilation unit.",
+  "writeTimeout": "The ventilation unit did not confirm the command in time.",
+  "modeNotSupported": "The unit does not have this mode.",
+  "invalidDuration": "The duration is outside what the unit accepts.",
+  "invalidTemperature": "The temperature is outside what the unit accepts.",
+  "settingsWriteFailed": "Could not save the setting on the ventilation unit. Check the connection and try again.",
+  "settingsWriteFailedAddressSaved": "The address is saved, but the other settings did not reach the unit. They show what the unit has.",
+  "settings": {
+    "invalidAddress": "The IP address is not valid. Write it without leading zeros, for example 192.168.1.20.",
+    "invalidPort": "The port must be a whole number from 1 to 65535.",
+    "invalidNumber": "The value must be between __range__."
+  },
+  "modeLogTitle": "Mode (0 Home, 1 Away, 2 Fireplace/overpressure, 3 Boost, 4 Off, 5 Enhanced)",
+  "alarmA": "A alarm",
+  "alarmB": "B alarm",
+  "noAlarm": "None",
+  "fanTypeUnknown": "Could not read which fans the unit has."
 }

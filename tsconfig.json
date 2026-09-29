@@ -2,10 +2,7 @@
   "extends": "@tsconfig/node22/tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
-    "outDir": ".homeybuild/",
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ]
-  }
+    "outDir": ".homeybuild/"
+  },
+  "include": ["app.ts", "lib/**/*", "drivers/**/*"]
 }

@@ -7,18 +7,11 @@
     "no": "Viftenivå"
   },
   "desc": {
-    "en": "Fan speed level, from 1 to 4",
-    "no": "Viftenivå, fra 1 til 4"
+    "en": "The fan level in effect now",
+    "no": "Viftenivået som gjelder nå"
   },
   "getable": true,
   "setable": false,
   "insights": true,
-  "insightsTitleTrue": {
-    "en": "Fan speed level changed",
-    "no": "Viftenivå endret"
-  },
-  "insightsTitleFalse": {
-    "en": "Fan speed level changed",
-    "no": "Viftenivå endret"
-  }
+  "chartType": "stepLine"
 }

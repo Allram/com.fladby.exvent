@@ -11,11 +11,6 @@
   },
   "getable": true,
   "setable": true,
-  "insights": true,
-  "insightsTitleTrue": {
-    "en": "Heating coil was enabled or disabled",
-    "no": "Varmekolbe ble slått på eller av"
-  },
   "values": [
     {
       "id": "1",
@@ -31,5 +26,6 @@
         "no": "Av"
       }
     }
-  ]
+  ],
+  "icon": "/assets/heater_mode.svg"
 }

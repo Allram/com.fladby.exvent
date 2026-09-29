@@ -6,16 +6,45 @@
     "intro_eAir": "Skriv inn IP-adressen og porten til Modbus TCP-grensesnittet på eAir-anlegget. Husk å aktivere Modbus TCP i eAir-appen, og gi anlegget en statisk IP-adresse i ruteren.",
     "title_eda": "Legg til EDA-ventilasjonsaggregat",
     "intro_eda": "Skriv inn IP-adressen og porten til Freeway WEB-adapteren som er koblet til EDA-aggregatet. Aktiver først Modbus/TCP i adapterens eget webgrensesnitt: under Configuration → Access control configuration skriver du IP-adressen til Homey i «IP address of Modbus/TCP client» og klikker Save Modbus/TCP. Før det avviser adapteren tilkoblinger på port 502. Gi både adapteren og Homey en statisk IP-adresse i ruteren.",
-    "nosettings": "Vennligst fyll ut alle feltene.",
+    "nosettings": "Fyll ut alle feltene.",
     "invalidip": "Skriv inn en gyldig IP-adresse og port (1–65535).",
     "address": "IP-adresse",
     "port": "Port",
     "connect": "Koble til",
-    "connecting": "Legger til enhet…"
+    "connecting": "Legger til enhet…",
+    "test": {
+      "duplicate": "Dette anlegget er allerede lagt til i Homey.",
+      "refused": "Anlegget avviste tilkoblingen. Sjekk at Modbus TCP er slått på i appen til anlegget, og at porten stemmer.",
+      "refused_eda": "Adapteren avviste tilkoblingen. Har du lagt inn Homeys IP-adresse under Access control configuration i Freeway WEB?",
+      "timeout": "Fikk ikke svar fra adressen. Sjekk IP-adressen, og at anlegget er slått på.",
+      "notExvent": "Adressen svarer, men ikke som et Exvent-anlegg. Sjekk IP-adressen og porten.",
+      "notEda": "Dette ser ut som et eWind- eller eAir-anlegg. Bruk heller den driveren.",
+      "failed": "Tilkoblingen feilet"
+    },
+    "testing": "Sjekker forbindelsen…",
+    "addAnyway": "Legg til likevel",
+    "autoConnect": "Legger du det til likevel, kobler enheten seg til av seg selv når anlegget svarer.",
+    "scriptError": "Feil på siden:"
   },
   "noConnection": "Ingen forbindelse",
   "fanLevelUnsupported": "Viftenivået kan bare settes i prosent på aggregater med EC-vifter",
-  "Unreachable": "Utilgjengelig",
-  "Off": "Av",
-  "NA": "Ikke tilgjengelig"
+  "noConnectionWarning": "Får ikke kontakt med ventilasjonsanlegget. Verdiene kan være gamle.",
+  "writeFailedWarning": "En kommando nådde ikke ventilasjonsanlegget.",
+  "writeFailed": "Kommandoen nådde ikke ventilasjonsanlegget.",
+  "writeTimeout": "Ventilasjonsanlegget bekreftet ikke kommandoen i tide.",
+  "modeNotSupported": "Anlegget har ikke denne modusen.",
+  "invalidDuration": "Varigheten er utenfor det anlegget godtar.",
+  "invalidTemperature": "Temperaturen er utenfor det anlegget godtar.",
+  "settingsWriteFailed": "Fikk ikke lagret innstillingen på ventilasjonsanlegget. Sjekk forbindelsen og prøv igjen.",
+  "settingsWriteFailedAddressSaved": "Adressen er lagret, men de andre innstillingene nådde ikke anlegget. De vises slik anlegget har dem.",
+  "settings": {
+    "invalidAddress": "IP-adressen er ikke gyldig. Skriv den uten ledende nuller, for eksempel 192.168.1.20.",
+    "invalidPort": "Porten må være et heltall fra 1 til 65535.",
+    "invalidNumber": "Verdien må ligge mellom __range__."
+  },
+  "modeLogTitle": "Modus (0 Hjemme, 1 Borte, 2 Peis/overtrykk, 3 Boost, 4 Av, 5 Forsterket)",
+  "alarmA": "A-alarm",
+  "alarmB": "B-alarm",
+  "noAlarm": "Ingen",
+  "fanTypeUnknown": "Fikk ikke lest hvilke vifter aggregatet har."
 }

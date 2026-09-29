@@ -1,14 +1,10 @@
 {
   "type": "number",
   "uiComponent": "sensor",
-  "icon": "/assets/efficiency.svg",
+  "icon": "/assets/fanspeed.svg",
   "title": {
-    "en": "Efficiency",
-    "no": "Effektivitet"
-  },
-  "desc": {
-    "en": "Heat recovery efficiency",
-    "no": "Effektivitet for varmegjenvinning"
+    "en": "Fan speed",
+    "no": "Viftehastighet"
   },
   "getable": true,
   "setable": false,
@@ -19,5 +15,6 @@
   },
   "min": 0,
   "max": 100,
-  "step": 1
+  "step": 1,
+  "decimals": 0
 }

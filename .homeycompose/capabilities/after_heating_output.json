@@ -1,0 +1,24 @@
+{
+  "type": "number",
+  "uiComponent": "sensor",
+  "icon": "/assets/heater_mode.svg",
+  "title": {
+    "en": "After-heating output",
+    "no": "Ettervarme"
+  },
+  "desc": {
+    "en": "How hard the heating coil or heat pump works",
+    "no": "Hvor hardt varmekolben eller varmepumpen jobber"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "units": {
+    "en": "%",
+    "no": "%"
+  },
+  "min": 0,
+  "max": 100,
+  "step": 1,
+  "decimals": 0
+}

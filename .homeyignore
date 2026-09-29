@@ -1,2 +1,7 @@
 test/
 docs/
+package-lock.json
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+README.md
+tsconfig.test.json

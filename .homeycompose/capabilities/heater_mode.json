@@ -8,15 +8,6 @@
   },
   "getable": true,
   "setable": false,
-  "insights": true,
-  "insightsTitleTrue": {
-    "en": "Heating coil status changed",
-    "no": "Varmekolbestatus endret"
-  },
-  "insightsTitleFalse": {
-    "en": "Heating coil status changed",
-    "no": "Varmekolbestatus endret"
-  },
   "values": [
     {
       "id": "0",

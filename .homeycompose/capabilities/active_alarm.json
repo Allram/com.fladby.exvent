@@ -1,0 +1,15 @@
+{
+  "type": "string",
+  "uiComponent": "sensor",
+  "icon": "/assets/alarm.svg",
+  "title": {
+    "en": "Active alarm",
+    "no": "Aktiv alarm"
+  },
+  "desc": {
+    "en": "The alarm the unit reports now",
+    "no": "Alarmen anlegget melder nå"
+  },
+  "getable": true,
+  "setable": false
+}

@@ -1,32 +1,9 @@
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { toBlocks, decode, RegisterMap } from '../lib/modbus';
-
-// The actual register maps used by the drivers.
-const holdingRegisters: RegisterMap = {
-  air_outside: [6, 1, 'INT16', 'Fresh air'],
-  air_supply_HRC: [7, 1, 'INT16', 'Supply air after HRC'],
-  air_supply: [8, 1, 'INT16', 'Supply air'],
-  air_exhaust: [9, 1, 'INT16', 'Exhaust air'],
-  air_extract: [10, 1, 'INT16', 'Extract air temperature'],
-  air_humidity: [13, 1, 'UINT16', 'Air humidity extract'],
-  air_supply_eff: [29, 1, 'UINT16', 'Heat recovery efficiency, supply air'],
-  air_extract_eff: [30, 1, 'UINT16', 'Heat recovery efficiency, exhaust air'],
-  temperature_setpoint: [135, 1, 'INT16', 'Temperature setpoint'],
-  fan_speed_level: [50, 1, 'UINT16', 'Fan speed level'],
-  status: [45, 1, 'INT16', 'status'],
-  status_mode: [44, 1, 'INT16', 'statusMode'],
-  service_interval_days: [538, 1, 'UINT16', 'Days until service reminder alarm'],
-  days_since_service_ack: [710, 1, 'UINT16', 'Days since service reminder was acknowledged'],
-};
-
-const coilRegisters: RegisterMap = {
-  eco_mode: [40, 1, 'UINT32', 'eco Mode'],
-  alarm_b_desc: [42, 1, 'UINT32', 'Alarm B description'],
-  heater_status: [32, 1, 'UINT32', 'After-heater On/Off'],
-  heat_exchanger_state: [30, 1, 'UINT32', 'State of Heat exchanger On/Off'],
-  heating_coil: [54, 1, 'UINT32', 'State of Heater coil On/Off'],
-};
+import {
+  toBlocks, decode, readModbus, requestFailure, RegisterMap,
+} from '../lib/modbus';
+import { EAIR_HOLDING_REGISTERS, EWIND_HOLDING_REGISTERS, EXVENT_COILS } from '../lib/exvent';
 
 function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]> {
   return blocks.map((block) => {
@@ -35,28 +12,34 @@ function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]
   });
 }
 
-test('holding registers batch into 7 requests', () => {
-  const blocks = toBlocks(holdingRegisters, 'holding');
-  assert.deepEqual(blockSpans(blocks), [
+test('eWind holding registers batch into 10 requests', () => {
+  assert.deepEqual(blockSpans(toBlocks(EWIND_HOLDING_REGISTERS, 'holding')), [
     [6, 8], // 6..13 incl. the 11/12 gap
     [29, 2], // 29..30
-    [44, 2], // 44..45
-    [50, 1],
-    [135, 1],
+    [44, 7], // 44..50: the controller output (49) joins the mode, step and fan level
+    [56, 2], // 56..57
+    [66, 1],
+    [134, 4], // 134..137
+    [385, 2],
     [538, 1],
     [710, 1],
   ]);
 });
 
+test('eAir reads the fan speeds with the temperatures and has no boost duration', () => {
+  const spans = blockSpans(toBlocks(EAIR_HOLDING_REGISTERS, 'holding'));
+  assert.deepEqual(spans[0], [3, 11]); // 3..13
+  assert.ok(!spans.some(([start]) => start === 66));
+});
+
 test('coils batch into a single request', () => {
-  const blocks = toBlocks(coilRegisters, 'coil');
-  assert.deepEqual(blockSpans(blocks), [[30, 25]]); // 30..54
+  assert.deepEqual(blockSpans(toBlocks(EXVENT_COILS, 'coil')), [[30, 25]]); // 30..54
 });
 
 test('blocks preserve every register exactly once', () => {
-  const blocks = toBlocks(holdingRegisters, 'holding');
+  const blocks = toBlocks(EWIND_HOLDING_REGISTERS, 'holding');
   const keys = blocks.flat().map((entry) => entry.key).sort();
-  assert.deepEqual(keys, Object.keys(holdingRegisters).sort());
+  assert.deepEqual(keys, Object.keys(EWIND_HOLDING_REGISTERS).sort());
 });
 
 test('a gap wider than the tolerance splits holding blocks', () => {
@@ -106,11 +89,11 @@ test('decode coil picks the right bit from a block', () => {
   bits[10] = 1;
   const response = { body: { valuesAsArray: bits } };
   const entry = {
-    key: 'eco_mode', addr: 40, len: 1, type: 'UINT32', label: 'eco Mode',
+    key: 'eco_mode', addr: 40, len: 1, type: 'BIT', label: 'eco Mode',
   };
   assert.equal(decode(response, entry, 30, 'coil').value, '1');
   const off = {
-    key: 'heating_coil', addr: 54, len: 1, type: 'UINT32', label: 'coil',
+    key: 'heating_coil', addr: 54, len: 1, type: 'BIT', label: 'coil',
   };
   assert.equal(decode(response, off, 30, 'coil').value, '0');
 });
@@ -121,4 +104,34 @@ test('decode returns xxx for unknown types', () => {
     key: 'x', addr: 0, len: 1, type: 'BOGUS', label: 'x',
   };
   assert.equal(decode(response, entry, 0, 'holding').value, 'xxx');
+});
+
+/** A client that answers every read with the given error, and counts the requests. */
+function failingClient(err: unknown) {
+  const requests: string[] = [];
+  const fail = async (start: number, length: number) => {
+    requests.push(`${start}+${length}`);
+    throw err;
+  };
+  return { requests, client: { readHoldingRegisters: fail, readCoils: fail } };
+}
+
+test('a timeout gives up after one more request instead of reading every register', async () => {
+  const { requests, client } = failingClient({ err: 'Timeout' });
+  await assert.rejects(readModbus(client as any, EWIND_HOLDING_REGISTERS, 'holding'));
+  assert.deepEqual(requests, ['6+8', '6+1']);
+});
+
+test('a refused span falls back to reading each register', async () => {
+  const { requests, client } = failingClient({ err: 'ModbusException' });
+  await assert.rejects(readModbus(client as any, { a: [6, 1, 'INT16', 'a'], b: [8, 1, 'INT16', 'b'] }, 'holding'), /No holding registers responded/);
+  assert.deepEqual(requests, ['6+3', '6+1', '8+1']);
+});
+
+test('request failures are told apart', () => {
+  assert.equal(requestFailure({ err: 'ModbusException' }), 'exception');
+  assert.equal(requestFailure({ err: 'Timeout' }), 'timeout');
+  assert.equal(requestFailure({ err: 'OutOfSync' }), 'outOfSync');
+  assert.equal(requestFailure({ err: 'Offline' }), 'offline');
+  assert.equal(requestFailure(new Error('ECONNREFUSED')), 'other');
 });

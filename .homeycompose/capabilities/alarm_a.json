@@ -1,0 +1,24 @@
+{
+  "type": "boolean",
+  "uiComponent": "sensor",
+  "icon": "/assets/alarm.svg",
+  "title": {
+    "en": "A alarm",
+    "no": "A-alarm"
+  },
+  "desc": {
+    "en": "A serious alarm that stops the unit",
+    "no": "En alvorlig alarm som stopper anlegget"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "A alarm went off",
+    "no": "A-alarm utløst"
+  },
+  "insightsTitleFalse": {
+    "en": "A alarm cleared",
+    "no": "A-alarm opphørt"
+  }
+}

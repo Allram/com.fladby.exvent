@@ -8,15 +8,6 @@
   },
   "getable": true,
   "setable": false,
-  "insights": true,
-  "insightsTitleTrue": {
-    "en": "Status changed",
-    "no": "Status endret"
-  },
-  "insightsTitleFalse": {
-    "en": "Status changed",
-    "no": "Status endret"
-  },
   "values": [
     {
       "id": "0",
@@ -58,6 +49,13 @@
       "title": {
         "en": "Dehumidification",
         "no": "Avfukting"
+      }
+    },
+    {
+      "id": "6",
+      "title": {
+        "en": "Summer night cooling",
+        "no": "Sommernattkjøling"
       }
     }
   ]

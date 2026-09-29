@@ -61,22 +61,36 @@
       {
         "id": "alarm_b_triggered2",
         "title": {
-          "en": "Filter alarm",
-          "no": "Filteralarm"
+          "en": "B alarm",
+          "no": "B-alarm"
         },
         "titleFormatted": {
-          "en": "The filter alarm went off",
-          "no": "Filteralarmen ble utløst"
+          "en": "A B alarm went off",
+          "no": "En B-alarm ble utløst"
         },
         "hint": {
-          "en": "The unit reports that the filter needs replacing.",
-          "no": "Anlegget melder at filteret må byttes."
+          "en": "The unit reports a class B alarm, such as the filter or service reminder. The alarm token says which.",
+          "no": "Anlegget melder en B-alarm, for eksempel filter eller servicepåminnelse. Tokenet sier hvilken."
         },
         "args": [
           {
             "type": "device",
             "name": "device",
             "filter": "driver_id=eAir"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "alarm",
+            "type": "string",
+            "title": {
+              "en": "Alarm",
+              "no": "Alarm"
+            },
+            "example": {
+              "en": "Service reminder",
+              "no": "Servicepåminnelse"
+            }
           }
         ]
       },
@@ -101,6 +115,13 @@
             "type": "dropdown",
             "values": [
               {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
+              {
                 "id": "0",
                 "label": {
                   "en": "Home",
@@ -144,7 +165,25 @@
               }
             ]
           }
-        ]
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode",
+              "no": "Modus"
+            },
+            "example": {
+              "en": "Home",
+              "no": "Hjemme"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Fires when the mode changes, whether from Homey, a flow, the unit panel or the unit itself. A change on the panel can take up to a minute to show. Enhanced ventilation also covers the unit's own CO₂ and humidity boost.",
+          "no": "Går når modus endres, enten fra Homey, en flow, panelet eller anlegget selv. En endring på panelet kan bruke opptil ett minutt på å vises. Forsterket ventilasjon dekker også anleggets egen CO₂- og fuktboost."
+        }
       },
       {
         "id": "heat_exchanger_mode_changed2",
@@ -167,6 +206,13 @@
             "type": "dropdown",
             "values": [
               {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
+              {
                 "id": "1",
                 "label": {
                   "en": "Active",
@@ -181,6 +227,20 @@
                 }
               }
             ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "no": "Tilstand"
+            },
+            "example": {
+              "en": "Active",
+              "no": "Aktiv"
+            }
           }
         ]
       },
@@ -205,6 +265,13 @@
             "type": "dropdown",
             "values": [
               {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
+              {
                 "id": "1",
                 "label": {
                   "en": "Active",
@@ -220,27 +287,135 @@
               }
             ]
           }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "no": "Tilstand"
+            },
+            "example": {
+              "en": "Active",
+              "no": "Aktiv"
+            }
+          }
+        ]
+      },
+      {
+        "id": "alarm_a_triggered2",
+        "title": {
+          "en": "A alarm",
+          "no": "A-alarm"
+        },
+        "titleFormatted": {
+          "en": "An A alarm went off",
+          "no": "En A-alarm ble utløst"
+        },
+        "hint": {
+          "en": "The unit reports a serious alarm and stops. The alarm token says which.",
+          "no": "Anlegget melder en alvorlig alarm og stopper. Tokenet sier hvilken."
+        },
+        "tokens": [
+          {
+            "name": "alarm",
+            "type": "string",
+            "title": {
+              "en": "Alarm",
+              "no": "Alarm"
+            },
+            "example": {
+              "en": "Service reminder",
+              "no": "Servicepåminnelse"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "filter_days_below2",
+        "title": {
+          "en": "Days until filter change dropped below",
+          "no": "Dager til filterbytte ble mindre enn"
+        },
+        "titleFormatted": {
+          "en": "Days until filter change dropped below [[days]]",
+          "no": "Dager til filterbytte ble mindre enn [[days]]"
+        },
+        "hint": {
+          "en": "Fires once when the countdown to the filter change passes the number.",
+          "no": "Går én gang når nedtellingen til filterbytte passerer tallet."
+        },
+        "tokens": [
+          {
+            "name": "days",
+            "type": "number",
+            "title": {
+              "en": "Days",
+              "no": "Dager"
+            },
+            "example": 14
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "number",
+            "name": "days",
+            "min": 1,
+            "max": 365,
+            "step": 1,
+            "placeholder": {
+              "en": "Days",
+              "no": "Dager"
+            }
+          }
         ]
       },
       {
         "id": "alarm_b_triggered",
         "title": {
-          "en": "Filter alarm",
-          "no": "Filteralarm"
+          "en": "B alarm",
+          "no": "B-alarm"
         },
         "titleFormatted": {
-          "en": "The filter alarm went off",
-          "no": "Filteralarmen ble utløst"
+          "en": "A B alarm went off",
+          "no": "En B-alarm ble utløst"
         },
         "hint": {
-          "en": "The unit reports that the filter needs replacing.",
-          "no": "Anlegget melder at filteret må byttes."
+          "en": "The unit reports a class B alarm, such as the filter or service reminder. The alarm token says which.",
+          "no": "Anlegget melder en B-alarm, for eksempel filter eller servicepåminnelse. Tokenet sier hvilken."
         },
         "args": [
           {
             "type": "device",
             "name": "device",
             "filter": "driver_id=eWind"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "alarm",
+            "type": "string",
+            "title": {
+              "en": "Alarm",
+              "no": "Alarm"
+            },
+            "example": {
+              "en": "Service reminder",
+              "no": "Servicepåminnelse"
+            }
           }
         ]
       },
@@ -264,6 +439,13 @@
             "name": "mode_title",
             "type": "dropdown",
             "values": [
+              {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
               {
                 "id": "0",
                 "label": {
@@ -308,7 +490,25 @@
               }
             ]
           }
-        ]
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode",
+              "no": "Modus"
+            },
+            "example": {
+              "en": "Home",
+              "no": "Hjemme"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Fires when the mode changes, whether from Homey, a flow, the unit panel or the unit itself. A change on the panel can take up to a minute to show. Enhanced ventilation also covers the unit's own CO₂ and humidity boost.",
+          "no": "Går når modus endres, enten fra Homey, en flow, panelet eller anlegget selv. En endring på panelet kan bruke opptil ett minutt på å vises. Forsterket ventilasjon dekker også anleggets egen CO₂- og fuktboost."
+        }
       },
       {
         "id": "heat_exchanger_mode_changed",
@@ -331,6 +531,13 @@
             "type": "dropdown",
             "values": [
               {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
+              {
                 "id": "1",
                 "label": {
                   "en": "Active",
@@ -345,6 +552,20 @@
                 }
               }
             ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "no": "Tilstand"
+            },
+            "example": {
+              "en": "Active",
+              "no": "Aktiv"
+            }
           }
         ]
       },
@@ -369,6 +590,13 @@
             "type": "dropdown",
             "values": [
               {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
+              {
                 "id": "1",
                 "label": {
                   "en": "Active",
@@ -384,27 +612,135 @@
               }
             ]
           }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "no": "Tilstand"
+            },
+            "example": {
+              "en": "Active",
+              "no": "Aktiv"
+            }
+          }
+        ]
+      },
+      {
+        "id": "alarm_a_triggered",
+        "title": {
+          "en": "A alarm",
+          "no": "A-alarm"
+        },
+        "titleFormatted": {
+          "en": "An A alarm went off",
+          "no": "En A-alarm ble utløst"
+        },
+        "hint": {
+          "en": "The unit reports a serious alarm and stops. The alarm token says which.",
+          "no": "Anlegget melder en alvorlig alarm og stopper. Tokenet sier hvilken."
+        },
+        "tokens": [
+          {
+            "name": "alarm",
+            "type": "string",
+            "title": {
+              "en": "Alarm",
+              "no": "Alarm"
+            },
+            "example": {
+              "en": "Service reminder",
+              "no": "Servicepåminnelse"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "filter_days_below",
+        "title": {
+          "en": "Days until filter change dropped below",
+          "no": "Dager til filterbytte ble mindre enn"
+        },
+        "titleFormatted": {
+          "en": "Days until filter change dropped below [[days]]",
+          "no": "Dager til filterbytte ble mindre enn [[days]]"
+        },
+        "hint": {
+          "en": "Fires once when the countdown to the filter change passes the number.",
+          "no": "Går én gang når nedtellingen til filterbytte passerer tallet."
+        },
+        "tokens": [
+          {
+            "name": "days",
+            "type": "number",
+            "title": {
+              "en": "Days",
+              "no": "Dager"
+            },
+            "example": 14
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "number",
+            "name": "days",
+            "min": 1,
+            "max": 365,
+            "step": 1,
+            "placeholder": {
+              "en": "Days",
+              "no": "Dager"
+            }
+          }
         ]
       },
       {
         "id": "alarm_b_triggered_eda",
         "title": {
-          "en": "Filter alarm triggered",
-          "no": "Filteralarm utløst"
+          "en": "B alarm",
+          "no": "B-alarm"
         },
         "titleFormatted": {
-          "en": "The filter alarm went off",
-          "no": "Filteralarmen ble utløst"
+          "en": "A B alarm went off",
+          "no": "En B-alarm ble utløst"
         },
         "hint": {
-          "en": "The unit reports that the filters need replacing or that service is due.",
-          "no": "Aggregatet melder at filtrene må byttes eller at det er tid for service."
+          "en": "The unit reports a class B alarm, such as dirty filters or the service reminder. The alarm token says which.",
+          "no": "Aggregatet melder en B-alarm, for eksempel tette filtre eller servicepåminnelse. Tokenet sier hvilken."
         },
         "args": [
           {
             "type": "device",
             "name": "device",
             "filter": "driver_id=eda"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "alarm",
+            "type": "string",
+            "title": {
+              "en": "Alarm",
+              "no": "Alarm"
+            },
+            "example": {
+              "en": "Service reminder",
+              "no": "Servicepåminnelse"
+            }
           }
         ]
       },
@@ -428,6 +764,13 @@
             "name": "mode_title",
             "type": "dropdown",
             "values": [
+              {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
               {
                 "id": "0",
                 "label": {
@@ -465,7 +808,25 @@
               }
             ]
           }
-        ]
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode",
+              "no": "Modus"
+            },
+            "example": {
+              "en": "Home",
+              "no": "Hjemme"
+            }
+          }
+        ],
+        "hint": {
+          "en": "Fires when the mode changes, whether from Homey, a flow, the unit panel or the unit itself. A change on the panel can take up to a minute to show.",
+          "no": "Går når modus endres, enten fra Homey, en flow, panelet eller aggregatet selv. En endring på panelet kan bruke opptil ett minutt på å vises."
+        }
       },
       {
         "id": "heat_exchanger_mode_changed_eda",
@@ -488,6 +849,13 @@
             "type": "dropdown",
             "values": [
               {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
+              {
                 "id": "1",
                 "label": {
                   "en": "on",
@@ -502,6 +870,20 @@
                 }
               }
             ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "no": "Tilstand"
+            },
+            "example": {
+              "en": "Active",
+              "no": "Aktiv"
+            }
           }
         ]
       },
@@ -526,6 +908,13 @@
             "type": "dropdown",
             "values": [
               {
+                "id": "any",
+                "label": {
+                  "en": "Any",
+                  "no": "Hvilken som helst"
+                }
+              },
+              {
                 "id": "1",
                 "label": {
                   "en": "on",
@@ -540,6 +929,20 @@
                 }
               }
             ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "State",
+              "no": "Tilstand"
+            },
+            "example": {
+              "en": "Active",
+              "no": "Aktiv"
+            }
           }
         ]
       },
@@ -618,18 +1021,54 @@
             "filter": "driver_id=eda"
           }
         ]
+      },
+      {
+        "id": "alarm_a_triggered_eda",
+        "title": {
+          "en": "A alarm",
+          "no": "A-alarm"
+        },
+        "titleFormatted": {
+          "en": "An A alarm went off",
+          "no": "En A-alarm ble utløst"
+        },
+        "hint": {
+          "en": "The unit reports a serious alarm, such as frost or fire risk, and stops. The alarm token says which.",
+          "no": "Aggregatet melder en alvorlig alarm, for eksempel frostfare eller brannfare, og stopper. Tokenet sier hvilken."
+        },
+        "tokens": [
+          {
+            "name": "alarm",
+            "type": "string",
+            "title": {
+              "en": "Alarm",
+              "no": "Alarm"
+            },
+            "example": {
+              "en": "Service reminder",
+              "no": "Servicepåminnelse"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
       }
     ],
     "conditions": [
       {
         "id": "eAirstatus_mode_is2",
         "title": {
-          "en": "Mode is",
-          "no": "Modus er"
+          "en": "Mode !{{is|is not}}",
+          "no": "Modus !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Mode is [[mode]]",
-          "no": "Modus er [[mode]]"
+          "en": "Mode !{{is|is not}} [[mode]]",
+          "no": "Modus !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -690,12 +1129,12 @@
       {
         "id": "heat_exchanger_mode_is2",
         "title": {
-          "en": "Heat exchanger is",
-          "no": "Varmeveksler er"
+          "en": "Heat exchanger !{{is|is not}}",
+          "no": "Varmeveksler !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Heat exchanger is [[mode]]",
-          "no": "Varmeveksler er [[mode]]"
+          "en": "Heat exchanger !{{is|is not}} [[mode]]",
+          "no": "Varmeveksler !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -728,12 +1167,12 @@
       {
         "id": "heater_mode_is2",
         "title": {
-          "en": "Heating coil is",
-          "no": "Varmekolbe er"
+          "en": "Heating coil !{{is|is not}}",
+          "no": "Varmekolbe !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Heating coil is [[mode]]",
-          "no": "Varmekolbe er [[mode]]"
+          "en": "Heating coil !{{is|is not}} [[mode]]",
+          "no": "Varmekolbe !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -764,14 +1203,126 @@
         ]
       },
       {
-        "id": "eWindstatus_mode_is",
+        "id": "alarm_a_is2",
         "title": {
-          "en": "Mode is",
-          "no": "Modus er"
+          "en": "A alarm !{{is|is not}} active",
+          "no": "A-alarm !{{er|er ikke}} aktiv"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "alarm_b_is2",
+        "title": {
+          "en": "B alarm !{{is|is not}} active",
+          "no": "B-alarm !{{er|er ikke}} aktiv"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "fanspeed_level_is2",
+        "title": {
+          "en": "Fan speed level !{{is|is not}}",
+          "no": "Viftenivå !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Mode is [[mode]]",
-          "no": "Modus er [[mode]]"
+          "en": "Fan speed level !{{is|is not}} [[level]]",
+          "no": "Viftenivå !{{er|er ikke}} [[level]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "dropdown",
+            "name": "level",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "1 (Away)",
+                  "no": "1 (Borte)"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "2 (Home)",
+                  "no": "2 (Hjemme)"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "3 (Enhanced)",
+                  "no": "3 (Forsterket)"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "4 (Boost)",
+                  "no": "4 (Boost)"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "heating_coil_state_is2",
+        "title": {
+          "en": "Heating coil !{{is|is not}} enabled",
+          "no": "Varmekolbe !{{er|er ikke}} aktivert"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "unit_boosting_is2",
+        "title": {
+          "en": "The unit !{{is|is not}} boosting on its own",
+          "no": "Anlegget !{{booster|booster ikke}} selv"
+        },
+        "hint": {
+          "en": "The unit's own boost on CO₂, humidity or temperature. Enhanced ventilation chosen in Homey or on the panel does not count.",
+          "no": "Anleggets egen boost på CO₂, fukt eller temperatur. Forsterket ventilasjon valgt i Homey eller på panelet teller ikke."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "eWindstatus_mode_is",
+        "title": {
+          "en": "Mode !{{is|is not}}",
+          "no": "Modus !{{er|er ikke}}"
+        },
+        "titleFormatted": {
+          "en": "Mode !{{is|is not}} [[mode]]",
+          "no": "Modus !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -832,12 +1383,12 @@
       {
         "id": "heat_exchanger_mode_is",
         "title": {
-          "en": "Heat exchanger is",
-          "no": "Varmeveksler er"
+          "en": "Heat exchanger !{{is|is not}}",
+          "no": "Varmeveksler !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Heat exchanger is [[mode]]",
-          "no": "Varmeveksler er [[mode]]"
+          "en": "Heat exchanger !{{is|is not}} [[mode]]",
+          "no": "Varmeveksler !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -870,12 +1421,12 @@
       {
         "id": "heater_mode_is",
         "title": {
-          "en": "Heating coil is",
-          "no": "Varmekolbe er"
+          "en": "Heating coil !{{is|is not}}",
+          "no": "Varmekolbe !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Heating coil is [[mode]]",
-          "no": "Varmekolbe er [[mode]]"
+          "en": "Heating coil !{{is|is not}} [[mode]]",
+          "no": "Varmekolbe !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -906,14 +1457,126 @@
         ]
       },
       {
-        "id": "edastatus_mode_is",
+        "id": "alarm_a_is",
         "title": {
-          "en": "Mode is",
-          "no": "Modus er"
+          "en": "A alarm !{{is|is not}} active",
+          "no": "A-alarm !{{er|er ikke}} aktiv"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "alarm_b_is",
+        "title": {
+          "en": "B alarm !{{is|is not}} active",
+          "no": "B-alarm !{{er|er ikke}} aktiv"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "fanspeed_level_is",
+        "title": {
+          "en": "Fan speed level !{{is|is not}}",
+          "no": "Viftenivå !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Mode is [[mode]]",
-          "no": "Modus er [[mode]]"
+          "en": "Fan speed level !{{is|is not}} [[level]]",
+          "no": "Viftenivå !{{er|er ikke}} [[level]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "dropdown",
+            "name": "level",
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "1 (Away)",
+                  "no": "1 (Borte)"
+                }
+              },
+              {
+                "id": "2",
+                "label": {
+                  "en": "2 (Home)",
+                  "no": "2 (Hjemme)"
+                }
+              },
+              {
+                "id": "3",
+                "label": {
+                  "en": "3 (Enhanced)",
+                  "no": "3 (Forsterket)"
+                }
+              },
+              {
+                "id": "4",
+                "label": {
+                  "en": "4 (Boost)",
+                  "no": "4 (Boost)"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "heating_coil_state_is",
+        "title": {
+          "en": "Heating coil !{{is|is not}} enabled",
+          "no": "Varmekolbe !{{er|er ikke}} aktivert"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "unit_boosting_is",
+        "title": {
+          "en": "The unit !{{is|is not}} boosting on its own",
+          "no": "Anlegget !{{booster|booster ikke}} selv"
+        },
+        "hint": {
+          "en": "The unit's own boost on CO₂, humidity or temperature. Enhanced ventilation chosen in Homey or on the panel does not count.",
+          "no": "Anleggets egen boost på CO₂, fukt eller temperatur. Forsterket ventilasjon valgt i Homey eller på panelet teller ikke."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "edastatus_mode_is",
+        "title": {
+          "en": "Mode !{{is|is not}}",
+          "no": "Modus !{{er|er ikke}}"
+        },
+        "titleFormatted": {
+          "en": "Mode !{{is|is not}} [[mode]]",
+          "no": "Modus !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -967,12 +1630,12 @@
       {
         "id": "heat_exchanger_mode_is_eda",
         "title": {
-          "en": "Heat exchanger is",
-          "no": "Varmeveksler er"
+          "en": "Heat exchanger !{{is|is not}}",
+          "no": "Varmeveksler !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Heat exchanger is [[mode]]",
-          "no": "Varmeveksler er [[mode]]"
+          "en": "Heat exchanger !{{is|is not}} [[mode]]",
+          "no": "Varmeveksler !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -1005,12 +1668,12 @@
       {
         "id": "heater_mode_is_eda",
         "title": {
-          "en": "Heating is",
-          "no": "Varme er"
+          "en": "Heating !{{is|is not}}",
+          "no": "Varme !{{er|er ikke}}"
         },
         "titleFormatted": {
-          "en": "Heating is [[mode]]",
-          "no": "Varme er [[mode]]"
+          "en": "Heating !{{is|is not}} [[mode]]",
+          "no": "Varme !{{er|er ikke}} [[mode]]"
         },
         "args": [
           {
@@ -1075,6 +1738,34 @@
             "filter": "driver_id=eda"
           }
         ]
+      },
+      {
+        "id": "alarm_a_is_eda",
+        "title": {
+          "en": "A alarm !{{is|is not}} active",
+          "no": "A-alarm !{{er|er ikke}} aktiv"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
+      },
+      {
+        "id": "alarm_b_is_eda",
+        "title": {
+          "en": "B alarm !{{is|is not}} active",
+          "no": "B-alarm !{{er|er ikke}} aktiv"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          }
+        ]
       }
     ],
     "actions": [
@@ -1123,12 +1814,12 @@
           "no": "Sett varmekolbe"
         },
         "titleFormatted": {
-          "en": "Set heating coil to [[heatingcoil_eAir]]",
-          "no": "Sett varmekolbe til [[heatingcoil_eAir]]"
+          "en": "Set Heating coil enabled to [[heatingcoil_eAir]]",
+          "no": "Sett Varmekolbe aktivert til [[heatingcoil_eAir]]"
         },
         "hint": {
-          "en": "Allows or blocks the unit from using its heating coil.",
-          "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
+          "en": "Lets the unit use the heating coil, or keeps it from doing so.",
+          "no": "Lar anlegget bruke varmekolben, eller hindrer det i å bruke den."
         },
         "args": [
           {
@@ -1179,7 +1870,8 @@
             "name": "temperature",
             "min": 15,
             "max": 22,
-            "step": 1
+            "step": 1,
+            "label": " °C"
           }
         ]
       },
@@ -1247,7 +1939,11 @@
               }
             ]
           }
-        ]
+        ],
+        "hint": {
+          "en": "Boost ends by itself after the boost duration, and fireplace mode after the fireplace duration in the device settings. Enhanced ventilation stays on until the mode is changed. Off stops the unit.",
+          "no": "Boost slutter av seg selv etter boostvarigheten, og peismodus etter varigheten i enhetsinnstillingene. Forsterket ventilasjon står til modus endres. Av stopper anlegget."
+        }
       },
       {
         "id": "reset_filter_reminder_eAir",
@@ -1268,6 +1964,36 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=eAir"
+          }
+        ]
+      },
+      {
+        "id": "start-fireplace_eAir",
+        "title": {
+          "en": "Start fireplace mode for a number of minutes",
+          "no": "Start peismodus i et antall minutter"
+        },
+        "titleFormatted": {
+          "en": "Start fireplace mode for [[minutes]]",
+          "no": "Start peismodus i [[minutes]]"
+        },
+        "hint": {
+          "en": "Sets the fireplace duration on the unit and starts fireplace mode. The duration is kept for the next time too.",
+          "no": "Setter varigheten for peismodus på anlegget og starter peismodus. Varigheten gjelder også neste gang."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eAir"
+          },
+          {
+            "type": "range",
+            "name": "minutes",
+            "min": 1,
+            "max": 60,
+            "step": 1,
+            "label": " min"
           }
         ]
       },
@@ -1316,12 +2042,12 @@
           "no": "Sett varmekolbe"
         },
         "titleFormatted": {
-          "en": "Set heating coil to [[heatingcoil]]",
-          "no": "Sett varmekolbe til [[heatingcoil]]"
+          "en": "Set Heating coil enabled to [[heatingcoil]]",
+          "no": "Sett Varmekolbe aktivert til [[heatingcoil]]"
         },
         "hint": {
-          "en": "Allows or blocks the unit from using its heating coil.",
-          "no": "Tillater eller sperrer anlegget fra å bruke varmekolben."
+          "en": "Lets the unit use the heating coil, or keeps it from doing so.",
+          "no": "Lar anlegget bruke varmekolben, eller hindrer det i å bruke den."
         },
         "args": [
           {
@@ -1372,7 +2098,8 @@
             "name": "temperature",
             "min": 15,
             "max": 22,
-            "step": 1
+            "step": 1,
+            "label": " °C"
           }
         ]
       },
@@ -1440,7 +2167,11 @@
               }
             ]
           }
-        ]
+        ],
+        "hint": {
+          "en": "Boost ends by itself after the boost duration, and fireplace mode after the fireplace duration in the device settings. Enhanced ventilation stays on until the mode is changed. Off stops the unit.",
+          "no": "Boost slutter av seg selv etter boostvarigheten, og peismodus etter varigheten i enhetsinnstillingene. Forsterket ventilasjon står til modus endres. Av stopper anlegget."
+        }
       },
       {
         "id": "reset_filter_reminder",
@@ -1461,6 +2192,66 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=eWind"
+          }
+        ]
+      },
+      {
+        "id": "start-boost",
+        "title": {
+          "en": "Start boost for a number of minutes",
+          "no": "Start boost i et antall minutter"
+        },
+        "titleFormatted": {
+          "en": "Start boost for [[minutes]]",
+          "no": "Start boost i [[minutes]]"
+        },
+        "hint": {
+          "en": "Sets the boost duration on the unit and starts boost. The duration is kept for the next boost too.",
+          "no": "Setter boostvarigheten på anlegget og starter boost. Varigheten gjelder også neste boost."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "range",
+            "name": "minutes",
+            "min": 1,
+            "max": 500,
+            "step": 1,
+            "label": " min"
+          }
+        ]
+      },
+      {
+        "id": "start-fireplace",
+        "title": {
+          "en": "Start fireplace mode for a number of minutes",
+          "no": "Start peismodus i et antall minutter"
+        },
+        "titleFormatted": {
+          "en": "Start fireplace mode for [[minutes]]",
+          "no": "Start peismodus i [[minutes]]"
+        },
+        "hint": {
+          "en": "Sets the fireplace duration on the unit and starts fireplace mode. The duration is kept for the next time too.",
+          "no": "Setter varigheten for peismodus på anlegget og starter peismodus. Varigheten gjelder også neste gang."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eWind"
+          },
+          {
+            "type": "range",
+            "name": "minutes",
+            "min": 1,
+            "max": 60,
+            "step": 1,
+            "label": " min"
           }
         ]
       },
@@ -1527,7 +2318,9 @@
             "name": "temperature",
             "min": 10,
             "max": 30,
-            "step": 1
+            "step": 0.5,
+            "label": " °C",
+            "labelDecimals": 1
           }
         ]
       },
@@ -1588,7 +2381,11 @@
               }
             ]
           }
-        ]
+        ],
+        "hint": {
+          "en": "Boost ends by itself after the boost duration, and overpressure after the overpressure duration in the device settings. Off stops the unit.",
+          "no": "Boost slutter av seg selv etter boostvarigheten, og overtrykk etter varigheten i enhetsinnstillingene. Av stopper aggregatet."
+        }
       },
       {
         "id": "set-cooling_eda",
@@ -1639,8 +2436,8 @@
           "no": "Sperr varme over"
         },
         "titleFormatted": {
-          "en": "Block heating above [[temperature]] °C",
-          "no": "Sperr varme over [[temperature]] °C"
+          "en": "Block heating above [[temperature]]",
+          "no": "Sperr varme over [[temperature]]"
         },
         "hint": {
           "en": "Heating is blocked while the outdoor temperature is above this temperature. Stored on the unit.",
@@ -1657,7 +2454,9 @@
             "name": "temperature",
             "min": -5,
             "max": 25,
-            "step": 0.5
+            "step": 0.5,
+            "label": " °C",
+            "labelDecimals": 1
           }
         ]
       },
@@ -1668,8 +2467,8 @@
           "no": "Sperr kjøling under"
         },
         "titleFormatted": {
-          "en": "Block cooling below [[temperature]] °C",
-          "no": "Sperr kjøling under [[temperature]] °C"
+          "en": "Block cooling below [[temperature]]",
+          "no": "Sperr kjøling under [[temperature]]"
         },
         "hint": {
           "en": "Cooling is blocked while the outdoor temperature is below this temperature. Stored on the unit.",
@@ -1686,7 +2485,9 @@
             "name": "temperature",
             "min": 5,
             "max": 40,
-            "step": 0.5
+            "step": 0.5,
+            "label": " °C",
+            "labelDecimals": 1
           }
         ]
       },
@@ -1697,8 +2498,8 @@
           "no": "Sett viftenivå"
         },
         "titleFormatted": {
-          "en": "Set fan level to [[level]] %",
-          "no": "Sett viftenivå til [[level]] %"
+          "en": "Set fan level to [[level]]",
+          "no": "Sett viftenivå til [[level]]"
         },
         "hint": {
           "en": "Sets the unit's fan level, just like its panel. Only for units with EC fans. Boost, overpressure and a running heat pump can raise it for a while.",
@@ -1715,7 +2516,8 @@
             "name": "level",
             "min": 20,
             "max": 100,
-            "step": 1
+            "step": 1,
+            "label": "%"
           }
         ]
       },
@@ -1726,8 +2528,8 @@
           "no": "Sett varighet for overtrykk"
         },
         "titleFormatted": {
-          "en": "Set overpressure duration to [[minutes]] min",
-          "no": "Sett varighet for overtrykk til [[minutes]] min"
+          "en": "Set overpressure duration to [[minutes]]",
+          "no": "Sett varighet for overtrykk til [[minutes]]"
         },
         "hint": {
           "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit, and applies the next time overpressure starts.",
@@ -1744,7 +2546,68 @@
             "name": "minutes",
             "min": 1,
             "max": 60,
-            "step": 1
+            "step": 1,
+            "label": " min"
+          }
+        ]
+      },
+      {
+        "id": "start-boost_eda",
+        "title": {
+          "en": "Start boost for a number of minutes",
+          "no": "Start boost i et antall minutter"
+        },
+        "titleFormatted": {
+          "en": "Start boost for [[minutes]]",
+          "no": "Start boost i [[minutes]]"
+        },
+        "hint": {
+          "en": "Sets the boost duration on the unit and starts boost. The duration is kept for the next boost too.",
+          "no": "Setter boostvarigheten på aggregatet og starter boost. Varigheten gjelder også neste boost."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "type": "range",
+            "name": "minutes",
+            "min": 1,
+            "max": 60,
+            "step": 1,
+            "label": " min"
+          }
+        ]
+      },
+      {
+        "id": "start-overpressure_eda",
+        "title": {
+          "en": "Start overpressure for a number of minutes",
+          "no": "Start overtrykk i et antall minutter"
+        },
+        "titleFormatted": {
+          "en": "Start overpressure for [[minutes]]",
+          "no": "Start overtrykk i [[minutes]]"
+        },
+        "hint": {
+          "en": "Sets the overpressure duration on the unit and starts overpressure. The duration is kept for the next time too.",
+          "no": "Setter varigheten for overtrykk på aggregatet og starter overtrykk. Varigheten gjelder også neste gang."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=eda"
+          },
+          {
+            "type": "range",
+            "name": "minutes",
+            "min": 1,
+            "max": 60,
+            "step": 1,
+            "label": " min"
           }
         ]
       }
@@ -1767,15 +2630,24 @@
         "measure_temperature.step",
         "heater_mode",
         "heat_exchanger_mode",
+        "heat_recovery_output",
+        "after_heating_output",
         "target_temperature.step",
+        "alarm_a",
         "alarm_b.desc",
+        "active_alarm",
         "measure_humidity.extractAir",
         "fanspeed_level",
+        "fan_output.supply",
+        "fan_output.extract",
         "eAirstatus",
         "eAirstatus_mode",
+        "boost",
         "lastPollTime",
         "heating_coil_state",
-        "filter_days_remaining"
+        "filter_days_remaining",
+        "season",
+        "button.reset_filter"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -1812,7 +2684,8 @@
           "title": {
             "en": "Extract air humidity",
             "no": "Avtrekksfuktighet"
-          }
+          },
+          "decimals": 0
         },
         "efficiency.supplyEff": {
           "title": {
@@ -1846,8 +2719,8 @@
         },
         "alarm_b.desc": {
           "title": {
-            "en": "Filter alarm",
-            "no": "Filteralarm"
+            "en": "B alarm (service, filter etc.)",
+            "no": "B-alarm (service, filter m.m.)"
           }
         },
         "fanspeed_level": {
@@ -1887,6 +2760,29 @@
           "title": {
             "en": "Last poll time",
             "no": "Siste polling"
+          }
+        },
+        "button.reset_filter": {
+          "maintenanceAction": true,
+          "title": {
+            "en": "Reset filter change reminder",
+            "no": "Nullstill varsel om filterbytte"
+          },
+          "desc": {
+            "en": "Restarts the countdown to the next filter change. Use after replacing the filter.",
+            "no": "Starter nedtellingen til neste filterbytte på nytt. Brukes etter filterbytte."
+          }
+        },
+        "fan_output.supply": {
+          "title": {
+            "en": "Supply fan",
+            "no": "Tilluftsvifte"
+          }
+        },
+        "fan_output.extract": {
+          "title": {
+            "en": "Extract fan",
+            "no": "Avtrekksvifte"
           }
         }
       },
@@ -1938,7 +2834,9 @@
               "hint": {
                 "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
                 "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
-              }
+              },
+              "min": 1,
+              "max": 65535
             }
           ]
         },
@@ -1957,8 +2855,8 @@
                 "no": "Varighet for peismodus"
               },
               "hint": {
-                "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
-                "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+                "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+                "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
               },
               "value": 10,
               "min": 1,
@@ -1966,7 +2864,8 @@
               "units": {
                 "en": "min",
                 "no": "min"
-              }
+              },
+              "step": 1
             }
           ]
         },
@@ -1985,8 +2884,8 @@
                 "no": "Dager mellom filterbytter"
               },
               "hint": {
-                "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed.",
-                "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring."
+                "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+                "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
               },
               "value": 120,
               "min": 1,
@@ -1994,7 +2893,8 @@
               "units": {
                 "en": "d",
                 "no": "d"
-              }
+              },
+              "step": 1
             }
           ]
         }
@@ -2017,15 +2917,22 @@
         "measure_temperature.step",
         "heater_mode",
         "heat_exchanger_mode",
+        "heat_recovery_output",
+        "after_heating_output",
         "target_temperature.step",
+        "alarm_a",
         "alarm_b.desc",
+        "active_alarm",
         "measure_humidity.extractAir",
         "fanspeed_level",
         "eWindstatus",
         "eWindstatus_mode",
+        "boost",
         "lastPollTime",
         "heating_coil_state",
-        "filter_days_remaining"
+        "filter_days_remaining",
+        "season",
+        "button.reset_filter"
       ],
       "capabilitiesOptions": {
         "measure_temperature.exhaustAir": {
@@ -2062,7 +2969,8 @@
           "title": {
             "en": "Extract air humidity",
             "no": "Avtrekksfuktighet"
-          }
+          },
+          "decimals": 0
         },
         "efficiency.supplyEff": {
           "title": {
@@ -2096,8 +3004,8 @@
         },
         "alarm_b.desc": {
           "title": {
-            "en": "Filter alarm",
-            "no": "Filteralarm"
+            "en": "B alarm (service, filter etc.)",
+            "no": "B-alarm (service, filter m.m.)"
           }
         },
         "fanspeed_level": {
@@ -2137,6 +3045,17 @@
           "title": {
             "en": "Last poll time",
             "no": "Siste polling"
+          }
+        },
+        "button.reset_filter": {
+          "maintenanceAction": true,
+          "title": {
+            "en": "Reset filter change reminder",
+            "no": "Nullstill varsel om filterbytte"
+          },
+          "desc": {
+            "en": "Restarts the countdown to the next filter change. Use after replacing the filter.",
+            "no": "Starter nedtellingen til neste filterbytte på nytt. Brukes etter filterbytte."
           }
         }
       },
@@ -2188,15 +3107,17 @@
               "hint": {
                 "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
                 "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
-              }
+              },
+              "min": 1,
+              "max": 65535
             }
           ]
         },
         {
           "type": "group",
           "label": {
-            "en": "Fireplace mode",
-            "no": "Peismodus"
+            "en": "Fireplace mode and boost",
+            "no": "Peismodus og boost"
           },
           "children": [
             {
@@ -2207,12 +3128,33 @@
                 "no": "Varighet for peismodus"
               },
               "hint": {
-                "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
-                "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+                "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+                "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
               },
               "value": 10,
               "min": 1,
               "max": 60,
+              "units": {
+                "en": "min",
+                "no": "min"
+              },
+              "step": 1
+            },
+            {
+              "id": "boost_duration_minutes",
+              "type": "number",
+              "label": {
+                "en": "Boost duration",
+                "no": "Varighet for boost"
+              },
+              "hint": {
+                "en": "How many minutes boost lasts before the unit returns to normal operation. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+                "no": "Hvor mange minutter boost varer før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
+              },
+              "value": 120,
+              "min": 1,
+              "max": 500,
+              "step": 1,
               "units": {
                 "en": "min",
                 "no": "min"
@@ -2235,8 +3177,8 @@
                 "no": "Dager mellom filterbytter"
               },
               "hint": {
-                "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed.",
-                "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring."
+                "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+                "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
               },
               "value": 120,
               "min": 1,
@@ -2244,7 +3186,8 @@
               "units": {
                 "en": "d",
                 "no": "d"
-              }
+              },
+              "step": 1
             }
           ]
         }
@@ -2269,7 +3212,9 @@
         "defrosting",
         "heat_exchanger_mode",
         "target_temperature.step",
+        "alarm_a",
         "alarm_b.desc",
+        "active_alarm",
         "measure_humidity.extractAir",
         "fanspeed_level",
         "fanspeed_level_set",
@@ -2315,7 +3260,8 @@
           "title": {
             "en": "Extract air humidity",
             "no": "Luftfuktighet avtrekk"
-          }
+          },
+          "decimals": 0
         },
         "efficiency.supplyEff": {
           "title": {
@@ -2349,8 +3295,8 @@
         },
         "alarm_b.desc": {
           "title": {
-            "en": "Filter alarm",
-            "no": "Filteralarm"
+            "en": "B alarm (service, filter etc.)",
+            "no": "B-alarm (service, filter m.m.)"
           }
         },
         "fanspeed_level": {
@@ -2378,7 +3324,7 @@
         "target_temperature.step": {
           "min": 10,
           "max": 30,
-          "step": 1,
+          "step": 0.5,
           "title": {
             "en": "Target temperature",
             "no": "Ønsket temperatur"
@@ -2451,7 +3397,9 @@
               "hint": {
                 "en": "Modbus TCP port of the Freeway WEB adapter. This is 502 on a standard installation.",
                 "no": "Modbus TCP-porten til Freeway WEB-adapteren. Denne er 502 på et standardoppsett."
-              }
+              },
+              "min": 1,
+              "max": 65535
             },
             {
               "id": "unit_id",
@@ -2474,8 +3422,8 @@
         {
           "type": "group",
           "label": {
-            "en": "Overpressure",
-            "no": "Overtrykk"
+            "en": "Overpressure and boost",
+            "no": "Overtrykk og boost"
           },
           "children": [
             {
@@ -2492,6 +3440,27 @@
               "value": 10,
               "min": 1,
               "max": 60,
+              "units": {
+                "en": "min",
+                "no": "min"
+              },
+              "step": 1
+            },
+            {
+              "id": "boost_duration_minutes",
+              "type": "number",
+              "label": {
+                "en": "Boost duration",
+                "no": "Varighet for boost"
+              },
+              "hint": {
+                "en": "How many minutes boost lasts before the unit returns to normal operation. Stored on the unit when changed, and follows changes made on the panel.",
+                "no": "Hvor mange minutter boost varer før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring, og følger endringer gjort på panelet."
+              },
+              "value": 30,
+              "min": 1,
+              "max": 60,
+              "step": 1,
               "units": {
                 "en": "min",
                 "no": "min"
@@ -2611,7 +3580,8 @@
               "units": {
                 "en": "days",
                 "no": "dager"
-              }
+              },
+              "step": 1
             }
           ]
         }
@@ -2620,6 +3590,69 @@
     }
   ],
   "capabilities": {
+    "active_alarm": {
+      "type": "string",
+      "uiComponent": "sensor",
+      "icon": "/assets/alarm.svg",
+      "title": {
+        "en": "Active alarm",
+        "no": "Aktiv alarm"
+      },
+      "desc": {
+        "en": "The alarm the unit reports now",
+        "no": "Alarmen anlegget melder nå"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "after_heating_output": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "icon": "/assets/heater_mode.svg",
+      "title": {
+        "en": "After-heating output",
+        "no": "Ettervarme"
+      },
+      "desc": {
+        "en": "How hard the heating coil or heat pump works",
+        "no": "Hvor hardt varmekolben eller varmepumpen jobber"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "units": {
+        "en": "%",
+        "no": "%"
+      },
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "decimals": 0
+    },
+    "alarm_a": {
+      "type": "boolean",
+      "uiComponent": "sensor",
+      "icon": "/assets/alarm.svg",
+      "title": {
+        "en": "A alarm",
+        "no": "A-alarm"
+      },
+      "desc": {
+        "en": "A serious alarm that stops the unit",
+        "no": "En alvorlig alarm som stopper anlegget"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "A alarm went off",
+        "no": "A-alarm utløst"
+      },
+      "insightsTitleFalse": {
+        "en": "A alarm cleared",
+        "no": "A-alarm opphørt"
+      }
+    },
     "alarm_b": {
       "type": "boolean",
       "icon": "/assets/filter_alarm.svg",
@@ -2629,7 +3662,37 @@
       },
       "getable": true,
       "setable": false,
-      "uiComponent": "sensor"
+      "uiComponent": "sensor",
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "B alarm went off",
+        "no": "B-alarm utløst"
+      },
+      "insightsTitleFalse": {
+        "en": "B alarm cleared",
+        "no": "B-alarm opphørt"
+      }
+    },
+    "boost": {
+      "type": "boolean",
+      "uiComponent": null,
+      "uiQuickAction": true,
+      "icon": "/assets/fanspeed.svg",
+      "title": {
+        "en": "Boost",
+        "no": "Boost"
+      },
+      "getable": true,
+      "setable": true,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Boost started",
+        "no": "Boost startet"
+      },
+      "insightsTitleFalse": {
+        "en": "Boost ended",
+        "no": "Boost avsluttet"
+      }
     },
     "cooling_active": {
       "type": "boolean",
@@ -2665,11 +3728,6 @@
       },
       "getable": true,
       "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Cooling allowed changed",
-        "no": "Kjøling tillatt endret"
-      },
       "values": [
         {
           "id": "1",
@@ -2717,15 +3775,6 @@
       },
       "getable": true,
       "setable": false,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Status changed",
-        "no": "Status endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Status changed",
-        "no": "Status endret"
-      },
       "values": [
         {
           "id": "0",
@@ -2768,6 +3817,13 @@
             "en": "Dehumidification",
             "no": "Avfukting"
           }
+        },
+        {
+          "id": "6",
+          "title": {
+            "en": "Summer night cooling",
+            "no": "Sommernattkjøling"
+          }
         }
       ]
     },
@@ -2780,15 +3836,6 @@
       },
       "getable": true,
       "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Mode changed",
-        "no": "Modus endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Mode changed",
-        "no": "Modus endret"
-      },
       "uiComponent": "picker",
       "values": [
         {
@@ -2838,20 +3885,11 @@
     "ecomode_mode": {
       "type": "enum",
       "title": {
-        "en": "Ecomode",
+        "en": "Eco mode",
         "no": "Økomodus"
       },
       "getable": true,
       "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Ecomode changed",
-        "no": "Økomodus endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Ecomode changed",
-        "no": "Økomodus endret"
-      },
       "uiComponent": "picker",
       "values": [
         {
@@ -2868,7 +3906,8 @@
             "no": "Inaktiv"
           }
         }
-      ]
+      ],
+      "icon": "/assets/eco.svg"
     },
     "edastatus": {
       "type": "enum",
@@ -2880,15 +3919,6 @@
       },
       "getable": true,
       "setable": false,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Status changed",
-        "no": "Status endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Status changed",
-        "no": "Status endret"
-      },
       "values": [
         {
           "id": "0",
@@ -2971,15 +4001,6 @@
       },
       "getable": true,
       "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Mode changed",
-        "no": "Modus endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Mode changed",
-        "no": "Modus endret"
-      },
       "uiComponent": "picker",
       "values": [
         {
@@ -3034,14 +4055,6 @@
       "getable": true,
       "setable": false,
       "insights": true,
-      "insightsTitleTrue": {
-        "en": "Efficiency changed",
-        "no": "Effektivitet endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Efficiency changed",
-        "no": "Effektivitet endret"
-      },
       "units": {
         "en": "%",
         "no": "%"
@@ -3060,15 +4073,6 @@
       },
       "getable": true,
       "setable": false,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Status changed",
-        "no": "Status endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Status changed",
-        "no": "Status endret"
-      },
       "values": [
         {
           "id": "0",
@@ -3111,6 +4115,13 @@
             "en": "Dehumidification",
             "no": "Avfukting"
           }
+        },
+        {
+          "id": "6",
+          "title": {
+            "en": "Summer night cooling",
+            "no": "Sommernattkjøling"
+          }
         }
       ]
     },
@@ -3123,15 +4134,6 @@
       },
       "getable": true,
       "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Mode changed",
-        "no": "Modus endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Mode changed",
-        "no": "Modus endret"
-      },
       "uiComponent": "picker",
       "values": [
         {
@@ -3178,6 +4180,26 @@
         }
       ]
     },
+    "fan_output": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "icon": "/assets/fanspeed.svg",
+      "title": {
+        "en": "Fan speed",
+        "no": "Viftehastighet"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "units": {
+        "en": "%",
+        "no": "%"
+      },
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "decimals": 0
+    },
     "fanspeed_level": {
       "type": "number",
       "uiComponent": "sensor",
@@ -3187,20 +4209,13 @@
         "no": "Viftenivå"
       },
       "desc": {
-        "en": "Fan speed level, from 1 to 4",
-        "no": "Viftenivå, fra 1 til 4"
+        "en": "The fan level in effect now",
+        "no": "Viftenivået som gjelder nå"
       },
       "getable": true,
       "setable": false,
       "insights": true,
-      "insightsTitleTrue": {
-        "en": "Fan speed level changed",
-        "no": "Viftenivå endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Fan speed level changed",
-        "no": "Viftenivå endret"
-      }
+      "chartType": "stepLine"
     },
     "fanspeed_level_set": {
       "type": "number",
@@ -3246,7 +4261,8 @@
         "no": "d"
       },
       "min": 0,
-      "step": 1
+      "step": 1,
+      "chartType": "stepLine"
     },
     "heat_exchanger_mode": {
       "type": "enum",
@@ -3258,15 +4274,6 @@
       },
       "getable": true,
       "setable": false,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Heat exchanger status changed",
-        "no": "Varmeveksler status endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Heat exchanger status changed",
-        "no": "Varmeveksler status endret"
-      },
       "values": [
         {
           "id": "0",
@@ -3284,6 +4291,30 @@
         }
       ]
     },
+    "heat_recovery_output": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "icon": "/assets/heat_exchanger_mode.svg",
+      "title": {
+        "en": "Heat recovery output",
+        "no": "Varmegjenvinning"
+      },
+      "desc": {
+        "en": "How hard the heat recovery works",
+        "no": "Hvor hardt varmegjenvinneren jobber"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "units": {
+        "en": "%",
+        "no": "%"
+      },
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "decimals": 0
+    },
     "heater_mode": {
       "type": "enum",
       "uiComponent": "sensor",
@@ -3294,15 +4325,6 @@
       },
       "getable": true,
       "setable": false,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Heating coil status changed",
-        "no": "Varmekolbestatus endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Heating coil status changed",
-        "no": "Varmekolbestatus endret"
-      },
       "values": [
         {
           "id": "0",
@@ -3333,11 +4355,6 @@
       },
       "getable": true,
       "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Heating allowed changed",
-        "no": "Varme tillatt endret"
-      },
       "values": [
         {
           "id": "1",
@@ -3353,7 +4370,8 @@
             "no": "Sperret"
           }
         }
-      ]
+      ],
+      "icon": "/assets/heater_mode.svg"
     },
     "heating_coil_state": {
       "type": "enum",
@@ -3368,11 +4386,6 @@
       },
       "getable": true,
       "setable": true,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Heating coil was enabled or disabled",
-        "no": "Varmekolbe ble slått på eller av"
-      },
       "values": [
         {
           "id": "1",
@@ -3388,12 +4401,13 @@
             "no": "Av"
           }
         }
-      ]
+      ],
+      "icon": "/assets/heater_mode.svg"
     },
     "lastPollTime": {
       "type": "string",
       "uiComponent": "sensor",
-      "icon": "/assets/efficiency.svg",
+      "icon": "/assets/clock.svg",
       "title": {
         "en": "Last poll time",
         "no": "Siste polling"
@@ -3403,16 +4417,7 @@
         "no": "Når verdiene sist ble lest fra anlegget"
       },
       "getable": true,
-      "setable": false,
-      "insights": true,
-      "insightsTitleTrue": {
-        "en": "Last poll time changed",
-        "no": "Siste polling endret"
-      },
-      "insightsTitleFalse": {
-        "en": "Last poll time changed",
-        "no": "Siste polling endret"
-      }
+      "setable": false
     },
     "overpressure": {
       "type": "boolean",
@@ -3434,6 +4439,37 @@
         "en": "Overpressure ended",
         "no": "Overtrykk avsluttet"
       }
+    },
+    "season": {
+      "type": "enum",
+      "uiComponent": "sensor",
+      "icon": "/assets/season.svg",
+      "title": {
+        "en": "Season",
+        "no": "Sesong"
+      },
+      "desc": {
+        "en": "Summer when the 24-hour average outside temperature is above the unit threshold",
+        "no": "Sommer når døgnsnittet ute er over anleggets grense"
+      },
+      "getable": true,
+      "setable": false,
+      "values": [
+        {
+          "id": "summer",
+          "title": {
+            "en": "Summer",
+            "no": "Sommer"
+          }
+        },
+        {
+          "id": "winter",
+          "title": {
+            "en": "Winter",
+            "no": "Vinter"
+          }
+        }
+      ]
     }
   }
 }

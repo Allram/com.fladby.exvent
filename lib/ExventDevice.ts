@@ -1,70 +1,79 @@
 import * as net from 'net';
 import * as Modbus from 'jsmodbus';
 import Homey from 'homey';
-import { Measurement, RegisterMap, readModbus } from './modbus';
+import {
+  Measurement, RegisterMap, describeError, readModbus, requestFailure,
+} from './modbus';
+import {
+  EXVENT_COILS, EXVENT_HOLDING_REGISTERS, UNIT_BOOST_BITS, controllerOutputs, exventStatus, exventStatusMode,
+} from './exvent';
+import { alarmOn, alarmText } from './alarms';
+import { DriverCards, FlowCardIds, withTimeout } from './flowCards';
+import {
+  inRange, isValidHost, isValidPort, toNumber,
+} from './settings';
 
 const POLL_INTERVAL = 60 * 1000;
 const CONNECTION_RETRY_MIN = 5000;
 const CONNECTION_RETRY_MAX = 30000;
-const WAIT_FOR_CONNECT_TIMEOUT = 10000;
-const SOCKET_IDLE_TIMEOUT = 0;
+/** How long a connection attempt may take before it is given up. */
+const CONNECT_TIMEOUT_MS = 10000;
 const WRITE_SPACING_MS = 1000;
+/** How many times a write is sent again after a timeout or a lost connection. */
+const WRITE_RETRIES = 2;
 const MODBUS_TIMEOUT = 5000;
 const MODBUS_UNIT_ID = 255;
 const CONFIRM_POLL_DELAY_MS = 3000;
+/** Failed polls in a row before the device shows that the unit does not answer. */
+const NO_CONNECTION_WARNING_AFTER = 3;
+/** How long the settings dialog waits for the writes to the unit. */
+const SETTINGS_WRITE_TIMEOUT_MS = 25 * 1000;
 /**
- * How long after a mode write the poller's readings are treated as our own
- * echo. The unit needs a poll or two before it reports the new mode, and the
- * unit's own boost flags can linger for one cycle after the fan speed is back.
+ * How long after a mode write a reading of the previous mode counts as stale
+ * rather than as a change. The unit needs a poll or two before it reports
+ * the new mode, and its own boost flags can linger for a cycle.
  */
 const MODE_WRITE_SETTLE_MS = 2 * POLL_INTERVAL;
-/** The coil that turns each status mode on, on units with exclusive mode coils. Home has none. */
-const MODE_COILS = new Map<string, number | null>([['0', null], ['1', 1], ['2', 3], ['3', 10]]);
 
-/**
- * Every active device across all drivers, so the process shutdown handlers
- * can close all sockets — not just the last-initialized device.
- */
-// eslint-disable-next-line no-use-before-define
-const activeDevices = new Set<ExventModbusDevice>();
-let shutdownHooked = false;
-
-function hookShutdownHandlers() {
-  if (shutdownHooked) return;
-  shutdownHooked = true;
-  const shutdown = () => {
-    for (const device of activeDevices) {
-      device.cleanup();
-    }
-  };
-  process.on('SIGTERM', shutdown);
-  process.on('SIGINT', shutdown);
+/** Writes that belong together; once a critical step fails, the rest is skipped. */
+interface WriteSequence {
+  aborted: boolean;
 }
 
-export interface FlowCardIds {
-    /** Left out by drivers without eco mode. */
-    ecomode?: string;
-    heatingcoil: string;
-    heatingcoilArg: string;
-    statusMode: string;
-    setTemperature: string;
-    /** Left out by drivers whose units have no service day counter. */
-    resetFilterReminder?: string;
-    statusModeIs: string;
-    heatExchangerIs: string;
-    heaterIs: string;
-    statusModeChanged: string;
-    heatExchangerChanged: string;
-    heaterChanged: string;
-    alarmBTriggered: string;
+interface WriteOptions {
+  /** What is written, for the log, e.g. 'coil 10=1'. */
+  label: string;
+  sequence?: WriteSequence;
+  /** A step the sequence cannot do without, such as the stop coil or the mode's own coil. */
+  critical?: boolean;
+  /** The device setting the write belongs to, so the poll does not mirror it back meanwhile. */
+  setting?: string;
 }
+
+interface QueuedWrite extends WriteOptions {
+  op: () => Promise<unknown>;
+  attempts: number;
+  resolve: () => void;
+  reject: (err: Error) => void;
+}
+
+/** A mode written from Homey that the unit has not confirmed yet. */
+interface PendingMode {
+  value: string;
+  prior: unknown;
+  until: number;
+}
+
+/** One step of a mode sequence: a coil or holding register write. */
+type ModeStep = { coil: number; value: boolean; critical?: boolean } | { hreg: number; value: number; critical?: boolean };
+
+export type { FlowCardIds };
 
 /**
  * Shared implementation for all drivers. eWind and eAir only provide
- * capability names and flow card ids and use the defaults below; EDA also
- * overrides the registers, write function codes, mode coils and status
- * decoding through the protected hooks. Connection, polling and the write
- * queue are shared.
+ * capability names, flow card ids and register maps; EDA also overrides
+ * the write function codes, mode coils and status decoding through the
+ * protected hooks. Connection, polling and the write queue are shared.
  */
 export abstract class ExventModbusDevice extends Homey.Device {
     /** e.g. 'eWindstatus' */
@@ -73,10 +82,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
     protected abstract readonly statusModeCapability: string;
     /** The writable capability that allows or blocks heating (coil 54). */
     protected readonly heatingCoilCapability: string = 'heating_coil_state';
-    protected abstract readonly flowCardIds: FlowCardIds;
-    /** Condition-card dropdown ids mapped to capability values ({} when they already match). */
-    protected abstract readonly statusModeArgMap: Record<string, string>;
-    protected abstract readonly onOffArgMap: Record<string, string>;
+    protected abstract readonly driverCards: DriverCards;
 
     /**
      * Whether writes use "write multiple coils/registers" (function codes 15
@@ -96,8 +102,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
     /** Whether the unit has the Enhanced ventilation mode (panel fan speed level 3 in HREG 50). */
     protected readonly enhancedVentilation: boolean = true;
 
-    /** The target temperatures the unit accepts, in °C. */
+    /** The target temperatures the unit accepts, in °C, and the step they are rounded to. */
     protected readonly setpointRange: [number, number] = [15, 22];
+    protected readonly setpointStep: number = 1;
 
     /**
      * Holding registers the overpressure duration setting is written to. On
@@ -107,116 +114,336 @@ export abstract class ExventModbusDevice extends Homey.Device {
      */
     protected readonly overpressureDurationRegisters: number[] = [56, 57];
 
+    /** The range of the boost duration setting (HREG 66), on drivers that have it. */
+    protected readonly boostDurationRange: [number, number] = [1, 500];
+
     /**
-     * Mode coils of which only one may be on. When set, Home, Away,
-     * Overpressure and Boost start the unit, turn their own coil on and then
-     * all the others off; Off only sets the stop coil. Empty on eWind and
-     * eAir, which keep the sequences in setStatusModeValue.
+     * Mode coils of which only one may be on, and the coil of each mode.
+     * When set, Home, Away, Overpressure and Boost start the unit, turn their
+     * own coil on and then all the others off; Off only sets the stop coil.
+     * Empty on eWind and eAir, which keep their sequences in modeSteps.
      */
     protected readonly exclusiveModeCoils: number[] = [];
+    protected readonly modeCoils: Record<string, number | null> = {};
 
-    registers: RegisterMap = {
-      air_outside: [6, 1, 'INT16', 'Fresh air'],
-      air_supply_HRC: [7, 1, 'INT16', 'Supply air after HRC'],
-      air_supply: [8, 1, 'INT16', 'Supply air'],
-      air_exhaust: [9, 1, 'INT16', 'Exhaust air'],
-      air_extract: [10, 1, 'INT16', 'Extract air temperature'],
-      air_humidity: [13, 1, 'UINT16', 'Air humidity extract'],
-      air_supply_eff: [29, 1, 'UINT16', 'Heat recovery efficiency, supply air'],
-      air_extract_eff: [30, 1, 'UINT16', 'Heat recovery efficiency, exhaust air'],
-      temperature_setpoint: [135, 1, 'INT16', 'Temperature setpoint'],
-      fan_speed_level: [50, 1, 'UINT16', 'Fan speed level'],
-      status: [45, 1, 'INT16', 'status'],
-      status_mode: [44, 1, 'INT16', 'statusMode'],
-      service_interval_days: [538, 1, 'UINT16', 'Days until service reminder alarm'],
-      days_since_service_ack: [710, 1, 'UINT16', 'Days since service reminder was acknowledged'],
-      fireplace_duration: [56, 1, 'UINT16', 'Overpressure (fireplace) duration in minutes'],
-    };
+    /** The long away coil, turned off by Home and Enhanced ventilation, on units that have one. */
+    protected readonly longAwayCoil: number | null = null;
 
-    coilRegisters: RegisterMap = {
-      eco_mode: [40, 1, 'UINT32', 'eco Mode'],
-      alarm_b_desc: [42, 1, 'UINT32', 'Alarm B description'],
-      heater_status: [32, 1, 'UINT32', 'After-heater On/Off'],
-      heat_exchanger_state: [30, 1, 'UINT32', 'State of Heat exchanger On/Off'],
-      heating_coil: [54, 1, 'UINT32', 'State of Heater coil On/Off'],
-    };
+    /** Whether the alarm texts use the EDA names. */
+    protected readonly edaAlarmNames: boolean = false;
+
+    registers: RegisterMap = { ...EXVENT_HOLDING_REGISTERS };
+    coilRegisters: RegisterMap = { ...EXVENT_COILS };
 
     socket: net.Socket | null = null;
     client: any = null;
 
     modbusOptions = {
-      host: this.getSetting('address'),
+      host: String(this.getSetting('address') ?? '').trim(),
       port: this.getSetting('port'),
       unitId: this.modbusUnitId(),
     };
 
-    private intervalId: NodeJS.Timeout | null = null;
-    private connectionRetryId: NodeJS.Timeout | null = null;
-    private flowListenersRegistered: boolean = false;
+    /** Whether the unit is boosting the fans on its own (HREG 44 bits 64, 128 and 256). */
+    unitBoosting: boolean | undefined;
+
+    private intervalId: any = null;
+    private connectionRetryId: any = null;
+    private confirmPollTimeout: any = null;
     private capabilityListenersRegistered: boolean = false;
     private pollingInProgress: boolean = false;
+    private pollAgain: boolean = false;
     private isActive: boolean = true;
     private isConnected: boolean = false;
-    private isConnecting: boolean = false;
     private connectingPromise: Promise<void> | null = null;
+    private connectAttempt: { reject: (err: Error) => void; timer: any } | null = null;
+    private socketHandlers: Array<[string, (...args: any[]) => void]> = [];
     private connectionRetryDelay: number = CONNECTION_RETRY_MIN;
-    private writeQueue: Array<() => Promise<void>> = [];
+    private writeQueue: QueuedWrite[] = [];
     private drainingWriteQueue: boolean = false;
-    private confirmPollTimeout: NodeJS.Timeout | null = null;
-    /**
-     * Timestamp of the last mode write. A write is applied optimistically and
-     * only lands on the unit a poll or two later, so mode changes observed by
-     * the poller inside this window are our own echo, not an external change.
-     */
-    private lastModeWriteAt: number = 0;
+    private failedPolls: number = 0;
+    private warningShown: boolean = false;
+    /** Mode sequences queued or on their way to the unit. */
+    private modeWritesPending: number = 0;
+    private pendingMode: PendingMode | null = null;
+    /** Setting writes queued or on their way, per setting. */
+    private readonly settingWritesPending = new Map<string, number>();
+    /** Counts finished setting writes, so a poll that started before one does not mirror it back. */
+    private settingWriteSeq: number = 0;
+    private settingsSaving: boolean = false;
+    private loggedSetpoint: number | undefined;
+    private loggedDurationMismatch: string | undefined;
+    private modeLog: any = null;
 
-    private async markNoConnection() {
-      if (!this.isActive) return;
-      try {
-        await this.setCapabilityValue('lastPollTime', this.homey.__('noConnection'));
-      } catch (_) {
-        // ignore capability write errors when device is unavailable
+    // ---------------------------------------------------------------- lifecycle
+
+    async onInit() {
+      this.isActive = true;
+      await this.syncCapabilities();
+      this.registerCapabilityListeners();
+      this.connectSocket();
+      this.modeLog = await this.openModeLog();
+      this.intervalId = this.homey.setInterval(() => {
+        if (this.isActive) this.pollDevice().catch(this.error);
+      }, POLL_INTERVAL);
+      // Not awaited: a unit that does not answer must not hold up the start.
+      this.pollDevice().catch(this.error);
+    }
+
+    async onAdded() {
+      this.homey.setTimeout(() => {
+        if (this.isActive) this.pollDevice().catch(this.error);
+      }, 10000);
+    }
+
+    async onUninit() {
+      this.cleanup();
+    }
+
+    async onDeleted() {
+      this.cleanup();
+      if (this.modeLog) await this.homey.insights.deleteLog(this.modeLog).catch(this.error);
+      this.modeLog = null;
+    }
+
+    /** Stops polling and reconnecting and closes the socket. Safe to call more than once. */
+    cleanup() {
+      this.isActive = false;
+      if (this.intervalId) {
+        this.homey.clearInterval(this.intervalId);
+        this.intervalId = null;
       }
+      if (this.confirmPollTimeout) {
+        this.homey.clearTimeout(this.confirmPollTimeout);
+        this.confirmPollTimeout = null;
+      }
+      this.clearRetryConnection();
+      for (const item of this.writeQueue.splice(0)) item.reject(new Error('Device removed'));
+      this.capabilityListenersRegistered = false;
+      this.teardownSocket();
+    }
+
+    delay(ms: number) {
+      return new Promise((resolve) => this.homey.setTimeout(resolve, ms));
     }
 
     /**
      * Guard against acting on stale/deleted devices; Homey returns 404 when a
      * flow or capability change targets a missing device entry.
      */
-    protected isUsable(): boolean {
+    isUsable(): boolean {
       return this.isActive && this.getAvailable();
     }
 
-    /**
-     * Writes are serialized through a FIFO queue with a pause between each
-     * command, so concurrent flows/capability changes cannot cancel each
-     * other's writes and the Modbus module is never flooded.
-     */
-    private enqueueWrite(op: () => Promise<void>) {
-      this.writeQueue.push(op);
-      this.drainWriteQueue().catch(this.error);
+    get flowCardIds(): FlowCardIds {
+      return this.driverCards.ids;
     }
 
-    private async drainWriteQueue() {
-      if (this.drainingWriteQueue) return;
-      this.drainingWriteQueue = true;
-      let didWrite = false;
-      try {
-        while (this.isActive && this.writeQueue.length > 0) {
-          const op = this.writeQueue.shift()!;
-          try {
-            await this.ensureConnected();
-            await op();
-            didWrite = true;
-          } catch (err) {
-            await this.markNoConnection();
-          }
-          if (this.writeQueue.length > 0) await this.delay(WRITE_SPACING_MS);
+    get statusModeCapabilityId(): string {
+      return this.statusModeCapability;
+    }
+
+    get heatingCoilCapabilityId(): string {
+      return this.heatingCoilCapability;
+    }
+
+    // --------------------------------------------------------------- connection
+
+    private attachSocketListeners(socket: net.Socket) {
+      socket.setKeepAlive(true, 30 * 1000);
+      socket.setTimeout(0);
+      // Only this socket's own events count; a socket that has been replaced
+      // may still report its end after the new one is up.
+      const onGone = (err?: any) => {
+        if (!this.isActive || socket !== this.socket) return;
+        const wasConnected = this.isConnected;
+        this.teardownSocket();
+        if (wasConnected) this.log(`Connection to ${this.modbusOptions.host} lost${err ? `: ${describeError(err)}` : ''}`);
+        this.retryConnection();
+      };
+      const onConnect = () => {
+        if (!this.isActive || socket !== this.socket) return;
+        this.isConnected = true;
+        this.connectionRetryDelay = CONNECTION_RETRY_MIN;
+        this.clearRetryConnection();
+        this.log(`Connected to ${this.modbusOptions.host}:${this.modbusOptions.port}`);
+      };
+      this.socketHandlers = [['end', () => onGone()], ['error', onGone], ['close', () => onGone()], ['connect', onConnect]];
+      for (const [event, handler] of this.socketHandlers) socket.on(event, handler);
+    }
+
+    /**
+     * Starts a connection attempt unless one is under way. The attempt ends
+     * with the connect event, an error, a close, or CONNECT_TIMEOUT_MS.
+     */
+    connectSocket() {
+      if (!this.isActive || this.connectingPromise) return;
+      this.teardownSocket();
+      const socket = new net.Socket();
+      this.socket = socket;
+
+      // The attempt's own listeners go first, so a failed attempt rejects
+      // with its own error before the socket listeners tear it down.
+      const promise = new Promise<void>((resolve, reject) => {
+        const timer = this.homey.setTimeout(() => socket.destroy(new Error('Connect timeout')), CONNECT_TIMEOUT_MS);
+        const done = (err?: Error) => {
+          this.homey.clearTimeout(timer);
+          if (err) reject(err);
+          else resolve();
+        };
+        this.connectAttempt = { reject: done, timer };
+        socket.once('connect', () => done());
+        socket.once('error', (err: Error) => done(err));
+        socket.once('close', () => done(new Error('Socket closed')));
+        socket.connect({ host: this.modbusOptions.host, port: this.modbusOptions.port });
+      });
+      this.attachSocketListeners(socket);
+      this.client = new Modbus.client.TCP(socket, this.modbusOptions.unitId, MODBUS_TIMEOUT);
+      const settled = promise.finally(() => {
+        // A newer attempt may have replaced this one; leave its state alone.
+        if (this.connectingPromise === settled) {
+          this.connectingPromise = null;
+          this.connectAttempt = null;
         }
-      } finally {
-        this.drainingWriteQueue = false;
-        if (didWrite) this.scheduleConfirmationPoll();
+      });
+      // Callers awaiting via ensureConnected() see the rejection; this guard
+      // only prevents an unhandled rejection when nobody is waiting.
+      settled.catch(() => {});
+      this.connectingPromise = settled;
+    }
+
+    retryConnection() {
+      if (!this.isActive) return; // Do not retry if device has been deleted
+      if (this.connectionRetryId || this.connectingPromise) return;
+      this.connectionRetryId = this.homey.setTimeout(() => {
+        this.connectionRetryId = null;
+        if (!this.isActive) return;
+        this.connectSocket();
+        this.connectionRetryDelay = Math.min(CONNECTION_RETRY_MAX, this.connectionRetryDelay * 2);
+      }, this.connectionRetryDelay);
+    }
+
+    clearRetryConnection() {
+      if (this.connectionRetryId) {
+        this.homey.clearTimeout(this.connectionRetryId);
+        this.connectionRetryId = null;
       }
+    }
+
+    /**
+     * Closes the socket. Only this app's own listeners are removed, so
+     * jsmodbus still sees the close and rejects its pending requests at once
+     * instead of letting each of them time out. An attempt still under way
+     * is rejected, so nothing waits on it forever.
+     */
+    teardownSocket() {
+      const socket = this.socket;
+      const attempt = this.connectAttempt;
+      this.socket = null;
+      this.client = null;
+      this.isConnected = false;
+      this.connectingPromise = null;
+      this.connectAttempt = null;
+      if (socket) {
+        for (const [event, handler] of this.socketHandlers) socket.off(event, handler);
+        this.socketHandlers = [];
+        // A late error from the closed socket must not become an unhandled event.
+        socket.on('error', () => {});
+        socket.destroy();
+      }
+      if (attempt) attempt.reject(new Error('Socket torn down'));
+    }
+
+    ensureConnected(): Promise<void> {
+      if (this.isConnected) return Promise.resolve();
+      if (!this.connectingPromise) this.connectSocket();
+      return this.connectingPromise ?? Promise.reject(new Error(this.homey.__('noConnection')));
+    }
+
+    // ------------------------------------------------------------------ polling
+
+    /**
+     * Reads the unit. A poll asked for while one is running (such as the
+     * confirmation poll after a write) runs again as soon as it is done.
+     */
+    async pollDevice() {
+      if (!this.isActive) return;
+      if (this.pollingInProgress) {
+        this.pollAgain = true;
+        return;
+      }
+      this.pollingInProgress = true;
+      try {
+        do {
+          this.pollAgain = false;
+          await this.pollOnce();
+        } while (this.pollAgain && this.isActive);
+      } finally {
+        this.pollingInProgress = false;
+      }
+    }
+
+    private async pollOnce() {
+      try {
+        await this.ensureConnected();
+      } catch (err) {
+        await this.pollFailed(err);
+        return;
+      }
+      const { client } = this;
+      const seq = this.settingWriteSeq;
+      let result: Record<string, Measurement>;
+      try {
+        const holding = await readModbus(client, this.registers, 'holding');
+        const coils = await readModbus(client, this.coilRegisters, 'coil');
+        result = { ...holding, ...coils };
+      } catch (err) {
+        // Only the connection this poll used is torn down: a newer one may
+        // already have replaced it while the poll was timing out.
+        if (this.client === client) {
+          this.teardownSocket();
+          this.retryConnection();
+        }
+        await this.pollFailed(err);
+        return;
+      }
+      if (!this.isActive) return;
+      await this.pollSucceeded();
+      try {
+        await this.processResult(result, seq);
+      } catch (err) {
+        this.error('Could not process the values read from the unit:', err);
+      }
+      try {
+        await this.setCapabilityValue(
+          'lastPollTime',
+          new Date().toLocaleString(this.homey.i18n.getLanguage(), { timeZone: this.homey.clock.getTimezone(), hour12: false }),
+        );
+      } catch (err) {
+        // Ignore errors if device is deleted
+      }
+    }
+
+    private async pollFailed(err: unknown) {
+      if (!this.isActive) return;
+      this.failedPolls++;
+      if (this.failedPolls === 1) this.log(`Poll failed: ${describeError(err)}`);
+      if (this.failedPolls >= NO_CONNECTION_WARNING_AFTER) await this.showWarning('noConnectionWarning');
+    }
+
+    private async pollSucceeded() {
+      if (this.failedPolls > 0) this.log(`Unit answers again after ${this.failedPolls} failed poll(s)`);
+      this.failedPolls = 0;
+      if (this.warningShown) {
+        this.warningShown = false;
+        await this.unsetWarning().catch(this.error);
+      }
+    }
+
+    private async showWarning(key: string) {
+      if (!this.isActive || this.warningShown) return;
+      this.warningShown = true;
+      await this.setWarning(this.homey.__(key)).catch(this.error);
     }
 
     /**
@@ -226,276 +453,275 @@ export abstract class ExventModbusDevice extends Homey.Device {
      */
     private scheduleConfirmationPoll() {
       if (!this.isActive) return;
-      if (this.confirmPollTimeout) clearTimeout(this.confirmPollTimeout);
-      this.confirmPollTimeout = setTimeout(() => {
+      if (this.confirmPollTimeout) this.homey.clearTimeout(this.confirmPollTimeout);
+      this.confirmPollTimeout = this.homey.setTimeout(() => {
         this.confirmPollTimeout = null;
         if (this.isActive) this.pollDevice().catch(this.error);
       }, CONFIRM_POLL_DELAY_MS);
     }
 
-    async onInit() {
-      activeDevices.add(this);
-      hookShutdownHandlers();
-      this.isActive = true;
-      this.connectSocket();
-      await this.syncCapabilities();
-      this.registerFlowListeners();
-      this.registerCapabilityListeners();
-
-      await this.pollDevice();
-      if (!this.getData() || !this.getData().id) return;
-      this.intervalId = setInterval(async () => {
-        if (!this.isActive) return;
-        await this.pollDevice();
-      }, POLL_INTERVAL);
-    }
-
-    attachSocketListeners(socket: net.Socket) {
-      socket.setKeepAlive(true);
-      socket.setTimeout(SOCKET_IDLE_TIMEOUT);
-      const onGone = () => {
-        if (!this.isActive) return;
-        this.isConnected = false;
-        this.isConnecting = false;
-        this.teardownSocket();
-        this.markNoConnection();
-        this.retryConnection();
-      };
-      socket.on('end', onGone);
-      socket.on('timeout', onGone);
-      socket.on('error', onGone);
-      socket.on('close', onGone);
-      socket.on('connect', () => {
-        if (!this.isActive) return;
-        this.isConnected = true;
-        this.isConnecting = false;
-        this.connectionRetryDelay = CONNECTION_RETRY_MIN;
-        this.clearRetryConnection();
-      });
-      // Only successful polls should update lastPollTime; raw socket data is ignored.
-      socket.on('data', () => {});
-    }
-
-    connectSocket() {
-      if (this.isConnecting && this.connectingPromise) return;
-      this.isConnecting = true;
-      this.teardownSocket();
-      this.socket = new net.Socket();
-      this.attachSocketListeners(this.socket);
-      this.client = new Modbus.client.TCP(this.socket, this.modbusOptions.unitId, MODBUS_TIMEOUT);
-
-      const promise = new Promise<void>((resolve, reject) => {
-        if (!this.socket) {
-          reject(new Error('Socket missing'));
-          return;
-        }
-        this.socket.once('connect', () => resolve());
-        this.socket.once('error', (err: any) => reject(err));
-        this.socket.connect({
-          host: this.modbusOptions.host,
-          port: this.modbusOptions.port,
-        });
-      }).finally(() => {
-        this.isConnecting = false;
-        this.connectingPromise = null;
-      });
-        // Callers awaiting via ensureConnected() see the rejection; this guard
-        // only prevents an unhandled rejection when nobody is waiting.
-      promise.catch(() => {});
-      this.connectingPromise = promise;
-    }
-
-    retryConnection() {
-      if (!this.isActive) return; // Do not retry if device has been deleted
-      if (this.connectionRetryId || this.isConnecting) return;
-      this.connectionRetryId = setTimeout(() => {
-        if (!this.isActive) return;
-        this.connectionRetryId = null;
-        this.connectSocket();
-        this.connectionRetryDelay = Math.min(CONNECTION_RETRY_MAX, this.connectionRetryDelay * 2 || CONNECTION_RETRY_MIN);
-      }, this.connectionRetryDelay);
-    }
-
-    clearRetryConnection() {
-      if (this.connectionRetryId) {
-        clearTimeout(this.connectionRetryId);
-        this.connectionRetryId = null;
-      }
-    }
-
-    teardownSocket() {
-      if (this.socket) {
-        this.socket.removeAllListeners();
-        this.socket.end();
-        this.socket.destroy();
-      }
-      this.socket = null;
-      this.client = null;
-      this.isConnected = false;
-    }
-
-    ensureConnected(): Promise<void> {
-      if (this.isConnected) return Promise.resolve();
-      if (!this.isConnecting) {
-        this.connectSocket();
-      }
-
-      if (this.connectingPromise) {
-        return this.connectingPromise;
-      }
-
-      return new Promise<void>((resolve, reject) => {
-        const start = Date.now();
-        const checkInterval = setInterval(() => {
-          if (this.isConnected) {
-            clearInterval(checkInterval);
-            resolve();
-          } else if (!this.isActive || Date.now() - start > WAIT_FOR_CONNECT_TIMEOUT) {
-            clearInterval(checkInterval);
-            reject(new Error('Connection timeout'));
-          }
-        }, 500);
-      });
-    }
-
-    async pollDevice() {
-      if (!this.isActive) return;
-      if (this.pollingInProgress) return;
-      this.pollingInProgress = true;
-
-      if (!this.isConnected) {
-        try {
-          await this.ensureConnected();
-        } catch (err) {
-          await this.markNoConnection();
-          this.pollingInProgress = false;
-          return;
-        }
-      }
-
-      try {
-        const registerResult = await readModbus(this.client, this.registers, 'holding');
-        await this.processResult({ ...registerResult });
-        const coilResult = await readModbus(this.client, this.coilRegisters, 'coil');
-        await this.processResult({ ...coilResult });
-        if (this.isActive) {
-          try {
-            await this.setCapabilityValue(
-              'lastPollTime',
-              new Date().toLocaleString(this.homey.i18n.getLanguage(), { timeZone: this.homey.clock.getTimezone(), hour12: false }),
-            );
-          } catch (err) {
-            // Ignore errors if device is deleted
-          }
-        }
-      } catch (error) {
-        this.isConnected = false;
-        this.isConnecting = false;
-        this.teardownSocket();
-        await this.markNoConnection();
-        this.retryConnection();
-      } finally {
-        this.pollingInProgress = false;
-      }
-    }
+    // -------------------------------------------------------------- write queue
 
     /**
-     * Applies a status mode by writing the corresponding coil sequence.
-     * The capability update is queued last, after all writes have been sent.
+     * Writes are serialized through a FIFO queue with a pause between each
+     * command, so concurrent flows/capability changes cannot cancel each
+     * other's writes and the Modbus module is never flooded. The promise
+     * settles when the write has been sent or has finally failed.
      */
-    async setStatusModeValue(value: string) {
-      this.lastModeWriteAt = Date.now();
-      const modeCoil = MODE_COILS.get(value);
-      if (this.exclusiveModeCoils.length > 0 && modeCoil !== undefined) {
-        // Start the unit and turn the chosen mode on before the others go
-        // off, so a unit that is running does not pass through Home between
-        // two modes. The others go off in the order the subclass lists them.
-        await this.sendCoilRequest(0, false);
-        if (modeCoil !== null) await this.sendCoilRequest(modeCoil, true);
-        for (const coil of this.exclusiveModeCoils) {
-          if (coil !== modeCoil) await this.sendCoilRequest(coil, false);
-        }
-      } else {
-        switch (value) {
-          case '0':
-            await this.sendCoilRequest(0, false);
-            await this.sendCoilRequest(1, false);
-            await this.sendCoilRequest(3, false);
-            await this.sendCoilRequest(10, false);
-            // Leave enhanced ventilation by returning the panel fan speed to
-            // level 2 (Home); harmless when already at level 2.
-            if (this.enhancedVentilation) await this.sendHoldingRequest(50, 2);
-            break;
-          case '1':
-            await this.sendCoilRequest(0, false);
-            await this.sendCoilRequest(10, false);
-            await this.sendCoilRequest(1, true);
-            break;
-          case '2':
-            await this.sendCoilRequest(0, false);
-            await this.sendCoilRequest(10, false);
-            await this.sendCoilRequest(3, true);
-            break;
-          case '3':
-            await this.sendCoilRequest(0, false);
-            await this.sendCoilRequest(10, true);
-            break;
-          case '4':
-            await this.sendCoilRequest(0, true);
-            break;
-          case '5':
-            // Enhanced ventilation: normal operation at panel fan speed
-            // level 3 ("Home-mode with high fan speeds", HREG 50).
-            if (!this.enhancedVentilation) return;
-            await this.sendCoilRequest(0, false);
-            await this.sendCoilRequest(1, false);
-            await this.sendCoilRequest(3, false);
-            await this.sendCoilRequest(10, false);
-            await this.sendHoldingRequest(50, 3);
-            break;
-          default:
-            break;
-        }
-      }
-      this.enqueueWrite(async () => {
-        if (this.isActive) {
-          await this.setCapabilityValue(this.statusModeCapability, value);
-        }
+    protected enqueueWrite(op: () => Promise<unknown>, options: WriteOptions): Promise<void> {
+      if (!this.isActive) return Promise.reject(new Error('Device removed'));
+      let resolve!: () => void;
+      let reject!: (err: Error) => void;
+      const promise = new Promise<void>((res, rej) => {
+        resolve = res;
+        reject = rej;
       });
+      // Callers that do not wait for the write must not cause an unhandled rejection.
+      promise.catch(() => {});
+      if (options.setting) this.settingWritesPending.set(options.setting, (this.settingWritesPending.get(options.setting) ?? 0) + 1);
+      const settle = () => {
+        if (!options.setting) return;
+        const left = (this.settingWritesPending.get(options.setting) ?? 1) - 1;
+        if (left > 0) this.settingWritesPending.set(options.setting, left);
+        else this.settingWritesPending.delete(options.setting);
+        this.settingWriteSeq++;
+      };
+      this.writeQueue.push({
+        ...options,
+        op,
+        attempts: 0,
+        resolve: () => {
+          settle();
+          resolve();
+        },
+        reject: (err) => {
+          settle();
+          reject(err);
+        },
+      });
+      this.drainWriteQueue().catch(this.error);
+      return promise;
+    }
+
+    private async drainWriteQueue() {
+      if (this.drainingWriteQueue) return;
+      this.drainingWriteQueue = true;
+      let didWrite = false;
+      let failed = false;
+      try {
+        while (this.isActive && this.writeQueue.length > 0) {
+          const item = this.writeQueue[0];
+          if (item.sequence && item.sequence.aborted) {
+            this.writeQueue.shift();
+            item.reject(new Error(this.homey.__('writeFailed')));
+            continue;
+          }
+          const { client } = this;
+          try {
+            await this.ensureConnected();
+            await item.op();
+            this.writeQueue.shift();
+            item.resolve();
+            didWrite = true;
+          } catch (err) {
+            item.attempts++;
+            const failure = requestFailure(err);
+            if (failure === 'exception' || item.attempts > WRITE_RETRIES) {
+              this.writeQueue.shift();
+              failed = true;
+              if (item.sequence && item.critical) item.sequence.aborted = true;
+              this.error(`Write ${item.label} failed${failure === 'exception' ? '' : ` after ${item.attempts} attempts`}: ${describeError(err)}`);
+              item.reject(new Error(this.homey.__('writeFailed')));
+            } else {
+              // An answer that came too late or a dead connection leaves the
+              // transaction stream out of step: start over on a new connection.
+              // An out-of-sync write most likely reached the unit already; all
+              // writes are absolute values, so sending it again is harmless.
+              if ((failure === 'timeout' || failure === 'outOfSync') && this.client === client) this.teardownSocket();
+              this.log(`Write ${item.label} ${failure === 'outOfSync' ? 'unconfirmed' : 'failed'} (${describeError(err)}), trying again`);
+            }
+          }
+          if (this.writeQueue.length > 0) await this.delay(WRITE_SPACING_MS);
+        }
+      } finally {
+        this.drainingWriteQueue = false;
+        if (failed) await this.showWarning('writeFailedWarning');
+        if (didWrite || failed) this.scheduleConfirmationPoll();
+      }
+    }
+
+    sendHoldingRequest(register: number, value: number, options: Partial<WriteOptions> = {}): Promise<void> {
+      return this.enqueueWrite(() => (this.useMultipleWrites
+        ? this.client.writeMultipleRegisters(register, [value & 0xffff])
+        : this.client.writeSingleRegister(register, value)), { label: `hreg ${register}=${value}`, ...options });
+    }
+
+    sendCoilRequest(register: number, value: boolean, options: Partial<WriteOptions> = {}): Promise<void> {
+      return this.enqueueWrite(() => (this.useMultipleWrites
+        ? this.client.writeMultipleCoils(register, [value])
+        : this.client.writeSingleCoil(register, value)), { label: `coil ${register}=${value ? 1 : 0}`, ...options });
+    }
+
+    // -------------------------------------------------------------------- modes
+
+    /**
+     * The writes that put the unit in a mode. The stop coil and the mode's
+     * own coil are critical: if one of them does not get through, the rest is
+     * skipped and the unit stays in the mode it had. The mode's coil goes on
+     * before the others go off, so a running unit does not pass through Home
+     * between two modes.
+     */
+    protected modeSteps(value: string): ModeStep[] {
+      const off = (coil: number): ModeStep => ({ coil, value: false });
+      if (this.exclusiveModeCoils.length > 0 && value in this.modeCoils) {
+        const modeCoil = this.modeCoils[value];
+        return [
+          { coil: 0, value: false, critical: true },
+          ...(modeCoil !== null ? [{ coil: modeCoil, value: true, critical: true }] : []),
+          ...this.exclusiveModeCoils.filter((coil) => coil !== modeCoil).map(off),
+        ];
+      }
+      const longAway = this.longAwayCoil !== null ? [off(this.longAwayCoil)] : [];
+      switch (value) {
+        case '0':
+          // Leave enhanced ventilation by returning the panel fan speed to
+          // level 2 (Home); harmless when already at level 2.
+          return [{ coil: 0, value: false, critical: true }, off(1), off(3), off(10), ...longAway,
+            ...(this.enhancedVentilation ? [{ hreg: 50, value: 2, critical: true }] : [])];
+        case '1':
+          return [{ coil: 0, value: false, critical: true }, { coil: 1, value: true, critical: true }, off(3), off(10)];
+        case '2':
+          return [{ coil: 0, value: false, critical: true }, { coil: 3, value: true, critical: true }, off(1), off(10)];
+        case '3':
+          return [{ coil: 0, value: false, critical: true }, { coil: 10, value: true, critical: true }, off(1), off(3)];
+        case '4':
+          return [{ coil: 0, value: true, critical: true }];
+        case '5':
+          // Enhanced ventilation: normal operation at panel fan speed
+          // level 3 ("Home-mode with high fan speeds", HREG 50).
+          return [{ coil: 0, value: false, critical: true }, off(1), off(3), off(10), ...longAway,
+            { hreg: 50, value: 3, critical: true }];
+        default:
+          return [];
+      }
     }
 
     /**
-     * Ends the echo window of the last mode write once every write queued so
-     * far has gone out, so the poll after that fires the mode trigger again
-     * when the unit changes mode.
+     * Writes the coil sequence of a status mode. Resolves once every write
+     * has gone out and the capability shows the mode; rejects when a
+     * critical step failed, after putting the capability back to `prior`.
+     * While the sequence is under way the poll leaves the mode alone, and
+     * for a while afterwards a reading of the previous mode counts as stale.
+     */
+    async setStatusModeValue(value: string, prior: unknown = this.getCapabilityValue(this.statusModeCapability)): Promise<void> {
+      if (value === '5' && !this.enhancedVentilation) throw new Error(this.homey.__('modeNotSupported'));
+      const steps = this.modeSteps(value);
+      if (steps.length === 0) throw new Error(this.homey.__('modeNotSupported'));
+      const sequence: WriteSequence = { aborted: false };
+      this.modeWritesPending++;
+      try {
+        const writes = steps.map((step) => ('coil' in step
+          ? this.sendCoilRequest(step.coil, step.value, { sequence, critical: step.critical })
+          : this.sendHoldingRequest(step.hreg, step.value, { sequence, critical: step.critical })));
+        writes.push(this.enqueueWrite(async () => {
+          if (this.isActive) await this.setCapabilityValue(this.statusModeCapability, value);
+          await this.recordMode(value);
+        }, { label: `mode ${value}`, sequence }));
+        const results = await Promise.allSettled(writes);
+        if (sequence.aborted) {
+          if (this.isActive && this.getCapabilityValue(this.statusModeCapability) !== prior && typeof prior === 'string') {
+            await this.setCapabilityValue(this.statusModeCapability, prior).catch(this.error);
+          }
+          throw new Error(this.homey.__('writeFailed'));
+        }
+        if (results.some((result) => result.status === 'rejected')) {
+          this.log(`Mode ${value} is set, but a step turning another mode off failed`);
+        }
+        this.pendingMode = { value, prior, until: Date.now() + MODE_WRITE_SETTLE_MS };
+      } finally {
+        this.modeWritesPending--;
+      }
+    }
+
+    /**
+     * Changes the mode from Homey, as the Set mode card and the mode picker
+     * do, and fires the mode trigger once the unit has been told, so flows
+     * see the change whoever made it.
+     */
+    async changeMode(value: string, previous: unknown = this.getCapabilityValue(this.statusModeCapability)) {
+      await this.setStatusModeValue(value, previous);
+      if (previous !== value) await this.fireModeChanged(this.driverCards.ids.statusModeChanged, value, this.statusModeCapability);
+    }
+
+    /**
+     * Ends the pending mode of the last mode write once every write queued
+     * so far has gone out, so the poll after that fires the mode trigger
+     * again when the unit changes mode.
      */
     protected endModeWriteSettleAfterQueue() {
       this.enqueueWrite(async () => {
-        this.lastModeWriteAt = 0;
-      });
+        this.pendingMode = null;
+      }, { label: 'end of mode write' }).catch(this.error);
     }
 
-    async sendHoldingRequest(register: number, value: number) {
-      this.enqueueWrite(async () => {
-        await (this.useMultipleWrites
-          ? this.client.writeMultipleRegisters(register, [value & 0xffff])
-          : this.client.writeSingleRegister(register, value));
-      });
+    /**
+     * Starts boost ('3') or fireplace mode ('2') for a number of minutes. The
+     * duration is a setting stored on the unit, so it is written only when
+     * it differs from what the unit has, before the mode itself.
+     */
+    async startModeFor(mode: '2' | '3', minutes: unknown) {
+      const setting = mode === '3' ? 'boost_duration_minutes' : 'fireplace_duration_minutes';
+      const range: [number, number] = mode === '3' ? this.boostDurationRange : [1, 60];
+      const value = inRange(minutes, range);
+      if (value === undefined || !Number.isInteger(value)) throw new Error(this.homey.__('invalidDuration'));
+      if (this.getSetting(setting) !== value) {
+        await Promise.all(this.durationWrites(setting, value));
+        await this.setSettings({ [setting]: value }).catch(this.error);
+      }
+      await this.changeMode(mode);
     }
 
-    async sendCoilRequest(register: number, value: boolean) {
-      this.enqueueWrite(async () => {
-        await (this.useMultipleWrites
-          ? this.client.writeMultipleCoils(register, [value])
-          : this.client.writeSingleCoil(register, value));
-      });
+    private durationWrites(setting: string, minutes: number): Array<Promise<void>> {
+      const registers = setting === 'boost_duration_minutes' ? [66] : this.overpressureDurationRegisters;
+      return registers.map((register) => this.sendHoldingRequest(register, minutes, { setting }));
     }
+
+    // -------------------------------------------------------- simple commands
+
+    async setEcoMode(value: string) {
+      await this.sendCoilRequest(40, value === '1');
+      await this.setIfChanged('ecomode_mode', value === '1' ? '1' : '0');
+    }
+
+    async setHeatingCoil(value: string) {
+      await this.sendCoilRequest(54, value === '1');
+      await this.setIfChanged(this.heatingCoilCapability, value === '1' ? '1' : '0');
+    }
+
+    /** Writes the target temperature, rounded to the unit's step and kept within its range. */
+    async setTargetTemperature(value: unknown) {
+      const number = toNumber(value);
+      const temperature = number === undefined ? undefined : Math.round(number / this.setpointStep) * this.setpointStep;
+      if (temperature === undefined || inRange(temperature, this.setpointRange) === undefined) {
+        throw new Error(this.homey.__('invalidTemperature'));
+      }
+      await this.sendHoldingRequest(135, Math.round(temperature * 10));
+      await this.setIfChanged('target_temperature.step', temperature);
+    }
+
+    /** HREG 710 counts days since the service reminder was acknowledged; 0 restarts the filter countdown. */
+    async resetFilterReminder() {
+      await this.sendHoldingRequest(710, 0);
+    }
+
+    // ------------------------------------------------------------ capabilities
 
     /** Capabilities every device of this driver should have. */
     protected capabilityIds(): string[] {
       return [
         'efficiency.supplyEff',
         'efficiency.extractEff',
+        'measure_temperature.outsideAir',
         'measure_temperature.step',
         'measure_temperature.exhaustAir',
         'measure_temperature.extractAir',
@@ -505,12 +731,19 @@ export abstract class ExventModbusDevice extends Homey.Device {
         this.heatingCoilCapability,
         'heat_exchanger_mode',
         'target_temperature.step',
+        'alarm_a',
         'alarm_b.desc',
+        'active_alarm',
         'filter_days_remaining',
         'measure_humidity.extractAir',
         'fanspeed_level',
         this.statusCapability,
         this.statusModeCapability,
+        'boost',
+        'heat_recovery_output',
+        'after_heating_output',
+        'season',
+        'button.reset_filter',
         'lastPollTime',
       ];
     }
@@ -518,147 +751,33 @@ export abstract class ExventModbusDevice extends Homey.Device {
     private async syncCapabilities() {
       for (const capability of this.capabilityIds()) {
         if (!this.hasCapability(capability)) {
-          await this.addCapability(capability);
+          await this.addCapability(capability).catch(this.error);
         }
       }
     }
 
-    registerFlowListeners() {
-      if (this.flowListenersRegistered) return;
-      const cards = this.flowCardIds;
-
-      if (cards.ecomode) {
-        this.homey.flow.getActionCard(cards.ecomode)
-          .registerRunListener(async (args: any) => {
-            const device = args.device as ExventModbusDevice;
-            if (!device.isUsable()) return false;
-            await device.setMode('ecomode_mode', args.ecomode);
-            await device.sendCoilRequest(40, args.ecomode === '1');
-            return true;
-          });
-      }
-
-      this.homey.flow.getActionCard(cards.heatingcoil)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          if (!device.isUsable()) return false;
-          await device.setMode(device.heatingCoilCapability, args[cards.heatingcoilArg]);
-          await device.sendCoilRequest(54, args[cards.heatingcoilArg] === '1');
-          return true;
-        });
-
-      this.homey.flow.getActionCard(cards.statusMode)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          if (!device.isUsable()) return false;
-          await device.setMode(device.statusModeCapability, args.mode);
-          await device.setStatusModeValue(args.mode);
-          return true;
-        });
-
-      this.homey.flow.getActionCard(cards.setTemperature)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          if (!device.isUsable()) return false;
-          await device.setCapabilityValue('target_temperature.step', args.temperature);
-          await device.sendHoldingRequest(135, args.temperature * 10);
-          return true;
-        });
-
-      // HREG 710 (HREG_DAYS_RUNNING) counts days since the service reminder
-      // was acknowledged; writing 0 restarts the filter change countdown.
-      if (cards.resetFilterReminder) {
-        this.homey.flow.getActionCard(cards.resetFilterReminder)
-          .registerRunListener(async (args: any) => {
-            const device = args.device as ExventModbusDevice;
-            if (!device.isUsable()) return false;
-            await device.sendHoldingRequest(710, 0);
-            return true;
-          });
-      }
-
-      this.flowListenersRegistered = true;
-    }
-
     registerCapabilityListeners() {
       if (this.capabilityListenersRegistered) return;
-      const cards = this.flowCardIds;
 
-      this.homey.flow.getConditionCard(cards.statusModeIs)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          const expected = device.statusModeArgMap[args.mode] ?? args.mode;
-          return device.getCapabilityValue(device.statusModeCapability) === expected;
-        });
-
-      // The *_changed trigger cards carry a mode dropdown. Without a run
-      // listener the dropdown is never evaluated and the card can never match,
-      // so every one of them has to compare its argument against the mode the
-      // trigger was fired with. Unlike the condition cards these listeners must
-      // not read args.device — a device trigger card filters by device itself
-      // and does not pass one — so the argument maps are captured here instead.
-      // They are per-driver constants and every device of this driver shares
-      // both the card id and the map, so the capture is always the right one.
-      const { statusModeArgMap, onOffArgMap } = this;
-      const matches = (map: Record<string, string>) => async (args: any, state: any) => {
-        const expected = map[args.mode_title] ?? args.mode_title;
-        return state != null && state.mode === expected;
-      };
-
-      this.homey.flow.getDeviceTriggerCard(cards.statusModeChanged)
-        .registerRunListener(matches(statusModeArgMap));
-
-      this.homey.flow.getDeviceTriggerCard(cards.heaterChanged)
-        .registerRunListener(matches(onOffArgMap));
-
-      this.homey.flow.getDeviceTriggerCard(cards.heatExchangerChanged)
-        .registerRunListener(matches(onOffArgMap));
-
-      this.homey.flow.getConditionCard(cards.heatExchangerIs)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          const expected = device.onOffArgMap[args.mode] ?? args.mode;
-          return device.getCapabilityValue('heat_exchanger_mode') === expected;
-        });
-
-      this.homey.flow.getConditionCard(cards.heaterIs)
-        .registerRunListener(async (args: any) => {
-          const device = args.device as ExventModbusDevice;
-          const expected = device.onOffArgMap[args.mode] ?? args.mode;
-          return device.getCapabilityValue('heater_mode') === expected;
-        });
-
+      // The picker is not held up by the writes; the mode trigger fires once
+      // they have gone out, and a failure puts the picker back.
       this.registerCapabilityListener(this.statusModeCapability, async (value) => {
         if (!this.isUsable()) return;
-        await this.setStatusModeValue(value);
-        await this.fireModeChanged(cards.statusModeChanged, value);
+        const previous = this.getCapabilityValue(this.statusModeCapability);
+        this.changeMode(value, previous).catch((err) => this.error(`Mode ${value}:`, describeError(err)));
       });
 
       this.registerCapabilityListener('target_temperature.step', async (value) => {
         if (!this.isUsable()) return;
-        await this.sendHoldingRequest(135, value * 10);
+        this.sendHoldingRequest(135, Math.round(Number(value) * 10)).catch(this.error);
       });
 
-      if (cards.ecomode) {
+      if (this.hasCapability('ecomode_mode')) {
         this.registerCapabilityListener('ecomode_mode', async (value) => {
           if (!this.isUsable()) return;
-          await this.sendCoilRequest(40, value === '1');
+          this.sendCoilRequest(40, value === '1').catch(this.error);
         });
       }
-
-      this.registerCapabilityListener('heat_exchanger_mode', async () => {
-        if (!this.isUsable()) return;
-        await this.homey.flow.getDeviceTriggerCard(cards.heatExchangerChanged)
-          .trigger(this)
-          .catch(this.error);
-      });
-
-      this.registerCapabilityListener('heater_mode', async () => {
-        if (!this.isUsable()) return;
-        await this.homey.flow.getDeviceTriggerCard(cards.heaterChanged)
-          .trigger(this)
-          .catch(this.error);
-      });
 
       this.registerCapabilityListener(this.heatingCoilCapability, async (value) => {
         if (!this.isUsable()) return;
@@ -669,102 +788,58 @@ export abstract class ExventModbusDevice extends Homey.Device {
           coilValue = false;
         }
         if (coilValue !== null) {
-          await this.sendCoilRequest(54, coilValue);
+          this.sendCoilRequest(54, coilValue).catch(this.error);
         }
       });
+
+      if (this.hasCapability('boost')) {
+        // The quick action: on starts boost like the mode picker; off only
+        // ends boost, and the poll then reports the mode the unit went back to.
+        this.registerCapabilityListener('boost', async (value) => {
+          if (!this.isUsable()) return;
+          if (value) {
+            this.changeMode('3').catch((err) => this.error('Boost:', describeError(err)));
+          } else {
+            this.sendCoilRequest(10, false).catch(this.error);
+            this.endModeWriteSettleAfterQueue();
+          }
+        });
+      }
+
+      if (this.hasCapability('button.reset_filter')) {
+        this.registerCapabilityListener('button.reset_filter', async () => {
+          if (!this.isUsable()) throw new Error(this.homey.__('noConnection'));
+          await this.resetFilterReminder();
+        });
+      }
 
       this.capabilityListenersRegistered = true;
     }
 
-    cleanup() {
-      this.isActive = false;
-      activeDevices.delete(this);
-      if (this.intervalId) {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
-      }
-      this.writeQueue = [];
-      if (this.confirmPollTimeout) {
-        clearTimeout(this.confirmPollTimeout);
-        this.confirmPollTimeout = null;
-      }
-      if (this.connectionRetryId) {
-        clearTimeout(this.connectionRetryId);
-        this.connectionRetryId = null;
-      }
-      this.connectingPromise = null;
-      this.flowListenersRegistered = false;
-      this.capabilityListenersRegistered = false;
-      this.teardownSocket();
-    }
-
-    async setMode(mode: string, value: string): Promise<void> {
-      if (!this.getAvailable()) return;
-      await this.setCapabilityValue(mode, value);
-    }
-
-    async onAdded() {
-      setTimeout(async () => {
-        if (this.isActive) await this.pollDevice();
-      }, 10000);
-    }
-
-    async onSettings({ newSettings, changedKeys }: { newSettings: Record<string, any>; changedKeys: string[] }) {
-      // HREG 538: number of days after a reset before the filter change
-      // reminder is raised. The confirmation poll refreshes the countdown.
-      if (changedKeys.includes('filter_interval_days')) {
-        const days = Number(newSettings.filter_interval_days);
-        if (Number.isInteger(days) && days >= 1 && days <= 365) {
-          await this.sendHoldingRequest(538, days);
-        }
-      }
-
-      if (changedKeys.includes('fireplace_duration_minutes')) {
-        const minutes = Number(newSettings.fireplace_duration_minutes);
-        if (Number.isInteger(minutes) && minutes >= 1 && minutes <= 60) {
-          for (const register of this.overpressureDurationRegisters) {
-            await this.sendHoldingRequest(register, minutes);
-          }
-        }
-      }
-
-      if (changedKeys.includes('address') || changedKeys.includes('port') || changedKeys.includes('unit_id')) {
-        try {
-          this.modbusOptions.host = newSettings.address;
-          this.modbusOptions.port = newSettings.port;
-          this.modbusOptions.unitId = this.modbusUnitId(newSettings.unit_id);
-          this.teardownSocket();
-          this.connectionRetryDelay = CONNECTION_RETRY_MIN;
-          await this.delay(1000);
-          this.connectSocket();
-          await this.ensureConnected();
-          await this.pollDevice();
-        } catch (error: any) {
-          await this.markNoConnection();
-        }
-      }
-    }
-
-    async onDeleted() {
-      this.cleanup();
-    }
-
-    delay(ms: number) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
     /**
      * Fires one of the *_changed trigger cards. The new value is passed as
-     * trigger state so the card's dropdown argument can be compared against it.
+     * trigger state so the card's dropdown argument can be compared against
+     * it, and its name as the mode token.
      */
-    protected async fireModeChanged(cardId: string, mode: string) {
+    protected async fireModeChanged(cardId: string, mode: string, capabilityId: string) {
       await this.homey.flow.getDeviceTriggerCard(cardId)
-        .trigger(this, {}, { mode })
+        .trigger(this, { mode: this.valueTitle(capabilityId, mode) }, { mode })
         .catch(this.error);
+    }
+
+    /** The title of an enum capability value in the Homey's language, e.g. 'Hjemme'. */
+    private valueTitle(capabilityId: string, value: string): string {
+      const definition = this.homey.manifest?.capabilities?.[capabilityId];
+      const entry = definition?.values?.find((item: any) => item.id === value);
+      const title = entry?.title;
+      if (!title) return value;
+      if (typeof title === 'string') return title;
+      return title[this.homey.i18n.getLanguage()] ?? title.en ?? value;
     }
 
     protected async setIfChanged(capabilityId: string, value: any) {
       try {
+        if (!this.hasCapability(capabilityId)) return;
         const current = this.getCapabilityValue(capabilityId);
         if (current === value) return;
         await this.setCapabilityValue(capabilityId, value);
@@ -773,21 +848,130 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
     }
 
+    // ------------------------------------------------------------ mode insights
+
+    /** A number log of the mode, since Insights does not log enum capabilities. */
+    private async openModeLog(): Promise<any> {
+      const data = this.getData();
+      const id = `mode${String(data && data.id ? data.id : '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      if (id === 'mode' || !this.homey.insights) return null;
+      try {
+        return await this.homey.insights.getLog(id);
+      } catch (_) {
+        try {
+          return await this.homey.insights.createLog(id, {
+            title: `${this.getName()}: ${this.homey.__('modeLogTitle')}`,
+            type: 'number',
+            decimals: 0,
+          });
+        } catch (err) {
+          this.error('Could not create the mode log:', err);
+          return null;
+        }
+      }
+    }
+
+    private async recordMode(value: string) {
+      if (this.modeLog) await this.modeLog.createEntry(Number(value)).catch(this.error);
+    }
+
+    // ----------------------------------------------------------------- settings
+
+    async onSettings({ newSettings, changedKeys }: { oldSettings?: Record<string, any>; newSettings: Record<string, any>; changedKeys: string[] }): Promise<string | void> {
+      const connectionChanged = ['address', 'port', 'unit_id'].some((key) => changedKeys.includes(key));
+      this.validateSettings(newSettings, changedKeys);
+
+      this.settingsSaving = true;
+      try {
+        // A new address goes first, so the writes below reach the new unit.
+        if (connectionChanged) {
+          this.modbusOptions.host = String(newSettings.address).trim();
+          this.modbusOptions.port = Number(newSettings.port);
+          this.modbusOptions.unitId = this.modbusUnitId(newSettings.unit_id);
+          this.clearRetryConnection();
+          this.teardownSocket();
+          this.connectionRetryDelay = CONNECTION_RETRY_MIN;
+          this.failedPolls = 0;
+          this.connectSocket();
+        }
+
+        const writes = this.unitSettingWrites(newSettings, changedKeys);
+        if (writes.length > 0) {
+          if (!connectionChanged && !this.isConnected && this.failedPolls > 0) {
+            throw new Error(this.homey.__('settingsWriteFailed'));
+          }
+          try {
+            await withTimeout(Promise.all(writes), SETTINGS_WRITE_TIMEOUT_MS, () => new Error(this.homey.__('settingsWriteFailed')));
+          } catch (err) {
+            // A new address is saved even when the unit's settings could not
+            // be written; the poll then shows what the unit has.
+            if (connectionChanged) return this.homey.__('settingsWriteFailedAddressSaved');
+            throw new Error(this.homey.__('settingsWriteFailed'));
+          }
+        }
+      } finally {
+        this.settingsSaving = false;
+      }
+      if (connectionChanged) this.pollDevice().catch(this.error);
+      return undefined;
+    }
+
+    /** Throws a message naming the first changed setting that is not valid. */
+    protected validateSettings(settings: Record<string, any>, changedKeys: string[]) {
+      if (changedKeys.includes('address') && !isValidHost(settings.address)) {
+        throw new Error(this.homey.__('settings.invalidAddress'));
+      }
+      if (changedKeys.includes('port') && !isValidPort(settings.port)) {
+        throw new Error(this.homey.__('settings.invalidPort'));
+      }
+      const whole = (id: string, range: [number, number]) => {
+        if (!changedKeys.includes(id)) return;
+        const value = inRange(settings[id], range);
+        if (value === undefined || !Number.isInteger(value)) {
+          throw new Error(this.homey.__('settings.invalidNumber', { range: `${range[0]}–${range[1]}` }));
+        }
+      };
+      whole('filter_interval_days', [1, 365]);
+      whole('fireplace_duration_minutes', [1, 60]);
+      whole('boost_duration_minutes', this.boostDurationRange);
+    }
+
+    /** Queues the writes of the changed settings that live on the unit. */
+    protected unitSettingWrites(settings: Record<string, any>, changedKeys: string[]): Array<Promise<unknown>> {
+      const writes: Array<Promise<unknown>> = [];
+      // HREG 538: number of days after a reset before the filter change
+      // reminder is raised. The confirmation poll refreshes the countdown.
+      if (changedKeys.includes('filter_interval_days')) {
+        writes.push(this.sendHoldingRequest(538, Number(settings.filter_interval_days), { setting: 'filter_interval_days' }));
+      }
+      for (const id of ['fireplace_duration_minutes', 'boost_duration_minutes']) {
+        if (changedKeys.includes(id)) writes.push(...this.durationWrites(id, Number(settings[id])));
+      }
+      return writes;
+    }
+
     /**
      * Whether the poll may copy a value read from the unit into a device
-     * setting. A driver can hold a value back, for example while its own
-     * write of that setting is still on the way to the unit.
+     * setting. Not while the settings dialog is saving, while a write of the
+     * setting is queued, or when a setting write finished after the poll
+     * started reading: the unit's value may be from before the write.
      */
-    protected mayMirrorSetting(id: string, value: number | boolean): boolean {
-      return true;
+    protected mayMirrorSetting(id: string, value: number | boolean, pollSeq?: number): boolean {
+      if (this.settingsSaving || this.settingWritesPending.has(id)) return false;
+      return pollSeq === undefined || pollSeq === this.settingWriteSeq;
     }
+
+    private async mirrorSetting(id: string, value: number | boolean, pollSeq?: number) {
+      if (this.isActive && this.getSetting(id) !== value && this.mayMirrorSetting(id, value, pollSeq)) {
+        await this.setSettings({ [id]: value }).catch(this.error);
+      }
+    }
+
+    // --------------------------------------------------------------- decoding
 
     /** The status capability value for a HREG 45 reading, or undefined when it has none. */
     protected statusFromRegister(value: string): string | undefined {
-      const statusMap: Record<string, string> = {
-        0: '0', 1: '1', 2: '2', 4: '3', 7: '4', 8: '5',
-      };
-      return statusMap[value];
+      return exventStatus(Number(value));
     }
 
     /**
@@ -795,179 +979,232 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * when the reading has no mode. `result` holds the rest of the same poll.
      */
     protected statusModeFromRegister(value: string, result: Record<string, Measurement>): string | undefined {
-      const statusModeMap: Record<string, string> = {
-        0: '0', 16: '1', 1024: '2', 512: '3',
-      };
-      // HREG 44 bits 128/256 are CO2/RH boosting: the unit running the
-      // level-3 fan speeds on its own. Shown as enhanced ventilation.
-      statusModeMap[128] = '5';
-      statusModeMap[256] = '5';
-      let mapped = statusModeMap[value];
-      // Manually selected enhanced ventilation: normal Home state but the
-      // panel fan speed is at level 3.
-      if (mapped === '0'
-        && result['fan_speed_level'] && Number(result['fan_speed_level'].value) === 3) {
-        mapped = '5';
-      }
-      return mapped;
+      const state = Number(value);
+      if (!Number.isFinite(state)) return undefined;
+      const level = result['fan_speed_level'] && result['fan_speed_level'].value !== 'xxx'
+        ? Number(result['fan_speed_level'].value) : undefined;
+      return exventStatusMode(state, level);
     }
 
-    async processResult(result: Record<string, Measurement>) {
+    /**
+     * Applies a mode read from the unit. Our own writes are left alone while
+     * they are under way. After a write, the mode written confirms it, a
+     * reading of the previous mode counts as stale until MODE_WRITE_SETTLE_MS
+     * is up, and any other mode is a real change. Changes the unit makes on
+     * its own (panel, its own CO2/RH boost, the boost timer running out)
+     * fire the mode trigger here, since no capability listener sees them.
+     */
+    private async applyModeReading(mapped: string) {
+      if (this.modeWritesPending > 0) return;
+      const pending = this.pendingMode;
+      if (pending && Date.now() < pending.until) {
+        if (mapped === pending.value) {
+          this.pendingMode = null;
+          await this.setIfChanged(this.statusModeCapability, mapped);
+          return;
+        }
+        if (mapped === pending.prior) return;
+      }
+      this.pendingMode = null;
+      const previous = this.getCapabilityValue(this.statusModeCapability);
+      await this.setIfChanged(this.statusModeCapability, mapped);
+      if (typeof previous === 'string' && previous !== mapped) {
+        await this.recordMode(mapped);
+        await this.fireModeChanged(this.driverCards.ids.statusModeChanged, mapped, this.statusModeCapability);
+      }
+    }
+
+    /** The value of a reading, or undefined when the register did not answer. */
+    protected reading(result: Record<string, Measurement>, key: string): string | undefined {
+      const measurement = result[key];
+      return measurement && measurement.value !== 'xxx' ? measurement.value : undefined;
+    }
+
+    async processResult(result: Record<string, Measurement>, pollSeq?: number) {
       if (!result) {
         return;
       }
+      const number = (key: string) => {
+        const value = this.reading(result, key);
+        return value === undefined ? undefined : Number(value);
+      };
+      const tenths = (key: string, capabilityId: string) => {
+        const value = number(key);
+        return value === undefined ? undefined : this.setIfChanged(capabilityId, value / 10);
+      };
 
-      if (result['air_outside'] && result['air_outside'].value !== 'xxx') {
-        await this.setIfChanged('measure_temperature.outsideAir', Number(result['air_outside'].value) / 10);
-      }
+      await tenths('air_outside', 'measure_temperature.outsideAir');
+      await tenths('air_extract', 'measure_temperature.extractAir');
+      await tenths('air_supply', 'measure_temperature.step');
+      await tenths('air_supply_HRC', 'measure_temperature.supplyAirHRC');
+      await tenths('air_exhaust', 'measure_temperature.exhaustAir');
 
-      if (result['air_extract'] && result['air_extract'].value !== 'xxx') {
-        await this.setIfChanged('measure_temperature.extractAir', Number(result['air_extract'].value) / 10);
-      }
-
-      if (result['air_supply'] && result['air_supply'].value !== 'xxx') {
-        await this.setIfChanged('measure_temperature.step', Number(result['air_supply'].value) / 10);
-      }
-
-      if (result['air_supply_HRC'] && result['air_supply_HRC'].value !== 'xxx') {
-        await this.setIfChanged('measure_temperature.supplyAirHRC', Number(result['air_supply_HRC'].value) / 10);
-      }
-
-      if (result['air_exhaust'] && result['air_exhaust'].value !== 'xxx') {
-        await this.setIfChanged('measure_temperature.exhaustAir', Number(result['air_exhaust'].value) / 10);
-      }
-
-      if (result['temperature_setpoint'] && result['temperature_setpoint'].value !== 'xxx') {
-        const temperature = Number(result['temperature_setpoint'].value) / 10;
-        if (temperature >= this.setpointRange[0] && temperature <= this.setpointRange[1]) {
+      const setpoint = number('temperature_setpoint');
+      if (setpoint !== undefined) {
+        const temperature = setpoint / 10;
+        if (inRange(temperature, this.setpointRange) !== undefined) {
           await this.setIfChanged('target_temperature.step', temperature);
+        } else if (this.loggedSetpoint !== temperature) {
+          // The capability cannot hold it, so the previous value stays shown.
+          this.loggedSetpoint = temperature;
+          this.log(`Target temperature ${temperature} °C is outside ${this.setpointRange.join('–')} °C and is not shown`);
         }
       }
 
-      if (result['air_humidity'] && result['air_humidity'].value !== 'xxx') {
-        await this.setIfChanged('measure_humidity.extractAir', Number(result['air_humidity'].value));
+      const humidity = number('air_humidity');
+      if (humidity !== undefined) await this.setIfChanged('measure_humidity.extractAir', humidity);
+      const supplyEff = number('air_supply_eff');
+      if (supplyEff !== undefined) await this.setIfChanged('efficiency.supplyEff', supplyEff);
+      const extractEff = number('air_extract_eff');
+      if (extractEff !== undefined) await this.setIfChanged('efficiency.extractEff', extractEff);
+      const fanLevel = number('fan_speed_level');
+      if (fanLevel !== undefined) await this.setIfChanged('fanspeed_level', fanLevel);
+
+      const output = number('controller_output');
+      if (output !== undefined) {
+        const outputs = controllerOutputs(output);
+        await this.setIfChanged('heat_recovery_output', outputs.heatRecovery);
+        await this.setIfChanged('after_heating_output', outputs.afterHeating);
+      }
+      const supplyFan = number('supply_fan_speed');
+      if (supplyFan !== undefined) await this.setIfChanged('fan_output.supply', supplyFan);
+      const extractFan = number('extract_fan_speed');
+      if (extractFan !== undefined) await this.setIfChanged('fan_output.extract', extractFan);
+
+      const average = number('outdoor_24h_average');
+      const threshold = number('summer_winter_threshold');
+      if (average !== undefined && threshold !== undefined) {
+        await this.setIfChanged('season', average > threshold ? 'summer' : 'winter');
       }
 
-      if (result['air_supply_eff'] && result['air_supply_eff'].value !== 'xxx') {
-        await this.setIfChanged('efficiency.supplyEff', Number(result['air_supply_eff'].value));
+      const status = this.reading(result, 'status');
+      if (status !== undefined) {
+        const mapped = this.statusFromRegister(status);
+        if (mapped !== undefined) await this.setIfChanged(this.statusCapability, mapped);
       }
 
-      if (result['air_extract_eff'] && result['air_extract_eff'].value !== 'xxx') {
-        await this.setIfChanged('efficiency.extractEff', Number(result['air_extract_eff'].value));
-      }
-
-      if (result['fan_speed_level'] && result['fan_speed_level'].value !== 'xxx') {
-        await this.setIfChanged('fanspeed_level', Number(result['fan_speed_level'].value));
-      }
-
-      if (result['status'] && result['status'].value !== 'xxx') {
-        const mapped = this.statusFromRegister(result['status'].value);
+      const statusMode = this.reading(result, 'status_mode');
+      if (statusMode !== undefined) {
+        const mapped = this.statusModeFromRegister(statusMode, result);
+        this.unitBoosting = (Number(statusMode) & UNIT_BOOST_BITS) !== 0;
         if (mapped !== undefined) {
-          await this.setIfChanged(this.statusCapability, mapped);
+          await this.applyModeReading(mapped);
+          await this.setIfChanged('boost', this.getCapabilityValue(this.statusModeCapability) === '3');
         }
       }
 
-      if (result['status_mode'] && result['status_mode'].value !== 'xxx') {
-        const mapped = this.statusModeFromRegister(result['status_mode'].value, result);
-        if (mapped !== undefined) {
-          // Panel changes, the unit's own CO2/RH boost and the boost timer
-          // running out all change the mode without Homey asking for it. The
-          // capability listener never sees those, so the trigger has to be
-          // fired here — except while our own write is still settling.
-          const previous = this.getCapabilityValue(this.statusModeCapability);
-          await this.setIfChanged(this.statusModeCapability, mapped);
-          if (typeof previous === 'string' && previous !== mapped
-            && Date.now() - this.lastModeWriteAt > MODE_WRITE_SETTLE_MS) {
-            await this.fireModeChanged(this.flowCardIds.statusModeChanged, mapped);
-          }
-        }
+      const eco = this.reading(result, 'eco_mode');
+      if (eco === '0' || eco === '1') await this.setIfChanged('ecomode_mode', eco);
+
+      await this.applyOnOff(result, 'heater_status', 'heater_mode', this.driverCards.ids.heaterChanged);
+      await this.applyOnOff(result, 'heat_exchanger_state', 'heat_exchanger_mode', this.driverCards.ids.heatExchangerChanged);
+
+      const heatingCoil = this.reading(result, 'heating_coil');
+      if (heatingCoil === '0' || heatingCoil === '1') await this.setIfChanged(this.heatingCoilCapability, heatingCoil);
+
+      await this.applyAlarms(result);
+
+      // Mirror the unit's fireplace/overpressure duration in the device
+      // settings. On units that report the default (HREG 57), that is the
+      // duration kept after a power cut, so it is the one shown. setSettings
+      // does not re-trigger onSettings, so this cannot loop.
+      const active = number('fireplace_duration');
+      const standard = number('fireplace_duration_default');
+      if (active !== undefined && standard !== undefined && active !== standard
+        && this.loggedDurationMismatch !== `${active}/${standard}`) {
+        this.loggedDurationMismatch = `${active}/${standard}`;
+        this.log(`Fireplace duration is ${active} min now but ${standard} min after a restart of the unit (HREG 56/57)`);
+      }
+      const duration = standard ?? active;
+      if (duration !== undefined && inRange(duration, [1, 60]) !== undefined) {
+        await this.mirrorSetting('fireplace_duration_minutes', duration, pollSeq);
       }
 
-      if (result['eco_mode'] && result['eco_mode'].value !== 'xxx') {
-        const { value } = result['eco_mode'];
-        if (value === '0' || value === '1') {
-          await this.setIfChanged('ecomode_mode', value);
-        }
+      const boostDuration = number('boost_duration');
+      if (boostDuration !== undefined && inRange(boostDuration, this.boostDurationRange) !== undefined) {
+        await this.mirrorSetting('boost_duration_minutes', boostDuration, pollSeq);
       }
 
-      if (result['heater_status'] && result['heater_status'].value !== 'xxx') {
-        const { value } = result['heater_status'];
-        if (value === '0' || value === '1') {
-          const previous = this.getCapabilityValue('heater_mode');
-          await this.setIfChanged('heater_mode', value);
-          if (typeof previous === 'string' && previous !== value) {
-            await this.fireModeChanged(this.flowCardIds.heaterChanged, value);
-          }
+      await this.applyFilterCountdown(result, pollSeq);
+    }
+
+    /** An on/off reading with a *_changed trigger fired on every change after the first reading. */
+    private async applyOnOff(result: Record<string, Measurement>, key: string, capabilityId: string, cardId: string) {
+      const value = this.reading(result, key);
+      if (value !== '0' && value !== '1') return;
+      const previous = this.getCapabilityValue(capabilityId);
+      await this.setIfChanged(capabilityId, value);
+      if (typeof previous === 'string' && previous !== value) {
+        await this.fireModeChanged(cardId, value, capabilityId);
+      }
+    }
+
+    /**
+     * The A and B alarms (coils 41 and 42) with a trigger when one goes off,
+     * and the newest alarm in the log (HREG 385/386) as text while it is on.
+     */
+    private async applyAlarms(result: Record<string, Measurement>) {
+      const type = this.reading(result, 'alarm_type');
+      const state = this.reading(result, 'alarm_state');
+      const language = this.homey.i18n.getLanguage();
+      const logText = type !== undefined && state !== undefined && alarmOn(Number(state)) && Number(type) > 0
+        ? alarmText(Number(type), language, this.edaAlarmNames) : undefined;
+
+      const alarms: Array<[string, string, string]> = [
+        ['alarm_a', 'alarm_a', this.driverCards.ids.alarmATriggered],
+        ['alarm_b_desc', 'alarm_b.desc', this.driverCards.ids.alarmBTriggered],
+      ];
+      const active: string[] = [];
+      for (const [key, capabilityId, cardId] of alarms) {
+        const value = this.reading(result, key);
+        if (value !== '0' && value !== '1') continue;
+        const on = value === '1';
+        if (on) active.push(capabilityId);
+        const wasOn = this.getCapabilityValue(capabilityId) === true;
+        await this.setIfChanged(capabilityId, on);
+        if (on && !wasOn) {
+          const text = logText ?? this.homey.__(capabilityId === 'alarm_a' ? 'alarmA' : 'alarmB');
+          await this.homey.flow.getDeviceTriggerCard(cardId)
+            .trigger(this, { alarm: text })
+            .catch(this.error);
         }
       }
+      if (this.reading(result, 'alarm_a') !== undefined || this.reading(result, 'alarm_b_desc') !== undefined) {
+        let text = this.homey.__('noAlarm');
+        if (logText) text = logText;
+        else if (active.includes('alarm_a')) text = this.homey.__('alarmA');
+        else if (active.includes('alarm_b.desc')) text = this.homey.__('alarmB');
+        await this.setIfChanged('active_alarm', text);
+      }
+    }
 
-      if (result['heat_exchanger_state'] && result['heat_exchanger_state'].value !== 'xxx') {
-        const { value } = result['heat_exchanger_state'];
-        if (value === '0' || value === '1') {
-          const previous = this.getCapabilityValue('heat_exchanger_mode');
-          await this.setIfChanged('heat_exchanger_mode', value);
-          if (typeof previous === 'string' && previous !== value) {
-            await this.fireModeChanged(this.flowCardIds.heatExchangerChanged, value);
-          }
+    /**
+     * Days until the service reminder: configured interval (HREG 538) minus
+     * days since the last acknowledgement (HREG 710), on units that have the
+     * counter, while the reminder is on (coil 49).
+     */
+    private async applyFilterCountdown(result: Record<string, Measurement>, pollSeq?: number) {
+      const intervalValue = this.reading(result, 'service_interval_days');
+      if (intervalValue === undefined) return;
+      const interval = Number(intervalValue);
+      const counter = this.reading(result, 'days_since_service_ack');
+      const reminder = this.reading(result, 'service_reminder');
+      if (counter !== undefined) {
+        const previous = this.getCapabilityValue('filter_days_remaining');
+        const remaining = reminder === '0' ? null : Math.max(0, interval - Number(counter));
+        await this.setIfChanged('filter_days_remaining', remaining);
+        if (this.driverCards.ids.filterDaysBelow && typeof previous === 'number' && typeof remaining === 'number' && remaining < previous) {
+          await this.homey.flow.getDeviceTriggerCard(this.driverCards.ids.filterDaysBelow)
+            .trigger(this, { days: remaining }, { previous, current: remaining })
+            .catch(this.error);
         }
       }
-
-      if (result['heating_coil'] && result['heating_coil'].value !== 'xxx') {
-        const { value } = result['heating_coil'];
-        if (value === '0' || value === '1') {
-          await this.setIfChanged(this.heatingCoilCapability, value);
-        }
-      }
-
-      if (result['alarm_b_desc'] && result['alarm_b_desc'].value !== 'xxx') {
-        const { value } = result['alarm_b_desc'];
-        if (value === '0' || value === '1') {
-          const alarmActive = value === '1';
-          // Capability listeners only fire on user-initiated changes, so the
-          // filter alarm trigger must be fired here on the poll transition.
-          const wasActive = this.getCapabilityValue('alarm_b.desc') === true;
-          await this.setIfChanged('alarm_b.desc', alarmActive);
-          if (alarmActive && !wasActive) {
-            await this.homey.flow.getDeviceTriggerCard(this.flowCardIds.alarmBTriggered)
-              .trigger(this)
-              .catch(this.error);
-          }
-        }
-      }
-
-      // Mirror the unit's active fireplace/overpressure duration (HREG 56) in
-      // the device settings. setSettings does not re-trigger onSettings, so
-      // this cannot loop.
-      if (result['fireplace_duration'] && result['fireplace_duration'].value !== 'xxx') {
-        const minutes = Number(result['fireplace_duration'].value);
-        if (this.isActive && minutes >= 1 && minutes <= 60
-          && this.getSetting('fireplace_duration_minutes') !== minutes
-          && this.mayMirrorSetting('fireplace_duration_minutes', minutes)) {
-          await this.setSettings({ fireplace_duration_minutes: minutes }).catch(this.error);
-        }
-      }
-
-      if (result['service_interval_days'] && result['service_interval_days'].value !== 'xxx') {
-        const interval = Number(result['service_interval_days'].value);
-        // Days until the service reminder: configured interval (HREG 538)
-        // minus days elapsed since last acknowledgement (HREG 710), on units
-        // that have the counter.
-        const counter = result['days_since_service_ack'];
-        const counterRead = counter !== undefined && counter.value !== 'xxx';
-        if (counterRead) {
-          const elapsed = Number(counter.value);
-          await this.setIfChanged('filter_days_remaining', Math.max(0, interval - elapsed));
-        }
-        // Mirror the unit's actual interval in the device settings so the
-        // settings page shows the truth. On units with the counter this waits
-        // for a poll that read both registers. setSettings does not re-trigger
-        // onSettings, so this cannot loop.
-        const hasCounter = 'days_since_service_ack' in this.registers;
-        if (this.isActive && (counterRead || !hasCounter)
-          && interval >= 1 && this.getSetting('filter_interval_days') !== interval
-          && this.mayMirrorSetting('filter_interval_days', interval)) {
-          await this.setSettings({ filter_interval_days: interval }).catch(this.error);
-        }
+      // Mirror the unit's actual interval in the device settings. On units
+      // with the counter this waits for a poll that read both registers.
+      const hasCounter = 'days_since_service_ack' in this.registers;
+      if ((counter !== undefined || !hasCounter) && inRange(interval, [1, 365]) !== undefined) {
+        await this.mirrorSetting('filter_interval_days', interval, pollSeq);
       }
     }
 }
+

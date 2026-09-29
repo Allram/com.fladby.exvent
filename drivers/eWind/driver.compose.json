@@ -14,15 +14,22 @@
     "measure_temperature.step",
     "heater_mode",
     "heat_exchanger_mode",
+    "heat_recovery_output",
+    "after_heating_output",
     "target_temperature.step",
+    "alarm_a",
     "alarm_b.desc",
+    "active_alarm",
     "measure_humidity.extractAir",
     "fanspeed_level",
     "eWindstatus",
     "eWindstatus_mode",
+    "boost",
     "lastPollTime",
     "heating_coil_state",
-    "filter_days_remaining"
+    "filter_days_remaining",
+    "season",
+    "button.reset_filter"
   ],
   "capabilitiesOptions": {
     "measure_temperature.exhaustAir": {
@@ -59,7 +66,8 @@
       "title": {
         "en": "Extract air humidity",
         "no": "Avtrekksfuktighet"
-      }
+      },
+      "decimals": 0
     },
     "efficiency.supplyEff": {
       "title": {
@@ -93,8 +101,8 @@
     },
     "alarm_b.desc": {
       "title": {
-        "en": "Filter alarm",
-        "no": "Filteralarm"
+        "en": "B alarm (service, filter etc.)",
+        "no": "B-alarm (service, filter m.m.)"
       }
     },
     "fanspeed_level": {
@@ -134,6 +142,17 @@
       "title": {
         "en": "Last poll time",
         "no": "Siste polling"
+      }
+    },
+    "button.reset_filter": {
+      "maintenanceAction": true,
+      "title": {
+        "en": "Reset filter change reminder",
+        "no": "Nullstill varsel om filterbytte"
+      },
+      "desc": {
+        "en": "Restarts the countdown to the next filter change. Use after replacing the filter.",
+        "no": "Starter nedtellingen til neste filterbytte på nytt. Brukes etter filterbytte."
       }
     }
   },
@@ -185,15 +204,17 @@
           "hint": {
             "en": "Modbus TCP port of the ventilation unit. This is 502 on a standard installation.",
             "no": "Modbus TCP-porten til ventilasjonsanlegget. Denne er 502 på et standardoppsett."
-          }
+          },
+          "min": 1,
+          "max": 65535
         }
       ]
     },
     {
       "type": "group",
       "label": {
-        "en": "Fireplace mode",
-        "no": "Peismodus"
+        "en": "Fireplace mode and boost",
+        "no": "Peismodus og boost"
       },
       "children": [
         {
@@ -204,12 +225,33 @@
             "no": "Varighet for peismodus"
           },
           "hint": {
-            "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed.",
-            "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring."
+            "en": "How many minutes fireplace mode (overpressure) stays active before the unit returns to normal operation. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+            "no": "Hvor mange minutter peismodus (overtrykk) er aktiv før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
           },
           "value": 10,
           "min": 1,
           "max": 60,
+          "units": {
+            "en": "min",
+            "no": "min"
+          },
+          "step": 1
+        },
+        {
+          "id": "boost_duration_minutes",
+          "type": "number",
+          "label": {
+            "en": "Boost duration",
+            "no": "Varighet for boost"
+          },
+          "hint": {
+            "en": "How many minutes boost lasts before the unit returns to normal operation. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+            "no": "Hvor mange minutter boost varer før anlegget går tilbake til normal drift. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
+          },
+          "value": 120,
+          "min": 1,
+          "max": 500,
+          "step": 1,
           "units": {
             "en": "min",
             "no": "min"
@@ -232,8 +274,8 @@
             "no": "Dager mellom filterbytter"
           },
           "hint": {
-            "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed.",
-            "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring."
+            "en": "Number of days after a reset before the filter change reminder is raised. Written to the ventilation unit when changed, and follows changes made on the unit panel.",
+            "no": "Antall dager etter nullstilling før varsel om filterbytte utløses. Skrives til ventilasjonsanlegget ved endring, og følger endringer gjort på panelet."
           },
           "value": 120,
           "min": 1,
@@ -241,7 +283,8 @@
           "units": {
             "en": "d",
             "no": "d"
-          }
+          },
+          "step": 1
         }
       ]
     }

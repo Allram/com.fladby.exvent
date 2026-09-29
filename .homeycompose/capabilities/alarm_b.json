@@ -7,5 +7,14 @@
   },
   "getable": true,
   "setable": false,
-  "uiComponent": "sensor"
+  "uiComponent": "sensor",
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "B alarm went off",
+    "no": "B-alarm utløst"
+  },
+  "insightsTitleFalse": {
+    "en": "B alarm cleared",
+    "no": "B-alarm opphørt"
+  }
 }

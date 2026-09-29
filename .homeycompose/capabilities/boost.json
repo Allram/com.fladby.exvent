@@ -1,0 +1,21 @@
+{
+  "type": "boolean",
+  "uiComponent": null,
+  "uiQuickAction": true,
+  "icon": "/assets/fanspeed.svg",
+  "title": {
+    "en": "Boost",
+    "no": "Boost"
+  },
+  "getable": true,
+  "setable": true,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Boost started",
+    "no": "Boost startet"
+  },
+  "insightsTitleFalse": {
+    "en": "Boost ended",
+    "no": "Boost avsluttet"
+  }
+}

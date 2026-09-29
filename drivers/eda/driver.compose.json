@@ -16,7 +16,9 @@
     "defrosting",
     "heat_exchanger_mode",
     "target_temperature.step",
+    "alarm_a",
     "alarm_b.desc",
+    "active_alarm",
     "measure_humidity.extractAir",
     "fanspeed_level",
     "fanspeed_level_set",
@@ -62,7 +64,8 @@
       "title": {
         "en": "Extract air humidity",
         "no": "Luftfuktighet avtrekk"
-      }
+      },
+      "decimals": 0
     },
     "efficiency.supplyEff": {
       "title": {
@@ -96,8 +99,8 @@
     },
     "alarm_b.desc": {
       "title": {
-        "en": "Filter alarm",
-        "no": "Filteralarm"
+        "en": "B alarm (service, filter etc.)",
+        "no": "B-alarm (service, filter m.m.)"
       }
     },
     "fanspeed_level": {
@@ -125,7 +128,7 @@
     "target_temperature.step": {
       "min": 10,
       "max": 30,
-      "step": 1,
+      "step": 0.5,
       "title": {
         "en": "Target temperature",
         "no": "Ønsket temperatur"
@@ -198,7 +201,9 @@
           "hint": {
             "en": "Modbus TCP port of the Freeway WEB adapter. This is 502 on a standard installation.",
             "no": "Modbus TCP-porten til Freeway WEB-adapteren. Denne er 502 på et standardoppsett."
-          }
+          },
+          "min": 1,
+          "max": 65535
         },
         {
           "id": "unit_id",
@@ -221,8 +226,8 @@
     {
       "type": "group",
       "label": {
-        "en": "Overpressure",
-        "no": "Overtrykk"
+        "en": "Overpressure and boost",
+        "no": "Overtrykk og boost"
       },
       "children": [
         {
@@ -239,6 +244,27 @@
           "value": 10,
           "min": 1,
           "max": 60,
+          "units": {
+            "en": "min",
+            "no": "min"
+          },
+          "step": 1
+        },
+        {
+          "id": "boost_duration_minutes",
+          "type": "number",
+          "label": {
+            "en": "Boost duration",
+            "no": "Varighet for boost"
+          },
+          "hint": {
+            "en": "How many minutes boost lasts before the unit returns to normal operation. Stored on the unit when changed, and follows changes made on the panel.",
+            "no": "Hvor mange minutter boost varer før aggregatet går tilbake til normal drift. Lagres på aggregatet ved endring, og følger endringer gjort på panelet."
+          },
+          "value": 30,
+          "min": 1,
+          "max": 60,
+          "step": 1,
           "units": {
             "en": "min",
             "no": "min"
@@ -358,7 +384,8 @@
           "units": {
             "en": "days",
             "no": "dager"
-          }
+          },
+          "step": 1
         }
       ]
     }

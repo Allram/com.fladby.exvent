@@ -11,11 +11,6 @@
   },
   "getable": true,
   "setable": true,
-  "insights": true,
-  "insightsTitleTrue": {
-    "en": "Heating allowed changed",
-    "no": "Varme tillatt endret"
-  },
   "values": [
     {
       "id": "1",
@@ -31,5 +26,6 @@
         "no": "Sperret"
       }
     }
-  ]
+  ],
+  "icon": "/assets/heater_mode.svg"
 }

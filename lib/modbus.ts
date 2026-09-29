@@ -83,11 +83,36 @@ export function decode(response: any, entry: RegisterEntry, blockStart: number, 
   return measurement;
 }
 
+/** How a Modbus request failed, from the error jsmodbus rejects with. */
+export type RequestFailure = 'exception' | 'timeout' | 'outOfSync' | 'offline' | 'other';
+
+export function requestFailure(err: any): RequestFailure {
+  switch (err && err.err) {
+    case 'ModbusException': return 'exception';
+    case 'Timeout': return 'timeout';
+    case 'OutOfSync':
+    case 'Protocol': return 'outOfSync';
+    case 'Offline':
+    case 'ManuallyCleared': return 'offline';
+    default: return 'other';
+  }
+}
+
+/** A short description of a request or socket error for the log. */
+export function describeError(err: any): string {
+  if (err && typeof err.err === 'string') return err.message ? `${err.err}: ${err.message}` : err.err;
+  if (err && err.code) return `${err.code}${err.message ? ` (${err.message})` : ''}`;
+  return err && err.message ? err.message : String(err);
+}
+
 /**
  * Reads every entry in a register map, batching adjacent registers into as
- * few Modbus requests as possible. If a batched read is rejected (some
- * firmwares refuse spans that touch unmapped addresses), the registers in
- * that block are read individually instead.
+ * few Modbus requests as possible. If the unit answers a batched read with a
+ * Modbus exception (some firmwares refuse spans that touch unmapped
+ * addresses), the registers in that block are read individually instead.
+ * A timeout or a lost connection is not a refused span: the first register
+ * of the block is tried alone once, and if that fails too the read fails,
+ * so the caller can reconnect instead of timing out on every register.
  */
 export async function readModbus(
   client: InstanceType<typeof Modbus.client.TCP>,
@@ -112,7 +137,14 @@ export async function readModbus(
         successCount++;
       }
     } catch (blockErr) {
+      if (requestFailure(blockErr) !== 'exception') {
+        const first = block[0];
+        const { response } = await read(first.addr, first.len);
+        result[first.key] = decode(response, first, first.addr, kind);
+        successCount++;
+      }
       for (const entry of block) {
+        if (result[entry.key]) continue;
         try {
           const { response } = await read(entry.addr, entry.len);
           result[entry.key] = decode(response, entry, entry.addr, kind);

@@ -8,15 +8,6 @@
   },
   "getable": true,
   "setable": false,
-  "insights": true,
-  "insightsTitleTrue": {
-    "en": "Heat exchanger status changed",
-    "no": "Varmeveksler status endret"
-  },
-  "insightsTitleFalse": {
-    "en": "Heat exchanger status changed",
-    "no": "Varmeveksler status endret"
-  },
   "values": [
     {
       "id": "0",
@@ -34,4 +25,3 @@
     }
   ]
 }
-

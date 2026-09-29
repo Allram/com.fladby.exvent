@@ -1,0 +1,31 @@
+{
+  "type": "enum",
+  "uiComponent": "sensor",
+  "icon": "/assets/season.svg",
+  "title": {
+    "en": "Season",
+    "no": "Sesong"
+  },
+  "desc": {
+    "en": "Summer when the 24-hour average outside temperature is above the unit threshold",
+    "no": "Sommer når døgnsnittet ute er over anleggets grense"
+  },
+  "getable": true,
+  "setable": false,
+  "values": [
+    {
+      "id": "summer",
+      "title": {
+        "en": "Summer",
+        "no": "Sommer"
+      }
+    },
+    {
+      "id": "winter",
+      "title": {
+        "en": "Winter",
+        "no": "Vinter"
+      }
+    }
+  ]
+}

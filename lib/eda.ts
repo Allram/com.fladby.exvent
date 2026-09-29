@@ -38,33 +38,54 @@ export const EDA_HOLDING_REGISTERS: RegisterMap = {
   // down: with 56 = 10 and 57 = 20 overpressure ran 10 minutes, and after
   // writing 56 = 20 it ran 20. The shared class writes 57 as well.
   fireplace_duration: [56, 1, 'UINT16', 'Overpressure duration in minutes'],
+  boost_duration: [66, 1, 'UINT16', 'Manual boost duration in minutes'],
   temperature_setpoint: [135, 1, 'INT16', 'Temperature setpoint'],
   cooling_block_temperature: [164, 1, 'INT16', 'Outdoor temperature below which cooling is blocked'],
   heating_block_temperature: [196, 1, 'INT16', 'Outdoor temperature above which heating is blocked'],
+  // The newest entry of the alarm log: type and state (low byte 2 = on).
+  alarm_type: [385, 1, 'UINT16', 'Newest alarm, number'],
+  alarm_state: [386, 1, 'UINT16', 'Newest alarm, state'],
   service_interval_days: [538, 1, 'UINT16', 'Service reminder interval in days'],
 };
 
 // Coil 40 (eco mode) is reserved on EDA, and HREG 710 (days since the
 // service reminder) does not exist.
 export const EDA_COILS: RegisterMap = {
-  fan_type: [16, 1, 'UINT32', 'Fan type, EC 1 / AC 0'],
-  cooling_status: [28, 1, 'UINT32', 'Cooling running'],
-  heat_exchanger_state: [30, 1, 'UINT32', 'Heat recovery running'],
-  heater_status: [32, 1, 'UINT32', 'Heating running'],
-  alarm_b_desc: [42, 1, 'UINT32', 'B alarm active'],
-  service_reminder: [49, 1, 'UINT32', 'Service reminder on'],
-  cooling_allowed: [52, 1, 'UINT32', 'Cooling allowed'],
-  heating_coil: [54, 1, 'UINT32', 'Heating allowed'],
+  fan_type: [16, 1, 'BIT', 'Fan type, EC 1 / AC 0'],
+  cooling_status: [28, 1, 'BIT', 'Cooling running'],
+  heat_exchanger_state: [30, 1, 'BIT', 'Heat recovery running'],
+  heater_status: [32, 1, 'BIT', 'Heating running'],
+  alarm_a: [41, 1, 'BIT', 'A alarm active'],
+  alarm_b_desc: [42, 1, 'BIT', 'B alarm active'],
+  service_reminder: [49, 1, 'BIT', 'Service reminder on'],
+  cooling_allowed: [52, 1, 'BIT', 'Cooling allowed'],
+  heating_coil: [54, 1, 'BIT', 'Heating allowed'],
 };
 
 /**
  * Coils of the unit's modes: overpressure, manual boost, away, long away, max
  * heating and max cooling. The unit does not turn one off when another is
  * turned on, so only one may be set at a time (as in eda-modbus-bridge).
- * Listed in the order the unit ranks them, so the mode being left is turned
- * off first: writes go out a second apart.
+ * The mode being set is turned on first and the others are turned off after
+ * it, in the order listed here, which is the order the unit ranks them.
  */
 export const EDA_MODE_COILS = [3, 10, 1, 2, 6, 7];
+
+/** The coil of each status mode that has one; Home has none. */
+export const EDA_MODE_COIL_BY_MODE: Record<string, number | null> = {
+  0: null, 1: 1, 2: 3, 3: 10,
+};
+
+/**
+ * The fan type from the level selected on the panel (HREG 53), when coil 16
+ * cannot be read: steps 1-8 on AC fans, 20-100% on EC fans. Undefined when
+ * the value fits neither.
+ */
+export function edaFanTypeFromLevel(level: number): boolean | undefined {
+  if (level >= 1 && level <= 8) return false;
+  if (level >= 20 && level <= 100) return true;
+  return undefined;
+}
 
 /**
  * Status values ('0' no heating or cooling, '1' cooling, '2' heat recovery,

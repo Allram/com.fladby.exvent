@@ -1,7 +1,7 @@
 import { afterEach, test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import {
-  DeviceOptions, FakeUnit, cleanupDevices, createDevice, readJson, settle,
+  FakeUnit, cleanupDevices, createDevice, defaultSettings, readJson, settle, startDevice,
 } from './device-harness';
 
 afterEach(cleanupDevices);
@@ -12,26 +12,6 @@ const EDA_HREG = {
 const EDA_COILS = {
   16: true, 30: true, 49: true, 52: true, 54: true,
 };
-
-/** Default values of a driver's settings, as a newly paired device has them. */
-function defaultSettings(driver: string): Record<string, unknown> {
-  const settings: Record<string, unknown> = {};
-  for (const group of readJson(`drivers/${driver}/driver.compose.json`).settings) {
-    for (const setting of group.children) settings[setting.id] = setting.value;
-  }
-  return settings;
-}
-
-/** An initialised device of the driver on a unit, with the writes, events and triggers of the start cleared. */
-async function startDevice(driver: 'eda' | 'eWind' | 'eAir', unit: FakeUnit, options: DeviceOptions = {}) {
-  const device = createDevice(driver, unit, { ...options, settings: { ...defaultSettings(driver), ...options.settings } });
-  await device.onInit();
-  await settle(device);
-  unit.writes.length = 0;
-  device.events.length = 0;
-  device.triggers.length = 0;
-  return device;
-}
 
 function capabilityEvents(device: any): string[] {
   return device.events.filter((event: string) => /Capability|StoreValue/.test(event));
@@ -56,7 +36,8 @@ test('EDA mode writes turn the other mode coils off', async () => {
     await settle(device);
     assert.deepEqual(unit.writes, coilWrites(1, 'FC15', coils), `mode ${mode}`);
     assert.equal(device.getCapabilityValue('edastatus_mode'), mode);
-    assert.deepEqual(device.triggers, [`edastatus_mode_changed {"mode":"${mode}"}`]);
+    // The unit starts in Home, so choosing Home again changes nothing to report.
+    assert.deepEqual(device.triggers, mode === '0' ? [] : [`edastatus_mode_changed {"mode":"${mode}"}`]);
   }
 });
 
@@ -174,12 +155,16 @@ test('EDA units with AC fans lose the fan level slider once', async () => {
   const unit = new FakeUnit(EDA_HREG, { ...EDA_COILS, 16: false });
   const paired = createDevice('eda', unit, { settings: defaultSettings('eda') });
   await paired.onInit();
-  assert.deepEqual(capabilityEvents(paired), ['setStoreValue ec_fans=false', 'removeCapability fanspeed_level_set']);
+  await settle(paired);
+  assert.deepEqual(capabilityEvents(paired), [
+    'setStoreValue ec_fans=false', 'setCapabilityOptions fanspeed_level {"units":{"en":"","no":""}}', 'removeCapability fanspeed_level_set',
+  ]);
 
   const restarted = createDevice('eda', unit, {
-    capabilities: paired.capabilities, store: paired.store, values: paired.values, settings: paired.settings,
+    capabilities: paired.capabilities, store: paired.store, values: paired.values, settings: paired.settings, capabilityOptions: paired.capabilityOptions,
   });
   await restarted.onInit();
+  await settle(restarted);
   assert.deepEqual(capabilityEvents(restarted), []);
   assert.equal('fanspeed_level_set' in restarted.listeners, false);
 });
@@ -188,6 +173,7 @@ test('EDA units with EC fans keep the fan level slider', async () => {
   const unit = new FakeUnit(EDA_HREG, EDA_COILS);
   const device = createDevice('eda', unit, { settings: defaultSettings('eda') });
   await device.onInit();
+  await settle(device);
   assert.deepEqual(capabilityEvents(device), ['setStoreValue ec_fans=true']);
   assert.equal(typeof device.listeners['fanspeed_level_set'], 'function');
   assert.equal(device.getCapabilityValue('fanspeed_level_set'), 0.5);
@@ -199,6 +185,7 @@ test('EDA units with EC fans keep the fan level slider', async () => {
     settings: defaultSettings('eda'),
   });
   await swapped.onInit();
+  await settle(swapped);
   assert.ok(swapped.events.includes('addCapability fanspeed_level_set'));
   assert.equal(typeof swapped.listeners['fanspeed_level_set'], 'function');
   assert.equal(swapped.store.ec_fans, true);
@@ -337,16 +324,19 @@ test('EDA mirrored settings follow writes that arrived', async () => {
 test('EDA writes skip values outside the settings range', async () => {
   const unit = new FakeUnit(EDA_HREG, EDA_COILS);
   const device = await startDevice('eda', unit);
+  // The settings dialog shows why a value is refused.
   for (const value of [25.5, -5.5, NaN, null, '', 'warm']) {
-    await device.onSettings({ newSettings: { ...device.settings, heating_block_temperature: value }, changedKeys: ['heating_block_temperature'] });
+    await assert.rejects(device.onSettings({ newSettings: { ...device.settings, heating_block_temperature: value }, changedKeys: ['heating_block_temperature'] }), { message: 'settings.invalidNumber' });
   }
   for (const value of [4.5, 40.5]) {
-    await device.onSettings({ newSettings: { ...device.settings, cooling_block_temperature: value }, changedKeys: ['cooling_block_temperature'] });
+    await assert.rejects(device.onSettings({ newSettings: { ...device.settings, cooling_block_temperature: value }, changedKeys: ['cooling_block_temperature'] }), { message: 'settings.invalidNumber' });
   }
-  const card = (id: string) => device.cards.get(id).listener;
+  const card = (id: string) => device.flowCards.get(id).listener;
   await card('set-heating-block-temperature_eda')({ device, temperature: 26 });
   await card('set-cooling-block-temperature_eda')({ device, temperature: 4 });
-  for (const minutes of [0, 61, 2.5, NaN]) await card('set-overpressure-duration_eda')({ device, minutes });
+  for (const minutes of [0, 61, 2.5, NaN]) {
+    await assert.rejects(card('set-overpressure-duration_eda')({ device, minutes }), { message: 'invalidDuration' });
+  }
   await settle(device);
   assert.deepEqual(unit.writes, []);
   assert.deepEqual(device.events, []);
@@ -369,25 +359,33 @@ test('EDA unit ID setting falls back to 1', () => {
   }
 });
 
-// Written on main (4.10.1) by the same calls; eWind and eAir must not change.
-const EWIND_EAIR_WRITES = [
-  // Mode 0 (Home) to 5 (Enhanced ventilation)
-  'FC5 unit 255 coil 0=0', 'FC5 unit 255 coil 1=0', 'FC5 unit 255 coil 3=0', 'FC5 unit 255 coil 10=0', 'FC6 unit 255 hreg 50=2',
-  'FC5 unit 255 coil 0=0', 'FC5 unit 255 coil 10=0', 'FC5 unit 255 coil 1=1',
-  'FC5 unit 255 coil 0=0', 'FC5 unit 255 coil 10=0', 'FC5 unit 255 coil 3=1',
-  'FC5 unit 255 coil 0=0', 'FC5 unit 255 coil 10=1',
-  'FC5 unit 255 coil 0=1',
-  'FC5 unit 255 coil 0=0', 'FC5 unit 255 coil 1=0', 'FC5 unit 255 coil 3=0', 'FC5 unit 255 coil 10=0', 'FC6 unit 255 hreg 50=3',
-  // Eco mode, heating coil, target temperature
-  'FC5 unit 255 coil 40=1', 'FC5 unit 255 coil 54=0', 'FC6 unit 255 hreg 135=210',
-  // Settings: filter interval, fireplace duration
-  'FC6 unit 255 hreg 538=90', 'FC6 unit 255 hreg 56=20', 'FC6 unit 255 hreg 57=20',
-  // Reset filter reminder
-  'FC6 unit 255 hreg 710=0',
-];
+/**
+ * What the mode picker and the other controls write on eWind and eAir. Away,
+ * fireplace and boost turn their own coil on first and the other mode coils
+ * off after it; eAir also ends a long away (coil 2) on Home and Enhanced.
+ */
+function mdWrites(driver: 'eWind' | 'eAir'): string[] {
+  const coil = (address: number, value: number) => `FC5 unit 255 coil ${address}=${value}`;
+  const longAway = driver === 'eAir' ? [coil(2, 0)] : [];
+  return [
+    // Mode 0 (Home) to 5 (Enhanced ventilation)
+    coil(0, 0), coil(1, 0), coil(3, 0), coil(10, 0), ...longAway, 'FC6 unit 255 hreg 50=2',
+    coil(0, 0), coil(1, 1), coil(3, 0), coil(10, 0),
+    coil(0, 0), coil(3, 1), coil(1, 0), coil(10, 0),
+    coil(0, 0), coil(10, 1), coil(1, 0), coil(3, 0),
+    coil(0, 1),
+    coil(0, 0), coil(1, 0), coil(3, 0), coil(10, 0), ...longAway, 'FC6 unit 255 hreg 50=3',
+    // Eco mode, heating coil, target temperature
+    coil(40, 1), coil(54, 0), 'FC6 unit 255 hreg 135=210',
+    // Settings: filter interval, fireplace duration
+    'FC6 unit 255 hreg 538=90', 'FC6 unit 255 hreg 56=20', 'FC6 unit 255 hreg 57=20',
+    // Reset filter reminder
+    'FC6 unit 255 hreg 710=0',
+  ];
+}
 
 for (const driver of ['eWind', 'eAir'] as const) {
-  test(`${driver} writes are unchanged`, async () => {
+  test(`${driver} writes`, async () => {
     const unit = new FakeUnit({
       44: 0, 45: 2, 50: 2, 56: 10, 57: 10, 135: 200, 538: 120, 710: 25,
     }, { 30: true, 54: true });
@@ -404,30 +402,38 @@ for (const driver of ['eWind', 'eAir'] as const) {
       newSettings: { ...device.settings, filter_interval_days: 90, fireplace_duration_minutes: 20 },
       changedKeys: ['filter_interval_days', 'fireplace_duration_minutes'],
     });
-    await device.cards.get(device.flowCardIds.resetFilterReminder).listener({ device });
+    await device.flowCards.get(device.flowCardIds.resetFilterReminder).listener({ device });
     await settle(device);
-    assert.deepEqual(unit.writes, EWIND_EAIR_WRITES);
-    assert.deepEqual(device.triggers, ['0', '1', '2', '3', '4', '5'].map((mode) => `${device.flowCardIds.statusModeChanged} {"mode":"${mode}"}`));
+    assert.deepEqual(unit.writes, mdWrites(driver));
+    // Home was the mode already, so the first pick reports nothing.
+    assert.deepEqual(device.triggers, ['1', '2', '3', '4', '5'].map((mode) => `${device.flowCardIds.statusModeChanged} {"mode":"${mode}"}`));
   });
 
-  test(`${driver} status and mirrored settings are unchanged`, async () => {
+  test(`${driver} status and mirrored settings`, async () => {
     const unit = new FakeUnit({
       44: 0, 45: 8, 50: 2, 56: 10, 57: 10, 135: 200, 538: 120, 710: 25,
     }, { 30: true, 54: true });
     const device = await startDevice(driver, unit);
     const status = `${driver}status`;
     assert.equal(device.getCapabilityValue(status), '5');
-    for (const step of [5, 6, 9, 10]) {
+    for (const step of [5, 9, 10]) {
       unit.hreg.set(45, step);
       await device.pollDevice();
-      assert.equal(device.getCapabilityValue(status), '5', `HREG 45 = ${step} is not mapped on ${driver}`);
+      assert.equal(device.getCapabilityValue(status), '5', `HREG 45 = ${step} is not a step on ${driver}`);
     }
-    // Fireplace duration is mirrored within 1-60; the filter interval from 1 up.
+    unit.hreg.set(45, 6);
+    await device.pollDevice();
+    assert.equal(device.getCapabilityValue(status), '6', 'summer night cooling');
+    unit.hreg.set(45, 2 | 16384);
+    await device.pollDevice();
+    assert.equal(device.getCapabilityValue(status), '2', 'the step is bits 0-3; pre-heating (bit 14) leaves it alone');
+    // The fireplace duration shown is the default in HREG 57, which the unit
+    // runs after a restart; the filter interval is mirrored within 1-365.
     unit.hreg.set(56, 61);
     unit.hreg.set(538, 400);
     await device.pollDevice();
-    assert.deepEqual(device.events.filter((event: string) => event.startsWith('setSettings')), ['setSettings {"filter_interval_days":400}']);
-    unit.hreg.set(56, 30);
+    assert.deepEqual(device.events.filter((event: string) => event.startsWith('setSettings')), []);
+    unit.hreg.set(57, 30);
     await device.pollDevice();
     assert.equal(device.settings.fireplace_duration_minutes, 30);
   });

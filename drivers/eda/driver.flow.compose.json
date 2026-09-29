@@ -53,7 +53,9 @@
           "name": "temperature",
           "min": 10,
           "max": 30,
-          "step": 1
+          "step": 0.5,
+          "label": " °C",
+          "labelDecimals": 1
         }
       ]
     },
@@ -109,7 +111,11 @@
             }
           ]
         }
-      ]
+      ],
+      "hint": {
+        "en": "Boost ends by itself after the boost duration, and overpressure after the overpressure duration in the device settings. Off stops the unit.",
+        "no": "Boost slutter av seg selv etter boostvarigheten, og overtrykk etter varigheten i enhetsinnstillingene. Av stopper aggregatet."
+      }
     },
     {
       "id": "set-cooling_eda",
@@ -155,8 +161,8 @@
         "no": "Sperr varme over"
       },
       "titleFormatted": {
-        "en": "Block heating above [[temperature]] °C",
-        "no": "Sperr varme over [[temperature]] °C"
+        "en": "Block heating above [[temperature]]",
+        "no": "Sperr varme over [[temperature]]"
       },
       "hint": {
         "en": "Heating is blocked while the outdoor temperature is above this temperature. Stored on the unit.",
@@ -168,7 +174,9 @@
           "name": "temperature",
           "min": -5,
           "max": 25,
-          "step": 0.5
+          "step": 0.5,
+          "label": " °C",
+          "labelDecimals": 1
         }
       ]
     },
@@ -179,8 +187,8 @@
         "no": "Sperr kjøling under"
       },
       "titleFormatted": {
-        "en": "Block cooling below [[temperature]] °C",
-        "no": "Sperr kjøling under [[temperature]] °C"
+        "en": "Block cooling below [[temperature]]",
+        "no": "Sperr kjøling under [[temperature]]"
       },
       "hint": {
         "en": "Cooling is blocked while the outdoor temperature is below this temperature. Stored on the unit.",
@@ -192,7 +200,9 @@
           "name": "temperature",
           "min": 5,
           "max": 40,
-          "step": 0.5
+          "step": 0.5,
+          "label": " °C",
+          "labelDecimals": 1
         }
       ]
     },
@@ -204,8 +214,8 @@
         "no": "Sett viftenivå"
       },
       "titleFormatted": {
-        "en": "Set fan level to [[level]] %",
-        "no": "Sett viftenivå til [[level]] %"
+        "en": "Set fan level to [[level]]",
+        "no": "Sett viftenivå til [[level]]"
       },
       "hint": {
         "en": "Sets the unit's fan level, just like its panel. Only for units with EC fans. Boost, overpressure and a running heat pump can raise it for a while.",
@@ -217,7 +227,8 @@
           "name": "level",
           "min": 20,
           "max": 100,
-          "step": 1
+          "step": 1,
+          "label": "%"
         }
       ]
     },
@@ -228,8 +239,8 @@
         "no": "Sett varighet for overtrykk"
       },
       "titleFormatted": {
-        "en": "Set overpressure duration to [[minutes]] min",
-        "no": "Sett varighet for overtrykk til [[minutes]] min"
+        "en": "Set overpressure duration to [[minutes]]",
+        "no": "Sett varighet for overtrykk til [[minutes]]"
       },
       "hint": {
         "en": "How many minutes overpressure stays active before the unit returns to normal operation. Stored on the unit, and applies the next time overpressure starts.",
@@ -241,7 +252,58 @@
           "name": "minutes",
           "min": 1,
           "max": 60,
-          "step": 1
+          "step": 1,
+          "label": " min"
+        }
+      ]
+    },
+    {
+      "id": "start-boost_eda",
+      "title": {
+        "en": "Start boost for a number of minutes",
+        "no": "Start boost i et antall minutter"
+      },
+      "titleFormatted": {
+        "en": "Start boost for [[minutes]]",
+        "no": "Start boost i [[minutes]]"
+      },
+      "hint": {
+        "en": "Sets the boost duration on the unit and starts boost. The duration is kept for the next boost too.",
+        "no": "Setter boostvarigheten på aggregatet og starter boost. Varigheten gjelder også neste boost."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "minutes",
+          "min": 1,
+          "max": 60,
+          "step": 1,
+          "label": " min"
+        }
+      ]
+    },
+    {
+      "id": "start-overpressure_eda",
+      "title": {
+        "en": "Start overpressure for a number of minutes",
+        "no": "Start overtrykk i et antall minutter"
+      },
+      "titleFormatted": {
+        "en": "Start overpressure for [[minutes]]",
+        "no": "Start overtrykk i [[minutes]]"
+      },
+      "hint": {
+        "en": "Sets the overpressure duration on the unit and starts overpressure. The duration is kept for the next time too.",
+        "no": "Setter varigheten for overtrykk på aggregatet og starter overtrykk. Varigheten gjelder også neste gang."
+      },
+      "args": [
+        {
+          "type": "range",
+          "name": "minutes",
+          "min": 1,
+          "max": 60,
+          "step": 1,
+          "label": " min"
         }
       ]
     }
@@ -250,18 +312,32 @@
     {
       "id": "alarm_b_triggered_eda",
       "title": {
-        "en": "Filter alarm triggered",
-        "no": "Filteralarm utløst"
+        "en": "B alarm",
+        "no": "B-alarm"
       },
       "titleFormatted": {
-        "en": "The filter alarm went off",
-        "no": "Filteralarmen ble utløst"
+        "en": "A B alarm went off",
+        "no": "En B-alarm ble utløst"
       },
       "hint": {
-        "en": "The unit reports that the filters need replacing or that service is due.",
-        "no": "Aggregatet melder at filtrene må byttes eller at det er tid for service."
+        "en": "The unit reports a class B alarm, such as dirty filters or the service reminder. The alarm token says which.",
+        "no": "Aggregatet melder en B-alarm, for eksempel tette filtre eller servicepåminnelse. Tokenet sier hvilken."
       },
-      "args": []
+      "args": [],
+      "tokens": [
+        {
+          "name": "alarm",
+          "type": "string",
+          "title": {
+            "en": "Alarm",
+            "no": "Alarm"
+          },
+          "example": {
+            "en": "Service reminder",
+            "no": "Servicepåminnelse"
+          }
+        }
+      ]
     },
     {
       "id": "edastatus_mode_changed",
@@ -278,6 +354,13 @@
           "name": "mode_title",
           "type": "dropdown",
           "values": [
+            {
+              "id": "any",
+              "label": {
+                "en": "Any",
+                "no": "Hvilken som helst"
+              }
+            },
             {
               "id": "0",
               "label": {
@@ -315,7 +398,25 @@
             }
           ]
         }
-      ]
+      ],
+      "tokens": [
+        {
+          "name": "mode",
+          "type": "string",
+          "title": {
+            "en": "Mode",
+            "no": "Modus"
+          },
+          "example": {
+            "en": "Home",
+            "no": "Hjemme"
+          }
+        }
+      ],
+      "hint": {
+        "en": "Fires when the mode changes, whether from Homey, a flow, the unit panel or the unit itself. A change on the panel can take up to a minute to show.",
+        "no": "Går når modus endres, enten fra Homey, en flow, panelet eller aggregatet selv. En endring på panelet kan bruke opptil ett minutt på å vises."
+      }
     },
     {
       "id": "heat_exchanger_mode_changed_eda",
@@ -333,6 +434,13 @@
           "type": "dropdown",
           "values": [
             {
+              "id": "any",
+              "label": {
+                "en": "Any",
+                "no": "Hvilken som helst"
+              }
+            },
+            {
               "id": "1",
               "label": {
                 "en": "on",
@@ -347,6 +455,20 @@
               }
             }
           ]
+        }
+      ],
+      "tokens": [
+        {
+          "name": "mode",
+          "type": "string",
+          "title": {
+            "en": "State",
+            "no": "Tilstand"
+          },
+          "example": {
+            "en": "Active",
+            "no": "Aktiv"
+          }
         }
       ]
     },
@@ -366,6 +488,13 @@
           "type": "dropdown",
           "values": [
             {
+              "id": "any",
+              "label": {
+                "en": "Any",
+                "no": "Hvilken som helst"
+              }
+            },
+            {
               "id": "1",
               "label": {
                 "en": "on",
@@ -380,6 +509,20 @@
               }
             }
           ]
+        }
+      ],
+      "tokens": [
+        {
+          "name": "mode",
+          "type": "string",
+          "title": {
+            "en": "State",
+            "no": "Tilstand"
+          },
+          "example": {
+            "en": "Active",
+            "no": "Aktiv"
+          }
         }
       ]
     },
@@ -434,18 +577,48 @@
         "no": "Kjøling stoppet"
       },
       "args": []
+    },
+    {
+      "id": "alarm_a_triggered_eda",
+      "title": {
+        "en": "A alarm",
+        "no": "A-alarm"
+      },
+      "titleFormatted": {
+        "en": "An A alarm went off",
+        "no": "En A-alarm ble utløst"
+      },
+      "hint": {
+        "en": "The unit reports a serious alarm, such as frost or fire risk, and stops. The alarm token says which.",
+        "no": "Aggregatet melder en alvorlig alarm, for eksempel frostfare eller brannfare, og stopper. Tokenet sier hvilken."
+      },
+      "tokens": [
+        {
+          "name": "alarm",
+          "type": "string",
+          "title": {
+            "en": "Alarm",
+            "no": "Alarm"
+          },
+          "example": {
+            "en": "Service reminder",
+            "no": "Servicepåminnelse"
+          }
+        }
+      ],
+      "args": []
     }
   ],
   "conditions": [
     {
       "id": "edastatus_mode_is",
       "title": {
-        "en": "Mode is",
-        "no": "Modus er"
+        "en": "Mode !{{is|is not}}",
+        "no": "Modus !{{er|er ikke}}"
       },
       "titleFormatted": {
-        "en": "Mode is [[mode]]",
-        "no": "Modus er [[mode]]"
+        "en": "Mode !{{is|is not}} [[mode]]",
+        "no": "Modus !{{er|er ikke}} [[mode]]"
       },
       "args": [
         {
@@ -494,12 +667,12 @@
     {
       "id": "heat_exchanger_mode_is_eda",
       "title": {
-        "en": "Heat exchanger is",
-        "no": "Varmeveksler er"
+        "en": "Heat exchanger !{{is|is not}}",
+        "no": "Varmeveksler !{{er|er ikke}}"
       },
       "titleFormatted": {
-        "en": "Heat exchanger is [[mode]]",
-        "no": "Varmeveksler er [[mode]]"
+        "en": "Heat exchanger !{{is|is not}} [[mode]]",
+        "no": "Varmeveksler !{{er|er ikke}} [[mode]]"
       },
       "args": [
         {
@@ -527,12 +700,12 @@
     {
       "id": "heater_mode_is_eda",
       "title": {
-        "en": "Heating is",
-        "no": "Varme er"
+        "en": "Heating !{{is|is not}}",
+        "no": "Varme !{{er|er ikke}}"
       },
       "titleFormatted": {
-        "en": "Heating is [[mode]]",
-        "no": "Varme er [[mode]]"
+        "en": "Heating !{{is|is not}} [[mode]]",
+        "no": "Varme !{{er|er ikke}} [[mode]]"
       },
       "args": [
         {
@@ -578,6 +751,22 @@
       "titleFormatted": {
         "en": "Cooling !{{is|is not}} active",
         "no": "Kjøling !{{er|er ikke}} i drift"
+      },
+      "args": []
+    },
+    {
+      "id": "alarm_a_is_eda",
+      "title": {
+        "en": "A alarm !{{is|is not}} active",
+        "no": "A-alarm !{{er|er ikke}} aktiv"
+      },
+      "args": []
+    },
+    {
+      "id": "alarm_b_is_eda",
+      "title": {
+        "en": "B alarm !{{is|is not}} active",
+        "no": "B-alarm !{{er|er ikke}} aktiv"
       },
       "args": []
     }
