@@ -1,10 +1,12 @@
 name: Validate Homey App
 
+# Pull requests are off in this repository; contributions come as pull
+# requests on the GitHub mirror (github.com/Allram/com.fladby.exvent), where
+# .github/workflows/pr.yml runs the same checks.
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   validate:

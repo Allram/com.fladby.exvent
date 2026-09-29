@@ -1,0 +1,52 @@
+name: Tests
+
+# Runs on GitHub only. The repository lives on kode.fladby.org and is
+# push-mirrored to github.com/Allram/com.fladby.exvent, where contributions
+# arrive as pull requests. Forgejo ignores .github/workflows because
+# .forgejo/workflows exists. Same checks as .forgejo/workflows/validate.yml.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Node 22 is the floor the project is typed for (engines >=22,
+      # @tsconfig/node22). Homey Pro runs Node 24 and the Homey CLI requires
+      # >=24, so the tests run on both and lint and validate run on 24.
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run unit tests (Node 22)
+        run: npm test
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run unit tests (Node 24)
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Validate Homey App (publish level)
+        run: npx homey app validate --level publish
