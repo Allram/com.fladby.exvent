@@ -224,7 +224,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
     }
 
     delay(ms: number) {
-      return new Promise((resolve) => this.homey.setTimeout(resolve, ms));
+      return new Promise((resolve) => {
+        this.homey.setTimeout(resolve, ms);
+      });
     }
 
     /**
@@ -337,7 +339,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * is rejected, so nothing waits on it forever.
      */
     teardownSocket() {
-      const socket = this.socket;
+      const { socket } = this;
       const attempt = this.connectAttempt;
       this.socket = null;
       this.client = null;
@@ -419,7 +421,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
           'lastPollTime',
           new Date().toLocaleString(this.homey.i18n.getLanguage(), { timeZone: this.homey.clock.getTimezone(), hour12: false }),
         );
-      } catch (err) {
+      } catch {
         // Ignore errors if device is deleted
       }
     }
@@ -843,7 +845,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         const current = this.getCapabilityValue(capabilityId);
         if (current === value) return;
         await this.setCapabilityValue(capabilityId, value);
-      } catch (_) {
+      } catch {
         // Ignore capability errors (e.g., device deleted)
       }
     }
@@ -857,7 +859,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (id === 'mode' || !this.homey.insights) return null;
       try {
         return await this.homey.insights.getLog(id);
-      } catch (_) {
+      } catch {
         try {
           return await this.homey.insights.createLog(id, {
             title: `${this.getName()}: ${this.homey.__('modeLogTitle')}`,
@@ -902,7 +904,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
           }
           try {
             await withTimeout(Promise.all(writes), SETTINGS_WRITE_TIMEOUT_MS, () => new Error(this.homey.__('settingsWriteFailed')));
-          } catch (err) {
+          } catch {
             // A new address is saved even when the unit's settings could not
             // be written; the poll then shows what the unit has.
             if (connectionChanged) return this.homey.__('settingsWriteFailedAddressSaved');
@@ -1207,4 +1209,3 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
     }
 }
-

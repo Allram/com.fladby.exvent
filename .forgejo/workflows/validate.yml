@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Node 22 is the floor the project is typed for (engines >=22,
   # @tsconfig/node22), so the unit tests run there too. The job image
@@ -17,6 +21,7 @@ jobs:
   test-node22:
     name: Unit tests (Node 22)
     runs-on: docker
+    timeout-minutes: 15
     container:
       image: data.forgejo.org/oci/node:22
     steps:
@@ -36,6 +41,7 @@ jobs:
 
   validate:
     runs-on: docker
+    timeout-minutes: 15
     steps:
       # Clone by hand with the run token in the URL (instance runs with
       # REQUIRE_SIGNIN_VIEW). This works and is kept, but actions/checkout@v4
@@ -69,3 +75,8 @@ jobs:
 
       - name: Validate Homey App (publish level)
         run: npx homey app validate --level publish
+
+      # Validation rebuilds app.json from .homeycompose; a difference means
+      # the committed app.json is out of date.
+      - name: Committed app.json is up to date
+        run: git diff --exit-code app.json

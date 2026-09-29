@@ -213,7 +213,12 @@ class FakeCard {
 
 class FakeLog {
   entries: Array<number | boolean> = [];
-  constructor(public id: string) {}
+  id: string;
+
+  constructor(id: string) {
+    this.id = id;
+  }
+
   async createEntry(value: number | boolean) {
     this.entries.push(value);
   }
@@ -454,7 +459,9 @@ export async function startDevice(driver: DriverName, unit: FakeUnit, options: D
 /** Waits until the device's queued writes have all been sent. */
 export async function settle(device: any) {
   for (let round = 0; round < 1000; round++) {
-    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise((resolve) => {
+      setImmediate(resolve);
+    });
     if (!device.drainingWriteQueue && device.writeQueue.length === 0 && !device.pollingInProgress) return;
   }
   throw new Error('writes did not settle');

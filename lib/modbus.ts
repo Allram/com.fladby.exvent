@@ -149,7 +149,7 @@ export async function readModbus(
           const { response } = await read(entry.addr, entry.len);
           result[entry.key] = decode(response, entry, entry.addr, kind);
           successCount++;
-        } catch (err) {
+        } catch {
           // Individual register failures are tolerated; only a fully
           // dead device (nothing responding) is treated as an error.
         }

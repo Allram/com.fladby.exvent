@@ -1,11 +1,11 @@
 {
   "id": "com.fladby.exvent",
-  "version": "4.11.1",
-  "compatibility": ">=5.0.0",
+  "version": "4.12.0",
+  "compatibility": ">=7.4.0",
   "sdk": 3,
   "brandColor": "#88B943",
   "source": "https://github.com/Allram/com.fladby.exvent",
-  "support": "mailto:vegard.fladby@gmail.com",
+  "support": "https://github.com/Allram/com.fladby.exvent/issues",
   "platforms": [
     "local"
   ],
@@ -44,14 +44,25 @@
   "tags": {
     "en": [
       "Ventilation",
+      "Heat recovery",
+      "HRV",
+      "Air handling unit",
       "Modbus",
       "Exvent",
-      "EDA"
+      "eWind",
+      "eAir",
+      "EDA",
+      "Freeway"
     ],
     "no": [
       "Ventilasjon",
+      "Varmegjenvinning",
+      "Balansert ventilasjon",
+      "Ventilasjonsaggregat",
       "Modbus",
       "Exvent",
+      "eWind",
+      "eAir",
       "EDA"
     ]
   }

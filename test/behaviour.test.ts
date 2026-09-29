@@ -8,8 +8,30 @@ afterEach(cleanupDevices);
 
 /** An eWind or eAir unit at home, heat recovery on, 12.3 °C outside. */
 const MD_HREG = {
-  3: 45, 4: 47, 6: 123, 7: 145, 8: 146, 9: 212, 10: 230, 13: 48, 29: 24, 30: 19, 44: 0, 45: 2, 49: 40, 50: 2,
-  56: 60, 57: 60, 66: 120, 134: 110, 135: 150, 137: 120, 385: 0, 386: 0, 538: 180, 710: 63,
+  3: 45,
+  4: 47,
+  6: 123,
+  7: 145,
+  8: 146,
+  9: 212,
+  10: 230,
+  13: 48,
+  29: 24,
+  30: 19,
+  44: 0,
+  45: 2,
+  49: 40,
+  50: 2,
+  56: 60,
+  57: 60,
+  66: 120,
+  134: 110,
+  135: 150,
+  137: 120,
+  385: 0,
+  386: 0,
+  538: 180,
+  710: 63,
 };
 const MD_COILS = { 30: true, 49: true, 54: true };
 
@@ -52,7 +74,9 @@ test('a write that waited on a torn-down attempt gets through on the next connec
   unit.silent = true;
   device.connectSocket();
   const write = device.sendCoilRequest(40, true);
-  await new Promise((resolve) => setImmediate(resolve));
+  await new Promise((resolve) => {
+    setImmediate(resolve);
+  });
   // A poll that gave up tears the hanging attempt down.
   device.teardownSocket();
   unit.silent = false;
@@ -223,7 +247,9 @@ test('eAir Home ends a long away set on the panel; eWind leaves coil 2 alone', a
 });
 
 test('EDA has no enhanced ventilation: the mode is refused before anything is written', async () => {
-  const unit = new FakeUnit({ 44: 0, 45: 2, 50: 50, 53: 50 }, { 16: true });
+  const unit = new FakeUnit({
+    44: 0, 45: 2, 50: 50, 53: 50,
+  }, { 16: true });
   const device = await startDevice('eda', unit);
   await assert.rejects(device.setStatusModeValue('5'), { message: 'modeNotSupported' });
   assert.deepEqual(unit.writes, []);
@@ -354,7 +380,9 @@ test('boost duration is mirrored from the unit on eWind', async () => {
 for (const driver of ['eWind', 'eAir', 'eda'] as DriverName[]) {
   test(`${driver}: an A alarm goes off with its text`, async () => {
     const unit = driver === 'eda'
-      ? new FakeUnit({ 44: 0, 45: 2, 50: 50, 53: 50 }, { 16: true })
+      ? new FakeUnit({
+        44: 0, 45: 2, 50: 50, 53: 50,
+      }, { 16: true })
       : mdUnit();
     const device = await startDevice(driver, unit);
     unit.coils.set(41, true);
@@ -420,7 +448,9 @@ test('the reset filter button writes the counter', async () => {
 });
 
 test('EDA fan type falls back to the panel level, and AC fans show no percent', async () => {
-  const unit = new FakeUnit({ 44: 0, 45: 2, 50: 3, 53: 3 }, {});
+  const unit = new FakeUnit({
+    44: 0, 45: 2, 50: 3, 53: 3,
+  }, {});
   unit.unreadable.add('coil 16');
   const device = await startDevice('eda', unit);
   assert.equal(device.store.ec_fans, false);
@@ -429,7 +459,9 @@ test('EDA fan type falls back to the panel level, and AC fans show no percent', 
 });
 
 test('EDA target temperature goes in half degrees', async () => {
-  const unit = new FakeUnit({ 44: 0, 45: 2, 50: 50, 53: 50, 135: 210 }, { 16: true });
+  const unit = new FakeUnit({
+    44: 0, 45: 2, 50: 50, 53: 50, 135: 210,
+  }, { 16: true });
   const device = await startDevice('eda', unit);
   await card(device, 'set-temperature_eda')({ device, temperature: 21.4 });
   assert.deepEqual(unit.writes, ['FC16 unit 1 hreg 135=215']);
@@ -460,7 +492,9 @@ test('pairing test: reachable, refused, duplicate and not answering', async (t) 
 });
 
 test('EDA pairing test tells an MD unit from an EDA unit', async () => {
-  const eda = new FakeUnit({ 44: 0, 45: 2, 50: 50, 53: 50, 599: 210 }, { 16: true });
+  const eda = new FakeUnit({
+    44: 0, 45: 2, 50: 50, 53: 50, 599: 210,
+  }, { 16: true });
   const device = await startDevice('eda', eda);
   const md = new FakeUnit({ 599: 150 });
   assert.equal((await device.driver.testConnection({ address: md.address, port: 502 })).code, 'platform');

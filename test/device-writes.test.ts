@@ -325,11 +325,12 @@ test('EDA writes skip values outside the settings range', async () => {
   const unit = new FakeUnit(EDA_HREG, EDA_COILS);
   const device = await startDevice('eda', unit);
   // The settings dialog shows why a value is refused.
+  const save = (id: string, value: unknown) => device.onSettings({ newSettings: { ...device.settings, [id]: value }, changedKeys: [id] });
   for (const value of [25.5, -5.5, NaN, null, '', 'warm']) {
-    await assert.rejects(device.onSettings({ newSettings: { ...device.settings, heating_block_temperature: value }, changedKeys: ['heating_block_temperature'] }), { message: 'settings.invalidNumber' });
+    await assert.rejects(save('heating_block_temperature', value), { message: 'settings.invalidNumber' });
   }
   for (const value of [4.5, 40.5]) {
-    await assert.rejects(device.onSettings({ newSettings: { ...device.settings, cooling_block_temperature: value }, changedKeys: ['cooling_block_temperature'] }), { message: 'settings.invalidNumber' });
+    await assert.rejects(save('cooling_block_temperature', value), { message: 'settings.invalidNumber' });
   }
   const card = (id: string) => device.flowCards.get(id).listener;
   await card('set-heating-block-temperature_eda')({ device, temperature: 26 });

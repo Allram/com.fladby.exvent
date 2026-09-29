@@ -20,6 +20,22 @@ The MD lists are published on the [Enervent document
 server](https://doc.enervent.com/out/out.ViewFolder.php?folderid=16&showtree=1) and are not
 duplicated here — download them from the source so they stay current.
 
+### eWind and eAir
+
+The two MD drivers share one register map (`lib/exvent.ts`), taken from the eWind list. The
+public eAir list (Enervent document 59, MD software 1.14 and later) marks several of the
+registers the app uses as *Reserved — must not be altered*: HREG 50 (panel fan speed level, written
+by Home and Enhanced ventilation), 56 and 57 (fireplace duration), 66 (boost duration), 710
+(days since the service reminder) and coil 3 (fireplace). The same list marks 405 entries as
+reserved, among them functions the eAir panel plainly has, so *reserved* reads as *not
+published* rather than *missing*. The app uses the eWind meaning of these registers on eAir,
+except HREG 66, which it does not read or write there. No eAir owner has reported a problem, but
+none has confirmed them against the panel either.
+
+The eAir list documents two registers the eWind list does not: HREG 3 and 4, the effective supply
+and extract fan speeds in percent. The app reads them on eAir only. It also documents coil 2
+(long away), which Home and Enhanced ventilation turn off on eAir as they do on EDA.
+
 A unit reports its own platform in holding register **599** (software version):
 
 | Value | Platform |

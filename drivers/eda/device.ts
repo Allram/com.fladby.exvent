@@ -297,7 +297,7 @@ class MyEdaDevice extends ExventModbusDevice {
     let options: any = {};
     try {
       options = this.getCapabilityOptions('fanspeed_level') ?? {};
-    } catch (_) {
+    } catch {
       options = {};
     }
     const units = ecFans ? { en: '%', no: '%' } : { en: '', no: '' };
@@ -327,7 +327,7 @@ class MyEdaDevice extends ExventModbusDevice {
   private async readEcFansFromUnit(): Promise<boolean> {
     try {
       await this.ensureConnected();
-    } catch (err) {
+    } catch {
       throw new Error(this.homey.__('noConnection'));
     }
     let ecFans: boolean | undefined;
@@ -335,7 +335,7 @@ class MyEdaDevice extends ExventModbusDevice {
       const result = await readModbus(this.client, { fan_type: this.coilRegisters['fan_type'] }, 'coil');
       const value = result['fan_type'] && result['fan_type'].value;
       if (value === '0' || value === '1') ecFans = value === '1';
-    } catch (err) {
+    } catch {
       ecFans = undefined;
     }
     if (ecFans === undefined) {
@@ -343,7 +343,7 @@ class MyEdaDevice extends ExventModbusDevice {
         const result = await readModbus(this.client, { fan_speed_panel: this.registers['fan_speed_panel'] }, 'holding');
         const level = result['fan_speed_panel'] && Number(result['fan_speed_panel'].value);
         if (level !== undefined && Number.isFinite(level)) ecFans = edaFanTypeFromLevel(level);
-      } catch (err) {
+      } catch {
         ecFans = undefined;
       }
     }

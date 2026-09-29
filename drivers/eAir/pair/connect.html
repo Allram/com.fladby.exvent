@@ -89,14 +89,14 @@
   <p class="intro" data-i18n="pair.intro_eAir"></p>
   <div class="field">
     <label for="address" data-i18n="pair.address">IP address</label>
-    <input type="text" id="address" placeholder="192.168.1.100" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+    <input type="text" id="address" placeholder="192.168.1.100" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
   </div>
   <div class="field">
     <label for="port" data-i18n="pair.port">Port</label>
-    <input type="number" id="port" placeholder="502" value="502" min="1" max="65535" required>
+    <input type="number" id="port" placeholder="502" value="502" min="1" max="65535" inputmode="numeric" required>
   </div>
   <button type="button" id="connect" class="connect-button" data-i18n="pair.connect" disabled>Connect</button>
-  <p id="error" class="error"></p>
+  <p id="error" class="error" role="alert" aria-live="assertive"></p>
 </div>
 
 
@@ -106,6 +106,12 @@
   // translation helper and Homey.addDevice() with a callback. Each of them
   // falls back to the SDK3-documented equivalent when missing, and script
   // errors are surfaced in the error box instead of failing silently.
+  // Before adding, the driver tests the connection; when that fails the
+  // message is shown and the button adds the device anyway on the next tap.
+  var forceAdd = false;
+  // The address and port the failed test was for; changing either tests again.
+  var testedFor = null;
+
   function t(key) {
     try { if (typeof __ === 'function') return __(key); } catch (e) {}
     try { if (typeof Homey !== 'undefined' && typeof Homey.__ === 'function') return Homey.__(key); } catch (e) {}
@@ -125,15 +131,23 @@
   }
 
   window.onerror = function (msg, src, line) {
-    try { showError('Script error: ' + msg + (line ? ' (line ' + line + ')' : '')); } catch (e) {}
+    try { showError(t('pair.scriptError') + ' ' + msg + (line ? ' (' + line + ')' : '')); } catch (e) {}
   };
 
+  // The same check as lib/settings.ts: an IPv4 address without leading zeros, or a host name.
   function isValidHost(value) {
-    var ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
-    if (ipv4.test(value)) {
-      return value.split('.').every(function (octet) { return Number(octet) <= 255; });
+    if (/^[\d.]+$/.test(value)) {
+      var octets = value.split('.');
+      return octets.length === 4 && octets.every(function (octet) {
+        return /^(0|[1-9]\d{0,2})$/.test(octet) && Number(octet) <= 255;
+      });
     }
     return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$/.test(value);
+  }
+
+  function setButton(label) {
+    var button = document.getElementById('connect');
+    if (button) button.textContent = label;
   }
 
   function updateButtonState() {
@@ -146,7 +160,83 @@
     button.disabled = !ready;
   }
 
-  function addDevice() {
+  function currentInput() {
+    var address = document.getElementById('address');
+    var port = document.getElementById('port');
+    return (address ? address.value.trim() : '') + ':' + (port ? port.value : '');
+  }
+
+  function onInputChanged() {
+    if (forceAdd && currentInput() !== testedFor) {
+      forceAdd = false;
+      setButton(t('pair.connect'));
+      hideError();
+    }
+    updateButtonState();
+  }
+
+  function newDeviceId() {
+    try {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    } catch (e) {}
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  // Homey.emit answers with a promise on newer Homeys and a callback on older ones.
+  function testConnection(data, done) {
+    var finished = false;
+    function finish(error, result) {
+      if (finished) return;
+      finished = true;
+      done(error, result);
+    }
+    try {
+      if (typeof Homey.emit !== 'function') {
+        finish(new Error('emit missing'));
+        return;
+      }
+      var answer = Homey.emit('test', data, function (error, result) { finish(error, result); });
+      if (answer && typeof answer.then === 'function') {
+        answer.then(function (result) { finish(null, result); }, function (error) { finish(error); });
+      }
+    } catch (e) {
+      finish(e);
+    }
+    setTimeout(function () { finish(new Error('no answer')); }, 12000);
+  }
+
+  function addDevice(address, port) {
+    var button = document.getElementById('connect');
+    button.textContent = t('pair.connecting');
+
+    function onFail(error) {
+      button.classList.remove('busy');
+      setButton(t('pair.connect'));
+      forceAdd = false;
+      updateButtonState();
+      showError((error && error.message) || String(error));
+    }
+
+    var payload = {
+      name: 'eAir',
+      data: { id: newDeviceId() },
+      settings: { address: address, port: port },
+    };
+    try {
+      if (typeof Homey.addDevice === 'function') {
+        Homey.addDevice(payload, function (error) {
+          if (error) onFail(error);
+          else Homey.done();
+        });
+      } else {
+        Homey.createDevice(payload).then(function () { Homey.done(); }).catch(onFail);
+      }
+    } catch (e) {
+      onFail(e);
+    }
+  }
+
+  function connect() {
     var button = document.getElementById('connect');
     if (!button || button.classList.contains('busy')) return;
     var address = document.getElementById('address').value.trim();
@@ -166,33 +256,27 @@
 
     button.disabled = true;
     button.classList.add('busy');
-    button.textContent = t('pair.connecting');
 
-    function onFail(error) {
-      button.classList.remove('busy');
-      button.textContent = t('pair.connect');
-      updateButtonState();
-      showError((error && error.message) || String(error));
+    if (forceAdd) {
+      addDevice(address, port);
+      return;
     }
 
-    var deviceId = Math.random().toString(36).substring(2, 7).toLowerCase();
-    var payload = {
-      name: 'eAir',
-      data: { id: deviceId },
-      settings: { address: address, port: port },
-    };
-    try {
-      if (typeof Homey.addDevice === 'function') {
-        Homey.addDevice(payload, function (error) {
-          if (error) onFail(error);
-          else Homey.done();
-        });
-      } else {
-        Homey.createDevice(payload).then(function () { Homey.done(); }).catch(onFail);
+    button.textContent = t('pair.testing');
+    testConnection({ address: address, port: port }, function (error, result) {
+      // Without an answer (an older Homey, or the driver did not reply) the
+      // device is added as before, and it connects on its own later.
+      if (error || !result || result.ok) {
+        addDevice(address, port);
+        return;
       }
-    } catch (e) {
-      onFail(e);
-    }
+      button.classList.remove('busy');
+      forceAdd = true;
+      testedFor = currentInput();
+      setButton(t('pair.addAnyway'));
+      updateButtonState();
+      showError(result.message + ' ' + t('pair.autoConnect'));
+    });
   }
 
   function initPairing() {
@@ -203,10 +287,10 @@
 
   if (typeof $ === 'function') {
     $(function () {
-      $('#connect').on('click', addDevice);
-      $('#address, #port').on('input keyup change', updateButtonState);
+      $('#connect').on('click', connect);
+      $('#address, #port').on('input keyup change', onInputChanged);
       $('#address, #port').on('keydown', function (event) {
-        if (event.key === 'Enter') addDevice();
+        if (event.key === 'Enter') connect();
       });
       initPairing();
     });
@@ -215,17 +299,16 @@
       window.__exventPairingBound = true;
       document.addEventListener('input', function (event) {
         var id = event.target && event.target.id;
-        if (id === 'address' || id === 'port') updateButtonState();
+        if (id === 'address' || id === 'port') onInputChanged();
       }, true);
       document.addEventListener('keyup', function (event) {
         var id = event.target && event.target.id;
-        if (id === 'address' || id === 'port') updateButtonState();
-        if (event.key === 'Enter' && (id === 'address' || id === 'port')) addDevice();
+        if (event.key === 'Enter' && (id === 'address' || id === 'port')) connect();
       }, true);
       document.addEventListener('click', function (event) {
         var target = event.target;
         while (target && target !== document) {
-          if (target.id === 'connect') { addDevice(); return; }
+          if (target.id === 'connect') { connect(); return; }
           target = target.parentNode;
         }
       }, true);

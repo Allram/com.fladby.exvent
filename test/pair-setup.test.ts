@@ -1,4 +1,4 @@
-// Smoke test of the pairing pages, drivers/*/pair/setup.html.
+// Smoke test of the pairing pages, drivers/*/pair/connect.html.
 //
 // Homey's firmware does not open a view as a page of its own. It fetches the
 // HTML and inserts it with jQuery, `$(viewEl).html(html)`, into its pairing
@@ -31,7 +31,7 @@ const DRIVERS = ['eWind', 'eAir', 'eda'];
 
 /** The firmware's pairing page, reduced to what a view needs. */
 const PAIRING_PAGE = `<!doctype html>
-<html><head></head><body id="hy-wrap"><div id="hy-views"><div class="hy-view" data-id="setup"></div></div></body></html>`;
+<html><head></head><body id="hy-wrap"><div id="hy-views"><div class="hy-view" data-id="connect"></div></div></body></html>`;
 
 interface Pairing {
   document: any;
@@ -47,7 +47,9 @@ interface Pairing {
 }
 
 function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 async function until(check: () => boolean, what: string) {
@@ -58,8 +60,12 @@ async function until(check: () => boolean, what: string) {
   assert.fail(`timed out waiting for ${what}`);
 }
 
-/** Shows the driver's pairing view the way the firmware does. */
-async function showPairingView(driver: string): Promise<Pairing> {
+/**
+ * Shows the driver's pairing view the way the firmware does. With `test`,
+ * Homey.emit('test') answers the view's connection test with it; without,
+ * the Homey has no emit, as on older firmware.
+ */
+async function showPairingView(driver: string, test?: any): Promise<Pairing> {
   const errors: string[] = [];
   const virtualConsole = new VirtualConsole();
   virtualConsole.on('jsdomError', (error: Error) => errors.push(error.message));
@@ -72,7 +78,9 @@ async function showPairingView(driver: string): Promise<Pairing> {
   script.textContent = JQUERY;
   document.head.appendChild(script);
   if (document.readyState !== 'complete') {
-    await new Promise((resolve) => window.addEventListener('load', resolve));
+    await new Promise((resolve) => {
+      window.addEventListener('load', resolve);
+    });
   }
 
   const pairing: Pairing = {
@@ -102,9 +110,12 @@ async function showPairingView(driver: string): Promise<Pairing> {
       pairing.done++;
     },
   };
+  if (test) {
+    homey.emit = (event: string) => (event === 'test' ? Promise.resolve(test) : Promise.reject(new Error(event)));
+  }
   window.Homey = homey;
 
-  const html = fs.readFileSync(path.join(ROOT, 'drivers', driver, 'pair', 'setup.html'), 'utf8');
+  const html = fs.readFileSync(path.join(ROOT, 'drivers', driver, 'pair', 'connect.html'), 'utf8');
   const viewEl = document.querySelector('.hy-view');
   window.$(viewEl).html(html);
   window.translateElement(viewEl);
@@ -160,6 +171,39 @@ for (const driver of DRIVERS) {
       assert.equal(errorBox(pairing), 'pair.invalidip');
       assert.deepEqual(pairing.created, []);
       assert.equal(pairing.done, 0);
+      assert.deepEqual(pairing.errors, []);
+    } finally {
+      pairing.window.close();
+    }
+  });
+}
+
+for (const driver of DRIVERS) {
+  test(`${driver} pairing view adds the device when the connection test passes`, async () => {
+    const pairing = await showPairingView(driver, { ok: true });
+    try {
+      type(pairing, 'address', '192.168.1.50');
+      pairing.document.getElementById('connect').click();
+      await until(() => pairing.done > 0, 'Homey.done() after a passed test');
+      assert.equal(pairing.created.length, 1);
+    } finally {
+      pairing.window.close();
+    }
+  });
+
+  test(`${driver} pairing view explains a failed test and adds the device on the next tap`, async () => {
+    const pairing = await showPairingView(driver, { ok: false, code: 'timeout', message: 'pair.test.timeout' });
+    try {
+      const button = pairing.document.getElementById('connect');
+      type(pairing, 'address', '192.168.1.50');
+      button.click();
+      await until(() => errorBox(pairing) !== '', 'the test message');
+      assert.equal(errorBox(pairing), 'pair.test.timeout pair.autoConnect');
+      assert.equal(button.textContent, 'pair.addAnyway');
+      assert.deepEqual(pairing.created, []);
+      button.click();
+      await until(() => pairing.done > 0, 'Homey.done() after Add anyway');
+      assert.equal(pairing.created.length, 1);
       assert.deepEqual(pairing.errors, []);
     } finally {
       pairing.window.close();

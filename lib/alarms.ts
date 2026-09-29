@@ -37,7 +37,6 @@ const EDA_ALARM_TYPES: Record<number, { en: string; no: string }> = {
   15: { en: 'Electric heater pressure switch', no: 'Trykkvakt for elektrisk ettervarmer' },
 };
 
-
 /** The text for an alarm type, in the language given ('no' or anything else for English). */
 export function alarmText(type: number, language: string, eda = false): string {
   const names = (eda && EDA_ALARM_TYPES[type]) || ALARM_TYPES[type];

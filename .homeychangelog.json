@@ -1,267 +1,355 @@
 {
-  "1.0.5": {
-    "en": "Update Appstore text and replaced icon for better visibility. Rephrased readme."
-  },
-  "1.0.4": {
-    "en": "Changed wording of eWind Status to Heating/Cooling status and rephrased 'nothing' to 'No heating/cooling'. Replaced icon for better readability."
-  },
-  "1.0.3": {
-    "en": "Further fixes, not need to convert string from string."
-  },
-  "1.0.2": {
-    "en": "Fixed wrong type used to get Status. Changed from Number to String."
+  "1.0.0": {
+    "en": "Working modbus support for reading values.",
+    "no": "Første versjon: leser verdiene fra anlegget over Modbus."
   },
   "1.0.1": {
-    "en": "Changed 'Current Temperature' to show temperature after heat recovery instead of before heat recovery."
+    "en": "Changed 'Current Temperature' to show temperature after heat recovery instead of before heat recovery.",
+    "no": "Gjeldende temperatur viser nå tilluften etter varmegjenvinning."
   },
-  "1.0.0": {
-    "en": "Working modbus support for reading values."
+  "1.0.2": {
+    "en": "Fixed wrong type used to get Status. Changed from Number to String.",
+    "no": "Rettet visningen av status."
+  },
+  "1.0.3": {
+    "en": "Further fixes, not need to convert string from string.",
+    "no": "Flere rettinger av status."
+  },
+  "1.0.4": {
+    "en": "Changed wording of eWind Status to Heating/Cooling status and rephrased 'nothing' to 'No heating/cooling'. Replaced icon for better readability.",
+    "no": "Status heter nå Varme/kjøling-status, og «ingenting» heter «Ingen varming/kjøling». Nytt ikon."
+  },
+  "1.0.5": {
+    "en": "Update Appstore text and replaced icon for better visibility. Rephrased readme.",
+    "no": "Ny butikktekst og tydeligere ikon."
   },
   "1.0.6": {
-    "en": "Rebased."
+    "en": "Rebased.",
+    "no": "Intern oppdatering."
   },
   "1.0.7": {
-    "en": "Changed temperature current airtemp to supply_air."
+    "en": "Changed temperature current airtemp to supply_air.",
+    "no": "Gjeldende temperatur er nå tilluften."
   },
   "1.1.0": {
-    "en": "Added Support, Source and Bugs URL. Added more Insights, Fixed a potensial crash, added Ecomode readout, added Ecomode flows."
+    "en": "Added Support, Source and Bugs URL. Added more Insights, Fixed a potensial crash, added Ecomode readout, added Ecomode flows.",
+    "no": "Flere målinger i Insights, økomodus vises og kan brukes i flyter, og en mulig krasj er rettet."
   },
   "1.1.1": {
-    "en": "Added rewrite Ecomode flows. Cleanup of code."
+    "en": "Added rewrite Ecomode flows. Cleanup of code.",
+    "no": "Økomodus-kortene er skrevet om."
   },
   "1.1.2": {
-    "en": "Fixed a fault in calculation of effectivity and updated packages."
+    "en": "Fixed a fault in calculation of effectivity and updated packages.",
+    "no": "Rettet utregningen av virkningsgrad."
   },
   "1.2.0": {
-    "en": "Added remaining filter days and status of heating element and heat exchanger."
+    "en": "Added remaining filter days and status of heating element and heat exchanger.",
+    "no": "Viser dager til filterbytte og om varmekolben og varmeveksleren går."
   },
   "1.2.1": {
-    "en": "Added missing capabilities."
+    "en": "Added missing capabilities.",
+    "no": "Manglende målinger lagt til."
   },
   "1.2.2": {
-    "en": "Fixed spelling error in capability."
+    "en": "Fixed spelling error in capability.",
+    "no": "Rettet en skrivefeil."
   },
   "1.3.0": {
-    "en": "Added alarm for filter alarm and trigger flow card."
+    "en": "Added alarm for filter alarm and trigger flow card.",
+    "no": "Filteralarm med eget flytkort."
   },
   "2.0.0": {
-    "en": "Added adjustment of temperature, mode setting, ecomode setting."
+    "en": "Added adjustment of temperature, mode setting, ecomode setting.",
+    "no": "Du kan nå stille ønsket temperatur, modus og økomodus."
   },
   "2.1.0": {
-    "en": "Code cleanup, fixed migration/updating of new capabilities for exisiting devices."
+    "en": "Code cleanup, fixed migration/updating of new capabilities for exisiting devices.",
+    "no": "Eksisterende enheter får nå nye målinger automatisk."
   },
   "2.1.1": {
-    "en": "Fixed spelling error."
+    "en": "Fixed spelling error.",
+    "no": "Rettet en skrivefeil."
   },
   "2.1.2": {
-    "en": "Removed Remaining filter days as that was a static value."
+    "en": "Removed Remaining filter days as that was a static value.",
+    "no": "Dager til filterbytte er fjernet fordi verdien aldri endret seg."
   },
   "2.1.3": {
-    "en": "Update packages and removed unnecessary packages, changed polling rate to 1min."
+    "en": "Update packages and removed unnecessary packages, changed polling rate to 1min.",
+    "no": "Leser anlegget hvert minutt."
   },
   "2.2.0": {
-    "en": "Added action flowcards for Ecomode and Mode."
+    "en": "Added action flowcards for Ecomode and Mode.",
+    "no": "Flytkort for å sette økomodus og modus."
   },
   "2.2.1": {
-    "en": "Updated code."
+    "en": "Updated code.",
+    "no": "Intern oppdatering."
   },
   "2.2.2": {
-    "en": "Turn off boost when mode changes."
+    "en": "Turn off boost when mode changes.",
+    "no": "Boost slås av når modus endres."
   },
   "2.3.0": {
-    "en": "Fixed flow cards, added Capability: Last Poll time. Cleanup code and removed some unnecessary logging."
+    "en": "Fixed flow cards, added Capability: Last Poll time. Cleanup code and removed some unnecessary logging.",
+    "no": "Rettet flytkortene, og ny måling: Siste polling."
   },
   "2.3.1": {
-    "en": "Try to fix capability crash."
+    "en": "Try to fix capability crash.",
+    "no": "Forsøk på å rette en krasj."
   },
   "2.4.0": {
-    "en": "Added more delays between sending commands to prevent socket hangup. Try to fix Last poll time to not count when poll is failing."
+    "en": "Added more delays between sending commands to prevent socket hangup. Try to fix Last poll time to not count when poll is failing.",
+    "no": "Lengre pause mellom kommandoer, så forbindelsen ikke faller ut. Siste polling teller ikke mislykkede lesinger."
   },
   "2.4.1": {
-    "en": "Remove deprecated capability. Tune delays."
+    "en": "Remove deprecated capability. Tune delays.",
+    "no": "Justerte pauser mellom kommandoer."
   },
   "2.5.0": {
-    "en": "Added TCP keepAlive to keep the Modbus connection always connected (30sec KeepAlive), Removed some more logging, removed delay between requests as KeepAlive solves the problem with Socket Hangup."
+    "en": "Added TCP keepAlive to keep the Modbus connection always connected (30sec KeepAlive), Removed some more logging, removed delay between requests as KeepAlive solves the problem with Socket Hangup.",
+    "no": "Forbindelsen til anlegget holdes åpen."
   },
   "2.6.0": {
-    "en": "Fixed socket problems. Removed ModbusID."
+    "en": "Fixed socket problems. Removed ModbusID.",
+    "no": "Rettet problemer med forbindelsen."
   },
   "2.6.1": {
-    "en": "Added OFF-mode to turn the ventilation system off."
+    "en": "Added OFF-mode to turn the ventilation system off.",
+    "no": "Ny modus: Av, som stopper anlegget."
   },
   "2.6.2": {
-    "en": "Added AutoReconnect if Wifi-connection is unstable or the Modbus module in the ventilation system randomly disconnects."
+    "en": "Added AutoReconnect if Wifi-connection is unstable or the Modbus module in the ventilation system randomly disconnects.",
+    "no": "Kobler seg til igjen av seg selv når wifi eller Modbus-modulen faller ut."
   },
   "2.7.0": {
-    "en": "Translated into Norwegian."
+    "en": "Translated into Norwegian.",
+    "no": "Oversatt til norsk."
   },
   "2.7.1": {
-    "en": "Fixed translation errors."
+    "en": "Fixed translation errors.",
+    "no": "Rettet oversettelser."
   },
   "2.7.2": {
-    "en": "Fixed lastPollTime to show actually poll time and stop update if Modbus connection quits."
+    "en": "Fixed lastPollTime to show actually poll time and stop update if Modbus connection quits.",
+    "no": "Siste polling viser når verdiene faktisk ble lest, og stopper når forbindelsen er borte."
   },
   "2.7.3": {
-    "en": "Reduced timeout."
+    "en": "Reduced timeout.",
+    "no": "Kortere ventetid."
   },
   "2.7.4": {
-    "en": "Fixed a bug in target_temperature which forced the modbus-connection to force-close if values were out of range."
+    "en": "Fixed a bug in target_temperature which forced the modbus-connection to force-close if values were out of range.",
+    "no": "En ønsket temperatur utenfor området får ikke lenger forbindelsen til å falle ut."
   },
   "2.7.5": {
-    "en": "Fixed a bug in the new bugfix..."
+    "en": "Fixed a bug in the new bugfix...",
+    "no": "Retting av forrige retting."
   },
   "2.7.6": {
-    "en": "Added possibility to set target temperature"
+    "en": "Added possibility to set target temperature",
+    "no": "Ønsket temperatur kan settes."
   },
   "2.8.0": {
-    "en": "Updated and changed some capabilities to work with the new Homey Pro 2023."
+    "en": "Updated and changed some capabilities to work with the new Homey Pro 2023.",
+    "no": "Tilpasset Homey Pro 2023."
   },
   "2.8.1": {
-    "en": "Fixed a bug in rewritting to HP23. Measure_temperature should be back on HP now."
+    "en": "Fixed a bug in rewritting to HP23. Measure_temperature should be back on HP now.",
+    "no": "Temperaturene vises igjen på Homey Pro 2023."
   },
   "2.9.0": {
-    "en": "Changing modes while polling data should now set the mode after the pull is complete, rewrote some of the code for further optimalization."
+    "en": "Changing modes while polling data should now set the mode after the pull is complete, rewrote some of the code for further optimalization.",
+    "no": "Et modusbytte mens anlegget leses, settes når lesingen er ferdig."
   },
   "2.9.1": {
-    "en": "Updated dependencies."
+    "en": "Updated dependencies.",
+    "no": "Intern oppdatering."
   },
   "2.10.0": {
-    "en": "Added support for eAir systems."
+    "en": "Added support for eAir systems.",
+    "no": "Støtte for eAir."
   },
   "2.10.1": {
-    "en": "Bugfix. Typingerror on eAir capability."
+    "en": "Bugfix. Typingerror on eAir capability.",
+    "no": "Rettet en feil på eAir."
   },
   "2.10.2": {
-    "en": "Bugfix. Typing error on eAir capability."
+    "en": "Bugfix. Typing error on eAir capability.",
+    "no": "Rettet en feil på eAir."
   },
   "2.10.3": {
-    "en": "Bugfix. Typing error on eAir capability."
+    "en": "Bugfix. Typing error on eAir capability.",
+    "no": "Rettet en feil på eAir."
   },
   "2.11.0": {
-    "en": "Fixing spelling errors on eWind and eAir pairing. Fixed reconnecting if the IP or PORT is changed in Device settings."
+    "en": "Fixing spelling errors on eWind and eAir pairing. Fixed reconnecting if the IP or PORT is changed in Device settings.",
+    "no": "Rettet skrivefeil ved parring, og enheten kobler seg til igjen når IP-adresse eller port endres."
   },
   "2.12.0": {
-    "en": "Fixed polling to poll when a new state is set. Fixed the mode-changer to jump to previous value until new polling is done. Fixes crash when device is deleted."
+    "en": "Fixed polling to poll when a new state is set. Fixed the mode-changer to jump to previous value until new polling is done. Fixes crash when device is deleted.",
+    "no": "Anlegget leses etter et modusbytte, og en krasj når enheten slettes er rettet."
   },
   "2.13.0": {
-    "en": "Fixed multiple polling-timers going off at the same time."
+    "en": "Fixed multiple polling-timers going off at the same time.",
+    "no": "Rettet at flere lesinger kunne gå samtidig."
   },
   "2.14.0": {
-    "en": "Added trigger card for Filteralarm."
+    "en": "Added trigger card for Filteralarm.",
+    "no": "Flytkort for filteralarm."
   },
   "2.15.0": {
-    "en": "Added trigger cards for Mode change, Heat exchanger and heating element."
+    "en": "Added trigger cards for Mode change, Heat exchanger and heating element.",
+    "no": "Flytkort når modus, varmeveksler eller varmekolbe endres."
   },
   "3.0.0": {
-    "en": "Added condition cards for Mode change, Heat exchanger and heating element."
+    "en": "Added condition cards for Mode change, Heat exchanger and heating element.",
+    "no": "Flytkort som sjekker modus, varmeveksler og varmekolbe."
   },
   "3.0.1": {
-    "en": "Fixed some more polling issues."
+    "en": "Fixed some more polling issues.",
+    "no": "Rettet flere problemer med lesingen."
   },
   "3.0.2": {
-    "en": "Updated packages, Added debounce for polling, new reconnect logic and try to fix polling to work consistent."
+    "en": "Updated packages, Added debounce for polling, new reconnect logic and try to fix polling to work consistent.",
+    "no": "Mer stabil lesing og gjenoppkobling."
   },
   "3.0.3": {
-    "en": "Refactor the reconnection mechanic. Updated packages."
+    "en": "Refactor the reconnection mechanic. Updated packages.",
+    "no": "Ny gjenoppkobling."
   },
   "3.0.4": {
-    "en": "Added autoReconnect."
+    "en": "Added autoReconnect.",
+    "no": "Kobler seg til igjen av seg selv."
   },
   "3.0.5": {
-    "en": "Fix autoReconnect."
+    "en": "Fix autoReconnect.",
+    "no": "Rettet gjenoppkoblingen."
   },
   "3.0.6": {
-    "en": "Fix flowcards for eAir."
+    "en": "Fix flowcards for eAir.",
+    "no": "Rettet flytkortene for eAir."
   },
   "3.0.7": {
-    "en": "Fix flowcards for eAir."
+    "en": "Fix flowcards for eAir.",
+    "no": "Rettet flytkortene for eAir."
   },
   "3.0.8": {
-    "en": "Another attempt at fixing reconnection logic without spamming the Exvent device with connection attempts."
+    "en": "Another attempt at fixing reconnection logic without spamming the Exvent device with connection attempts.",
+    "no": "Gjenoppkobling uten å overbelaste anlegget."
   },
   "3.0.9": {
-    "en": "Added more logging when app crashes."
+    "en": "Added more logging when app crashes.",
+    "no": "Mer logging når appen krasjer."
   },
   "3.0.10": {
-    "en": "Retry connection also when socket is ended as that happens when t.ex wifi router is updated."
+    "en": "Retry connection also when socket is ended as that happens when t.ex wifi router is updated.",
+    "no": "Kobler seg til igjen når forbindelsen blir brutt, for eksempel når ruteren oppdateres."
   },
   "3.1.0": {
-    "en": "Added the possibility to control the heating coil on or off."
+    "en": "Added the possibility to control the heating coil on or off.",
+    "no": "Varmekolben kan slås av og på."
   },
   "3.1.1": {
-    "en": "Bugfix: Flowcard for setting mode on eAir had a typo that preventet it from running."
+    "en": "Bugfix: Flowcard for setting mode on eAir had a typo that preventet it from running.",
+    "no": "Flytkortet som setter modus på eAir virker nå."
   },
   "3.1.2": {
-    "en": "Bugfix: Flowcard for setting mode on eAir had a typo that preventet it from running."
+    "en": "Bugfix: Flowcard for setting mode on eAir had a typo that preventet it from running.",
+    "no": "Flytkortet som setter modus på eAir virker nå."
   },
   "3.2.0": {
-    "en": "Refactor reconnection logic for both drivers. Support with the new Isla app is now confirmed.."
+    "en": "Refactor reconnection logic for both drivers. Support with the new Isla app is now confirmed..",
+    "no": "Mer stabil gjenoppkobling. Virker med den nye Isla-appen."
   },
   "3.2.1": {
-    "en": "Fixed a bug in eAir status mode flow card."
+    "en": "Fixed a bug in eAir status mode flow card.",
+    "no": "Rettet flytkortet for modus på eAir."
   },
   "3.2.2": {
-    "en": "Further Bugfix for eAir Flow card."
+    "en": "Further Bugfix for eAir Flow card.",
+    "no": "Flere rettinger av flytkortene for eAir."
   },
   "3.2.3": {
-    "en": "Further Bugfix for eAir Trigger Flow card."
+    "en": "Further Bugfix for eAir Trigger Flow card.",
+    "no": "Rettet utløseren for eAir."
   },
   "3.2.4": {
-    "en": "Fixing reconnection problems."
+    "en": "Fixing reconnection problems.",
+    "no": "Rettet problemer med gjenoppkobling."
   },
   "4.0.0": {
-    "en": "Made reconnection logic more robust, fixed flows for turning the heating elemenent on/off. Values does not update now if there is no new value to prevent cpu peaks on Homey when all values updates for every poll. Fixed flows running when device is disconnected/offline. Now shows 'no connection' when the device is offline. Reworked bounce timers so we don't overload the device when it's back online, updated to node.js22"
+    "en": "Made reconnection logic more robust, fixed flows for turning the heating elemenent on/off. Values does not update now if there is no new value to prevent cpu peaks on Homey when all values updates for every poll. Fixed flows running when device is disconnected/offline. Now shows 'no connection' when the device is offline. Reworked bounce timers so we don't overload the device when it's back online, updated to node.js22",
+    "no": "Mer stabil forbindelse, varmekolbe av/på virker fra flyter, og Siste polling viser «Ingen forbindelse» når anlegget er borte."
   },
   "4.0.1": {
-    "en": "Bugfix for LastPollTime capability and reconnect logic. Updated Tagline and description of the app."
+    "en": "Bugfix for LastPollTime capability and reconnect logic. Updated Tagline and description of the app.",
+    "no": "Rettet Siste polling og gjenoppkoblingen. Ny beskrivelse av appen."
   },
   "4.0.2": {
-    "en": "Fixed Last poll time showing wrong time during daylight saving time (now uses Europe/Oslo). Fixed unsigned register decoding. Cleaned up dependencies."
+    "en": "Fixed Last poll time showing wrong time during daylight saving time (now uses Europe/Oslo). Fixed unsigned register decoding. Cleaned up dependencies.",
+    "no": "Siste polling viser riktig tid ved sommertid."
   },
   "4.0.3": {
-    "en": "Last poll time now uses the timezone and language configured on your Homey instead of a fixed Norwegian timezone."
+    "en": "Last poll time now uses the timezone and language configured on your Homey instead of a fixed Norwegian timezone.",
+    "no": "Siste polling bruker tidssonen og språket på Homey-en din."
   },
   "4.1.0": {
-    "en": "Modbus writes are now serialized through a queue so quick mode changes or simultaneous flows can no longer cancel each other's commands. Fixed eAir flow cards: Ecomode, Heating coil and Set temperature action cards now actually run, condition cards now compare values correctly, and Heat exchanger/Heating element/Filter alarm triggers now fire. Flow cards now always act on the selected device when multiple devices are paired."
+    "en": "Quick mode changes and Flows that run at the same time no longer cancel each other. The eAir Flow cards work, and cards act on the right device when you have several.",
+    "no": "Raske modusbytter og flyter som kjører samtidig, opphever ikke lenger hverandre. Flytkortene for eAir virker, og kortene treffer riktig enhet når du har flere."
   },
   "4.2.0": {
-    "en": "Internal cleanup: eWind and eAir now share one common driver implementation, so fixes always apply to both. More reliable shutdown with multiple devices, honest connection error handling, and a Modbus request timeout is now actually applied."
+    "en": "A steadier connection, and fixes now always apply to both eWind and eAir.",
+    "no": "Mer stabil forbindelse, og rettinger gjelder nå alltid både eWind og eAir."
   },
   "4.3.0": {
-    "en": "Polling now reads adjacent registers in batched Modbus requests (17 requests per poll reduced to 6), lowering the load on both Homey and the ventilation unit's Modbus module. Automatically falls back to individual reads if the unit rejects a batched read."
+    "en": "The app reads the unit with far fewer requests, which puts less load on Homey and the unit.",
+    "no": "Appen leser anlegget med langt færre forespørsler, som gir mindre belastning på Homey og anlegget."
   },
   "4.4.0": {
-    "en": "The device state is now re-read a few seconds after commands are sent, so Homey shows the unit's actual state without waiting for the next poll. Added unit tests for the Modbus batching logic and refreshed the documentation."
+    "en": "Homey shows the unit's actual state a few seconds after a command, without waiting for the next reading.",
+    "no": "Homey viser anleggets faktiske tilstand noen sekunder etter en kommando, uten å vente på neste lesing."
   },
   "4.5.0": {
-    "en": "New 'Days until filter change' sensor with countdown and insights. New flow card to reset the filter change reminder after replacing the filter. The filter alarm trigger now actually fires when the unit raises the alarm."
+    "en": "New 'Days until filter change' sensor with countdown and insights. New flow card to reset the filter change reminder after replacing the filter. The filter alarm trigger now actually fires when the unit raises the alarm.",
+    "no": "Ny måling: dager til filterbytte. Nytt flytkort som nullstiller filtervarselet etter filterbytte. Filteralarmen utløser nå flytkortet."
   },
   "4.6.0": {
-    "en": "New device setting to adjust the number of days between filter changes (written to the unit). Redesigned pairing with input validation, correct texts for eAir and dark mode support. Improved reconnection when the IP address or port is changed."
+    "en": "New device setting to adjust the number of days between filter changes (written to the unit). Redesigned pairing with input validation, correct texts for eAir and dark mode support. Improved reconnection when the IP address or port is changed.",
+    "no": "Ny innstilling for dager mellom filterbytter. Ny parringsside med kontroll av IP-adressen, riktige tekster for eAir og mørk modus."
   },
   "4.6.1": {
-    "en": "Updated App Store images per reviewer feedback."
+    "en": "Updated App Store images per reviewer feedback.",
+    "no": "Nye bilder i appbutikken."
   },
   "4.6.2": {
-    "en": "Fixed the Connect button not responding on the pairing page."
+    "en": "Fixed the Connect button not responding on the pairing page.",
+    "no": "Koble til-knappen ved parring reagerer igjen."
   },
   "4.6.3": {
-    "en": "The Connect button on the pairing page now lights up blue once an IP address has been entered."
+    "en": "The Connect button on the pairing page now lights up blue once an IP address has been entered.",
+    "no": "Koble til-knappen blir blå når IP-adressen er fylt inn."
   },
   "4.7.0": {
-    "en": "New device setting for how many minutes fireplace mode stays active, written to the unit when changed. Fixed the pairing page so the Connect button reliably activates and turns blue once an IP address has been entered."
+    "en": "New device setting for how many minutes fireplace mode stays active, written to the unit when changed. Fixed the pairing page so the Connect button reliably activates and turns blue once an IP address has been entered.",
+    "no": "Ny innstilling for hvor lenge peismodus varer. Koble til-knappen ved parring virker."
   },
   "4.8.0": {
-    "en": "New mode: Enhanced ventilation (panel fan speed level 3), selectable on the device and in flows, and shown when the unit boosts on humidity or CO2. Fixed the Connect button on the pairing page not reacting to input."
+    "en": "New mode: Enhanced ventilation (panel fan speed level 3), selectable on the device and in flows, and shown when the unit boosts on humidity or CO2. Fixed the Connect button on the pairing page not reacting to input.",
+    "no": "Ny modus: Forsterket ventilasjon (viftenivå 3), som også vises når anlegget booster på fukt eller CO2."
   },
   "4.8.1": {
-    "en": "Fixed the pairing page: the Connect button now activates, turns blue and actually adds the device."
+    "en": "Fixed the pairing page: the Connect button now activates, turns blue and actually adds the device.",
+    "no": "Koble til-knappen legger nå til enheten."
   },
   "4.8.2": {
-    "en": "Additional fixes for the pairing page."
+    "en": "Additional fixes for the pairing page.",
+    "no": "Flere rettinger av parringssiden."
   },
   "4.8.3": {
-    "en": "Renamed the pairing view so phones that cached the old broken page load the fixed one."
+    "en": "Renamed the pairing view so phones that cached the old broken page load the fixed one.",
+    "no": "Telefoner som husket den gamle parringssiden, får nå den nye."
   },
   "4.9.0": {
     "en": "The heater is now called the heating coil everywhere, and the on/off setting for it is called Heating coil enabled. Flow cards got shorter, clearer titles, several Norwegian texts and typos were corrected, and the connection settings are now translated. eWind and eAir also got their own icons, and the eWind device image was redrawn.",
@@ -272,8 +360,8 @@
     "no": "Rettet flytutløserne Modus endret, Varmekolbe endret og Varmeveksler endret. Nedtrekksvalget ble aldri sjekket, så kortene kunne ikke treffe og flytene som brukte dem kjørte aldri. Utløserne fyrer nå også når anlegget endrer seg selv — fra panelet, fra sin egen CO2- eller fuktboost, eller når boost-tiden løper ut."
   },
   "4.10.1": {
-    "en": "The Mode changed, Heating coil changed and Heat exchanger changed triggers still did not match in 4.10.0. Their check read a device that a device trigger card never passes along, so it failed before it could compare anything.",
-    "no": "Utløserne Modus endret, Varmekolbe endret og Varmeveksler endret traff fortsatt ikke i 4.10.0. Sjekken leste en enhet som et enhetsutløserkort aldri sender med, så den feilet før den rakk å sammenligne noe."
+    "en": "The Mode changed, Heating coil changed and Heat exchanger changed triggers now start your Flows. The fix in 4.10.0 was not enough.",
+    "no": "Utløserne Modus endret, Varmekolbe endret og Varmeveksler endret starter nå flytene dine. Rettingen i 4.10.0 var ikke nok."
   },
   "4.11.0": {
     "en": "Exvent units with EDA automation can now be added through a Freeway WEB adapter, thanks to Magnus Fonn Tømte. You can switch modes, set the temperature, turn overpressure on and off with a tap on the device, and choose when heating and cooling are allowed. On units with EC fans you can also set the fan level, and units with a heat pump show when they cool or defrost. On eWind and eAir, a tap on the device no longer changes the filter alarm, and eAir has a new device image.",
@@ -282,5 +370,9 @@
   "4.11.1": {
     "en": "Overpressure on units with EDA automation now lasts as long as the duration set in Homey. The unit used a duration of its own, so overpressure could end early — 20 minutes in Homey could stop after 10.",
     "no": "Overtrykk på anlegg med EDA-styring varer nå like lenge som varigheten du har satt i Homey. Anlegget brukte sin egen varighet, så overtrykket kunne slutte for tidlig — 20 minutter i Homey kunne stoppe etter 10."
+  },
+  "4.12.0": {
+    "en": "Commands no longer get lost: they are sent again when the unit is slow, and a Flow card fails visibly when the unit cannot be reached. The device shows a warning when the unit stops answering, and reconnects faster. Mode changed now also fires when a Flow sets the mode, a stop from the panel shows as Off, and boost or fireplace mode started from Away ends in Home. Settings that do not reach the unit are no longer saved, and the fireplace duration now shows the one the unit keeps after a power cut. New: A alarm with the alarm text, boost as the quick action and its duration, cards that start boost or fireplace mode for a number of minutes, heat recovery and after-heating in percent, season, eAir fan speeds, filter reset under Maintenance, mode history in Insights and more Flow cards. Pairing now checks the connection first.",
+    "no": "Kommandoer går ikke lenger tapt: de sendes på nytt når anlegget svarer sent, og et flytkort feiler synlig når anlegget ikke nås. Enheten viser et varsel når anlegget slutter å svare, og kobler seg raskere til igjen. Modus endret går nå også når en flyt setter modus, stopp fra panelet vises som Av, og boost eller peismodus startet fra Borte ender i Hjemme. Innstillinger som ikke når anlegget, lagres ikke lenger, og peisvarigheten viser nå den anlegget beholder etter et strømbrudd. Nytt: A-alarm med alarmtekst, boost som hurtigknapp og boostvarighet, kort som starter boost eller peismodus i et antall minutter, varmegjenvinning og ettervarme i prosent, sesong, viftehastighet på eAir, nullstilling av filter under Vedlikehold, modushistorikk i Insights og flere flytkort. Paringen sjekker nå forbindelsen først."
   }
 }

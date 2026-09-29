@@ -18,6 +18,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+concurrency:
+  group: publish
+
 jobs:
   # Node 22 is the floor the project is typed for (engines >=22,
   # @tsconfig/node22), so the unit tests run there too. The job image
@@ -26,7 +29,9 @@ jobs:
   # the shared action cache ("shallow file has changed since we read it").
   test-node22:
     name: Unit tests (Node 22)
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: docker
+    timeout-minutes: 15
     container:
       image: data.forgejo.org/oci/node:22
     steps:
@@ -45,9 +50,12 @@ jobs:
         run: npm test
 
   publish:
-    # Publish only when the unit tests also pass on Node 22.
+    # Publish only when the unit tests also pass on Node 22, and a manual
+    # run only from a version tag, never from a branch.
     needs: test-node22
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: docker
+    timeout-minutes: 15
     steps:
       # Clone by hand with the run token in the URL (instance runs with
       # REQUIRE_SIGNIN_VIEW). This works and is kept, but actions/checkout@v4
@@ -69,6 +77,24 @@ jobs:
         with:
           node-version: 24
           cache: npm
+
+      # The tag must match the version in all three files, the changelog must
+      # have both languages for it, and the tagged commit must be on main.
+      - name: Check tag, version and changelog
+        run: |
+          node -e '
+            const read = (f) => JSON.parse(require("fs").readFileSync(f, "utf8"));
+            const version = read(".homeycompose/app.json").version;
+            const errors = [];
+            if (process.env.GITHUB_REF_NAME !== "v" + version) errors.push("tag " + process.env.GITHUB_REF_NAME + " is not v" + version);
+            for (const f of ["app.json", "package.json"]) if (read(f).version !== version) errors.push(f + " has version " + read(f).version);
+            const entry = read(".homeychangelog.json")[version] || {};
+            if (!entry.en || !entry.no) errors.push(".homeychangelog.json lacks en or no for " + version);
+            if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
+          '
+          git fetch -q --unshallow origin || true
+          git fetch -q origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor "${GITHUB_SHA}" origin/main || { echo "The tagged commit is not on main"; exit 1; }
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund

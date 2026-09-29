@@ -4,12 +4,13 @@ Homey app to control and monitor Exvent **eWind** and **eAir** ventilation syste
 
 ## Features
 
-- Live readings every 60 seconds: fresh/supply/extract/exhaust air temperatures, extract air humidity, heat recovery efficiency (supply and extract), fan speed level and temperature setpoint
-- Status and mode (Home / Away / Fireplace / Enhanced ventilation / Boost / Off), heating coil (running and enabled) and heat exchanger states, eco mode, filter alarm and days until filter change
-- Control from the device UI or Flows: set mode, target temperature, eco mode and heating coil
-- Flow cards: action cards (set mode, temperature, eco mode, heating coil, reset filter change reminder), condition cards (mode, heating coil, heat exchanger) and triggers (mode changed, heating coil changed, heat exchanger changed, filter alarm)
-- Device settings written to the unit: fireplace mode duration and days between filter changes
-- "Last poll time" shows when values were last refreshed — in your Homey's own timezone and language — and reads "No connection" while the unit is unreachable
+- Live readings every 60 seconds: fresh/supply/extract/exhaust air temperatures, extract air humidity, heat recovery efficiency (supply and extract), how hard heat recovery and after-heating work, fan speed level, temperature setpoint and season
+- Status and mode (Home / Away / Fireplace / Enhanced ventilation / Boost / Off), heating coil (running and enabled) and heat exchanger states, eco mode, A and B alarms with the active alarm as text, and days until filter change
+- Control from the device UI or Flows: set mode, target temperature, eco mode and heating coil; boost as the device's quick action; reset the filter reminder under Maintenance
+- Flow cards: actions (set mode, start boost or fireplace mode for a number of minutes, temperature, eco mode, heating coil, reset filter change reminder), conditions (mode, fan speed level, heating coil, heat exchanger, A and B alarm, the unit boosting on its own) and triggers (mode changed, heating coil changed, heat exchanger changed, A and B alarm, days until filter change below a limit). The changed triggers offer "any" and give the new value as a token
+- Device settings written to the unit and kept in step with its panel: fireplace mode duration, boost duration (eWind) and days between filter changes
+- The mode history in Insights, and a warning on the device when the unit has not answered for three polls
+- eAir: the effective supply and extract fan speeds in percent
 
 ### EDA units
 
@@ -21,7 +22,15 @@ Units with EDA automation, connected through a Freeway WEB adapter, have their o
 - Heat pump readings: cooling active and defrosting
 - Service reminder on or off, and its interval
 
-EDA units have no eco mode, Enhanced ventilation mode or countdown to the next filter change.
+EDA units have no eco mode, Enhanced ventilation mode, boost quick action, controller output, season or countdown to the next filter change.
+
+## Modes
+
+- **Home** and **Away** stay until the mode is changed.
+- **Fireplace** (overpressure) ends by itself after the fireplace duration in the device settings, and **Boost** after the boost duration. Both go back to Home.
+- **Enhanced ventilation** is Home at fan speed level 3. It also shows when the unit boosts on CO₂, humidity or temperature by itself; the condition *The unit is boosting on its own* tells the two apart.
+- **Off** stops the unit. A stop from the panel or by an A alarm shows as Off too.
+- *Mode changed* fires whether the mode was changed from Homey, a flow, the panel or the unit itself. A change on the panel shows at the next poll, within a minute.
 
 ## Setup
 
@@ -34,8 +43,9 @@ For **EDA** units, open the Freeway WEB adapter's web interface, go to Configura
 ## Reliability
 
 - Registers are read in a handful of batched Modbus requests per poll to keep the load on the unit's Modbus module low, with automatic fallback to individual reads
-- Writes are serialized through a queue with spacing between commands, so simultaneous Flows and manual changes can't conflict
-- Automatic reconnection with backoff when the unit drops off the network; a confirmation poll a few seconds after every command shows the unit's actual state
+- Writes are serialized through a queue with spacing between commands, so simultaneous Flows and manual changes can't conflict. A write that times out is sent again; an action card fails when its writes do not get through, so a flow can react
+- Automatic reconnection with backoff when the unit drops off the network, with a 10-second limit on each attempt; a confirmation poll a few seconds after every command shows the unit's actual state
+- The pairing view tests the connection first and explains what is wrong, and lets you add the unit anyway
 
 ## Development
 
@@ -44,6 +54,7 @@ TypeScript, Homey SDK v3. Pull requests are welcome.
 ```bash
 npm ci
 npm test                                # unit tests (node --test)
+npm run lint                            # eslint with Athom's homey-app rules
 npx homey app validate --level publish  # full validation
 npx homey app run                       # run against your own Homey
 ```
