@@ -34,16 +34,28 @@ jobs:
           git fetch -q --depth 1 origin "${GITHUB_SHA}"
           git checkout -q --detach FETCH_HEAD
 
-      - name: Setup Node.js
+      # Node 22 is the floor the project is typed for (engines >=22,
+      # @tsconfig/node22). Homey Pro runs Node 24 (v24.21.0 on firmware 13.5,
+      # checked 2026-09-29) and the Homey CLI requires >=24, so the tests run
+      # on both and lint, validate and publish run on 24.
+      - name: Setup Node.js 22
         uses: https://github.com/actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Run unit tests
+      - name: Run unit tests (Node 22)
+        run: npm test
+
+      - name: Setup Node.js 24
+        uses: https://github.com/actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Run unit tests (Node 24)
         run: npm test
 
       - name: Lint
