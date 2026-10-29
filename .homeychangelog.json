@@ -384,7 +384,7 @@
     "no": "EDA: flytkortene melder nå feil hvis aggregatet ikke har tatt imot endringen innen 25 sekunder, slik eWind og eAir allerede gjør."
   },
   "5.1.2": {
-    "en": "eWind: the unit is read with fewer requests each minute. A unit that refuses a combined read is no longer asked for it again on every reading.",
-    "no": "eWind: anlegget leses med færre forespørsler hvert minutt. Et anlegg som avviser en samlet lesing, blir ikke spurt om den igjen ved hver avlesing."
+    "en": "The unit is read with fewer requests each minute. A unit that refuses a combined read is no longer asked for it again on every reading.",
+    "no": "Anlegget leses med færre forespørsler hvert minutt. Et anlegg som avviser en samlet lesing, blir ikke spurt om den igjen ved hver avlesing."
   }
 }

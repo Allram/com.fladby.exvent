@@ -139,13 +139,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
       0: null, 1: 1, 2: 3, 3: 10, 5: null,
     };
 
-    /**
-     * The largest gap of unmapped holding registers read along in one
-     * request, on units known to answer such spans; undefined for the
-     * default. A unit that refuses a span gets its registers read one by one.
-     */
-    protected readonly holdingReadGap: number | undefined = undefined;
-
     /** The long away coil, turned off by Home and Enhanced ventilation, on units that have one. */
     protected readonly longAwayCoil: number | null = null;
 
@@ -420,7 +413,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       const seq = this.settingWriteSeq;
       let result: Record<string, Measurement>;
       try {
-        const holding = await readModbus(client, this.registers, 'holding', this.holdingReadGap);
+        const holding = await readModbus(client, this.registers, 'holding');
         const coils = await readModbus(client, this.coilRegisters, 'coil');
         result = { ...holding, ...coils };
       } catch (err) {

@@ -12,13 +12,10 @@ function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]
   });
 }
 
-test('eWind holding registers batch into 10 requests', () => {
+test('eWind holding registers batch into 6 requests', () => {
   assert.deepEqual(blockSpans(toBlocks(EWIND_HOLDING_REGISTERS, 'holding')), [
-    [6, 8], // 6..13 incl. the 11/12 gap
-    [29, 2], // 29..30
-    [44, 7], // 44..50: the controller output (49) joins the mode, step and fan level
-    [56, 2], // 56..57
-    [66, 1],
+    [6, 25], // 6..30
+    [44, 23], // 44..66
     [134, 4], // 134..137
     [385, 2],
     [538, 1],
@@ -28,7 +25,7 @@ test('eWind holding registers batch into 10 requests', () => {
 
 test('eAir reads the fan speeds with the temperatures and has no boost duration', () => {
   const spans = blockSpans(toBlocks(EAIR_HOLDING_REGISTERS, 'holding'));
-  assert.deepEqual(spans[0], [3, 11]); // 3..13
+  assert.deepEqual(spans[0], [3, 28]); // 3..30
   assert.ok(!spans.some(([start]) => start === 66));
 });
 
@@ -45,9 +42,9 @@ test('blocks preserve every register exactly once', () => {
 test('a gap wider than the tolerance splits holding blocks', () => {
   const map: RegisterMap = {
     a: [0, 1, 'UINT16', 'a'],
-    b: [5, 1, 'UINT16', 'b'], // gap of 4 > holding tolerance 3
+    b: [17, 1, 'UINT16', 'b'], // gap of 16 > holding tolerance 15
   };
-  assert.deepEqual(blockSpans(toBlocks(map, 'holding')), [[0, 1], [5, 1]]);
+  assert.deepEqual(blockSpans(toBlocks(map, 'holding')), [[0, 1], [17, 1]]);
 });
 
 test('blocks never exceed the max length', () => {
@@ -119,7 +116,7 @@ function failingClient(err: unknown) {
 test('a timeout gives up after one more request instead of reading every register', async () => {
   const { requests, client } = failingClient({ err: 'Timeout' });
   await assert.rejects(readModbus(client as any, EWIND_HOLDING_REGISTERS, 'holding'));
-  assert.deepEqual(requests, ['6+8', '6+1']);
+  assert.deepEqual(requests, ['6+25', '6+1']);
 });
 
 test('a refused span falls back to reading each register', async () => {
@@ -134,12 +131,6 @@ test('request failures are told apart', () => {
   assert.equal(requestFailure({ err: 'OutOfSync' }), 'outOfSync');
   assert.equal(requestFailure({ err: 'Offline' }), 'offline');
   assert.equal(requestFailure(new Error('ECONNREFUSED')), 'other');
-});
-
-test('eWind holding registers fit in six reads with the wider gap', () => {
-  assert.deepEqual(blockSpans(toBlocks(EWIND_HOLDING_REGISTERS, 'holding', 15)), [
-    [6, 25], [44, 23], [134, 4], [385, 2], [538, 1], [710, 1],
-  ]);
 });
 
 test('a span the unit refused is read register by register without asking for it again', async () => {

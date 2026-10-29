@@ -37,11 +37,8 @@ test('EDA status mode handles the register read as signed', () => {
 
 test('EDA holding registers batch without the MD-only registers', () => {
   assert.deepEqual(blockSpans(toBlocks(EDA_HOLDING_REGISTERS, 'holding')), [
-    [6, 8],
-    [29, 2],
-    [44, 2],
-    [50, 7], // 50..56
-    [66, 1],
+    [6, 25], // 6..30
+    [44, 23], // 44..66
     [135, 1],
     [164, 1],
     [196, 1],

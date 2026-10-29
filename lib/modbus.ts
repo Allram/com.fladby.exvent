@@ -20,10 +20,10 @@ export interface RegisterEntry {
 }
 
 // Merge registers into one request when the gap of unmapped addresses
-// between them is at most this large. Coils are single bits, so a wider
-// span costs next to nothing; holding registers are kept tighter unless a
-// driver knows its unit reads wider spans.
-const MAX_GAP: Record<ModbusKind, number> = { holding: 3, coil: 12 };
+// between them is at most this large. eWind, eAir and EDA answer spans
+// across unmapped holding registers too (HREG 3-30 and 44-66 checked on an
+// eWind 29.10.2026); a unit that refuses one gets it read register by register.
+const MAX_GAP: Record<ModbusKind, number> = { holding: 15, coil: 12 };
 const MAX_BLOCK_LENGTH = 32;
 
 export function toBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: number = MAX_GAP[kind]): RegisterEntry[][] {
