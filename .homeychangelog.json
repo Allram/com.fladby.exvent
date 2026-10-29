@@ -382,5 +382,9 @@
   "5.1.1": {
     "en": "EDA: flow cards now report an error if the unit has not taken the change within 25 seconds, as eWind and eAir already do.",
     "no": "EDA: flytkortene melder nå feil hvis aggregatet ikke har tatt imot endringen innen 25 sekunder, slik eWind og eAir allerede gjør."
+  },
+  "5.1.2": {
+    "en": "eWind: the unit is read with fewer requests each minute. A unit that refuses a combined read is no longer asked for it again on every reading.",
+    "no": "eWind: anlegget leses med færre forespørsler hvert minutt. Et anlegg som avviser en samlet lesing, blir ikke spurt om den igjen ved hver avlesing."
   }
 }

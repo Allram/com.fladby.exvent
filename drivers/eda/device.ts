@@ -5,6 +5,7 @@ import {
   edaStatus, edaStatusMode,
 } from '../../lib/eda';
 import { inRange, toNumber } from '../../lib/settings';
+import { EDA_ALARM_NAMES } from '../../lib/alarms';
 import { EDA_CARDS } from './cards';
 
 /** Coil 3 turns overpressure on and off. */
@@ -56,7 +57,7 @@ class MyEdaDevice extends ExventModbusDevice {
   // Freeway WEB acknowledges a write before the unit reports it, so the
   // value written is kept for a while rather than what the unit reports.
   protected readonly settingSettleMs = 30 * 1000;
-  protected readonly edaAlarmNames = true;
+  protected readonly alarmNames = EDA_ALARM_NAMES;
   // Home, Away, Overpressure and Boost turn the other mode coils off, so
   // Home also ends a long away set on the panel. Off only sets the stop coil:
   // stopping is not one of the modes, and the unit keeps its mode for when it
@@ -81,18 +82,14 @@ class MyEdaDevice extends ExventModbusDevice {
     return id !== undefined && Number.isInteger(id) ? id : 1;
   }
 
-  protected capabilityIds(): string[] {
-    // No eco mode (coil 40 is reserved), no service countdown (no HREG 710)
-    // and none of the MD registers behind the boost quick action, the
-    // controller outputs and the season. A unit known to have AC fans does
-    // not get the fan level slider back on every start; a unit whose fan
-    // type is not known yet keeps it.
-    const mdOnly = ['ecomode_mode', 'filter_days_remaining', 'boost', 'heat_recovery_output', 'after_heating_output', 'season', 'button.reset_filter'];
-    const acFans = this.ecFans === false;
-    return super.capabilityIds()
-      .filter((id) => !mdOnly.includes(id))
-      .concat(['cooling_allowed', 'cooling_active', 'defrosting', 'fanspeed_level_set', 'overpressure'])
-      .filter((id) => !(acFans && id === 'fanspeed_level_set'));
+  protected modelCapabilityIds(): string[] {
+    // None of the MD ones: coil 40 (eco mode) is reserved, and there is no
+    // HREG 710 (service countdown) nor the registers behind the boost quick
+    // action, the controller outputs and the season. A unit known to have AC
+    // fans does not get the fan level slider back on every start; a unit
+    // whose fan type is not known yet keeps it.
+    const ids = ['cooling_allowed', 'cooling_active', 'defrosting', 'fanspeed_level_set', 'overpressure'];
+    return this.ecFans === false ? ids.filter((id) => id !== 'fanspeed_level_set') : ids;
   }
 
   protected statusModeFromRegister(value: string): string {
@@ -324,7 +321,7 @@ class MyEdaDevice extends ExventModbusDevice {
       throw new Error(this.homey.__('fanLevelUnsupported'));
     }
     const percent = Math.min(100, Math.max(20, Math.round(requested)));
-    await this.sendHoldingRequest(this.registers['fan_speed_panel'][0], percent);
+    await this.sendHoldingRequest(this.address(this.registers, 'fan_speed_panel'), percent);
     await this.setIfChanged('fanspeed_level_set', percent / 100);
     return percent;
   }
@@ -335,7 +332,7 @@ class MyEdaDevice extends ExventModbusDevice {
    * follow as soon as the unit reports it, as it does for cooling.
    */
   sendCoilRequest(register: number, value: boolean, options: any = {}): Promise<void> {
-    if (register === this.coilRegisters[UNIT_SETTINGS.heating_allowed.key][0]) {
+    if (register === this.address(this.coilRegisters, UNIT_SETTINGS.heating_allowed.key)) {
       return super.sendCoilRequest(register, value, { setting: 'heating_allowed', settingValue: value, ...options });
     }
     return super.sendCoilRequest(register, value, options);
@@ -358,14 +355,14 @@ class MyEdaDevice extends ExventModbusDevice {
     const setting = UNIT_SETTINGS[id];
     if (setting.coil) {
       const on = Boolean(value);
-      await this.sendCoilRequest(this.coilRegisters[setting.key][0], on, { setting: id, settingValue: on });
+      await this.sendCoilRequest(this.address(this.coilRegisters, setting.key), on, { setting: id, settingValue: on });
       return on;
     }
     const number = inRange(value, this.settingRanges()[id]);
     if (number === undefined) return undefined;
     const scale = setting.scale ?? 1;
     const raw = Math.round(number * scale);
-    await this.sendHoldingRequest(this.registers[setting.key][0], raw, { setting: id, settingValue: raw / scale });
+    await this.sendHoldingRequest(this.address(this.registers, setting.key), raw, { setting: id, settingValue: raw / scale });
     return raw / scale;
   }
 

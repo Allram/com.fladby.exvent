@@ -7,7 +7,9 @@ import {
 import {
   EXVENT_COILS, EXVENT_HOLDING_REGISTERS, UNIT_BOOST_BITS, controllerOutputs, exventStatus, exventStatusMode,
 } from './exvent';
-import { alarmOn, alarmText } from './alarms';
+import {
+  ALARM_NAMES, AlarmNames, alarmOn, alarmText,
+} from './alarms';
 import { DriverCards, FlowCardIds, withTimeout } from './flowCards';
 import {
   inRange, isValidHost, isValidPort, toNumber,
@@ -137,11 +139,18 @@ export abstract class ExventModbusDevice extends Homey.Device {
       0: null, 1: 1, 2: 3, 3: 10, 5: null,
     };
 
+    /**
+     * The largest gap of unmapped holding registers read along in one
+     * request, on units known to answer such spans; undefined for the
+     * default. A unit that refuses a span gets its registers read one by one.
+     */
+    protected readonly holdingReadGap: number | undefined = undefined;
+
     /** The long away coil, turned off by Home and Enhanced ventilation, on units that have one. */
     protected readonly longAwayCoil: number | null = null;
 
-    /** Whether the alarm texts use the EDA names. */
-    protected readonly edaAlarmNames: boolean = false;
+    /** The names of the alarm types in HREG 385. */
+    protected readonly alarmNames: AlarmNames = ALARM_NAMES;
 
     registers: RegisterMap = { ...EXVENT_HOLDING_REGISTERS };
     coilRegisters: RegisterMap = { ...EXVENT_COILS };
@@ -411,7 +420,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       const seq = this.settingWriteSeq;
       let result: Record<string, Measurement>;
       try {
-        const holding = await readModbus(client, this.registers, 'holding');
+        const holding = await readModbus(client, this.registers, 'holding', this.holdingReadGap);
         const coils = await readModbus(client, this.coilRegisters, 'coil');
         result = { ...holding, ...coils };
       } catch (err) {
@@ -571,6 +580,16 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
     }
 
+    /**
+     * The address of a register or coil in this driver's map, so writes go to
+     * the address the poll reads. Throws on a driver without it.
+     */
+    protected address(map: RegisterMap, key: string): number {
+      const entry = map[key];
+      if (!entry) throw new Error(`No ${key} register on this unit`);
+      return entry[0];
+    }
+
     sendHoldingRequest(register: number, value: number, options: Partial<WriteOptions> = {}): Promise<void> {
       return this.enqueueWrite(() => (this.useMultipleWrites
         ? this.client.writeMultipleRegisters(register, [value & 0xffff])
@@ -607,7 +626,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         // Enhanced ventilation is Home at panel fan speed level 3 ("Home-mode
         // with high fan speeds", HREG 50); Home returns it to level 2, which
         // is harmless when already there.
-        if (this.enhancedVentilation) steps.push({ hreg: 50, value: value === '5' ? 3 : 2, critical: true });
+        if (this.enhancedVentilation) steps.push({ hreg: this.address(this.registers, 'fan_speed_level'), value: value === '5' ? 3 : 2, critical: true });
       }
       return steps;
     }
@@ -687,19 +706,19 @@ export abstract class ExventModbusDevice extends Homey.Device {
     }
 
     protected durationWrites(setting: string, minutes: number): Array<Promise<void>> {
-      const registers = setting === 'boost_duration_minutes' ? [66] : this.overpressureDurationRegisters;
+      const registers = setting === 'boost_duration_minutes' ? [this.address(this.registers, 'boost_duration')] : this.overpressureDurationRegisters;
       return registers.map((register) => this.sendHoldingRequest(register, minutes, { setting, settingValue: minutes }));
     }
 
     // -------------------------------------------------------- simple commands
 
     async setEcoMode(value: string) {
-      await this.sendCoilRequest(40, value === '1');
+      await this.sendCoilRequest(this.address(this.coilRegisters, 'eco_mode'), value === '1');
       await this.setIfChanged('ecomode_mode', value === '1' ? '1' : '0');
     }
 
     async setHeatingCoil(value: string) {
-      await this.sendCoilRequest(54, value === '1');
+      await this.sendCoilRequest(this.address(this.coilRegisters, 'heating_coil'), value === '1');
       await this.setIfChanged(this.heatingCoilCapability, value === '1' ? '1' : '0');
     }
 
@@ -710,18 +729,18 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (temperature === undefined || inRange(temperature, this.setpointRange) === undefined) {
         throw new Error(this.homey.__('invalidTemperature'));
       }
-      await this.sendHoldingRequest(135, Math.round(temperature * 10));
+      await this.sendHoldingRequest(this.address(this.registers, 'temperature_setpoint'), Math.round(temperature * 10));
       await this.setIfChanged('target_temperature.step', temperature);
     }
 
     /** HREG 710 counts days since the service reminder was acknowledged; 0 restarts the filter countdown. */
     async resetFilterReminder() {
-      await this.sendHoldingRequest(710, 0);
+      await this.sendHoldingRequest(this.address(this.registers, 'days_since_service_ack'), 0);
     }
 
     // ------------------------------------------------------------ capabilities
 
-    /** Capabilities every device of this driver should have. */
+    /** Capabilities every device of this driver should have: the shared ones and the model's own. */
     protected capabilityIds(): string[] {
       return [
         'efficiency.supplyEff',
@@ -731,7 +750,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
         'measure_temperature.exhaustAir',
         'measure_temperature.extractAir',
         'measure_temperature.supplyAirHRC',
-        'ecomode_mode',
         'heater_mode',
         this.heatingCoilCapability,
         'heat_exchanger_mode',
@@ -739,17 +757,25 @@ export abstract class ExventModbusDevice extends Homey.Device {
         'alarm_a',
         'alarm_b.desc',
         'active_alarm',
-        'filter_days_remaining',
         'measure_humidity.extractAir',
         'fanspeed_level',
         this.statusCapability,
         this.statusModeCapability,
+        'lastPollTime',
+        ...this.modelCapabilityIds(),
+      ];
+    }
+
+    /** The capabilities of MD units (eWind and eAir): the registers EDA does not have. */
+    protected modelCapabilityIds(): string[] {
+      return [
+        'ecomode_mode',
+        'filter_days_remaining',
         'boost',
         'heat_recovery_output',
         'after_heating_output',
         'season',
         'button.reset_filter',
-        'lastPollTime',
       ];
     }
 
@@ -774,13 +800,13 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
       this.registerCapabilityListener('target_temperature.step', async (value) => {
         if (!this.isUsable()) return;
-        this.sendHoldingRequest(135, Math.round(Number(value) * 10)).catch(this.error);
+        this.sendHoldingRequest(this.address(this.registers, 'temperature_setpoint'), Math.round(Number(value) * 10)).catch(this.error);
       });
 
       if (this.hasCapability('ecomode_mode')) {
         this.registerCapabilityListener('ecomode_mode', async (value) => {
           if (!this.isUsable()) return;
-          this.sendCoilRequest(40, value === '1').catch(this.error);
+          this.sendCoilRequest(this.address(this.coilRegisters, 'eco_mode'), value === '1').catch(this.error);
         });
       }
 
@@ -793,7 +819,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
           coilValue = false;
         }
         if (coilValue !== null) {
-          this.sendCoilRequest(54, coilValue).catch(this.error);
+          this.sendCoilRequest(this.address(this.coilRegisters, 'heating_coil'), coilValue).catch(this.error);
         }
       });
 
@@ -805,7 +831,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
           if (value) {
             this.changeMode('3').catch((err) => this.error('Boost:', describeError(err)));
           } else {
-            this.sendCoilRequest(10, false).catch(this.error);
+            this.sendCoilRequest(this.modeCoils['3'] as number, false).catch(this.error);
             this.endModeWriteSettleAfterQueue();
           }
         });
@@ -962,7 +988,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       // reminder is raised. The confirmation poll refreshes the countdown.
       if (changedKeys.includes('filter_interval_days')) {
         const days = Number(settings.filter_interval_days);
-        writes.push(this.sendHoldingRequest(538, days, { setting: 'filter_interval_days', settingValue: days }));
+        writes.push(this.sendHoldingRequest(this.address(this.registers, 'service_interval_days'), days, { setting: 'filter_interval_days', settingValue: days }));
       }
       for (const id of ['fireplace_duration_minutes', 'boost_duration_minutes']) {
         if (changedKeys.includes(id)) writes.push(...this.durationWrites(id, Number(settings[id])));
@@ -1171,7 +1197,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       const state = this.reading(result, 'alarm_state');
       const language = this.homey.i18n.getLanguage();
       const logText = type !== undefined && state !== undefined && alarmOn(Number(state)) && Number(type) > 0
-        ? alarmText(Number(type), language, this.edaAlarmNames) : undefined;
+        ? alarmText(Number(type), language, this.alarmNames) : undefined;
 
       const alarms: Array<[string, string, string]> = [
         ['alarm_a', 'alarm_a', this.driverCards.ids.alarmATriggered],

@@ -21,11 +21,12 @@ export interface RegisterEntry {
 
 // Merge registers into one request when the gap of unmapped addresses
 // between them is at most this large. Coils are single bits, so a wider
-// span costs next to nothing; holding registers are kept tighter.
+// span costs next to nothing; holding registers are kept tighter unless a
+// driver knows its unit reads wider spans.
 const MAX_GAP: Record<ModbusKind, number> = { holding: 3, coil: 12 };
 const MAX_BLOCK_LENGTH = 32;
 
-export function toBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntry[][] {
+export function toBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: number = MAX_GAP[kind]): RegisterEntry[][] {
   const entries: RegisterEntry[] = Object.entries(registers)
     .map(([key, def]) => ({
       key, addr: def[0], len: def[1], type: def[2], label: def[3],
@@ -39,7 +40,7 @@ export function toBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntr
       const last = current[current.length - 1];
       const gap = entry.addr - (last.addr + last.len);
       const blockLength = entry.addr + entry.len - current[0].addr;
-      if (gap > MAX_GAP[kind] || blockLength > MAX_BLOCK_LENGTH) {
+      if (gap > maxGap || blockLength > MAX_BLOCK_LENGTH) {
         blocks.push(current);
         current = [];
       }
@@ -51,19 +52,28 @@ export function toBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntr
 }
 
 // The register maps never change after a device is set up, so their blocks
-// are worked out once per map.
-const blockCache: Record<ModbusKind, WeakMap<RegisterMap, RegisterEntry[][]>> = {
-  holding: new WeakMap(), coil: new WeakMap(),
-};
+// are worked out once per map, kind and gap.
+const blockCache = new WeakMap<RegisterMap, Map<string, RegisterEntry[][]>>();
 
-function cachedBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntry[][] {
-  let blocks = blockCache[kind].get(registers);
+function cachedBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: number): RegisterEntry[][] {
+  let byKind = blockCache.get(registers);
+  if (!byKind) {
+    byKind = new Map();
+    blockCache.set(registers, byKind);
+  }
+  const key = `${kind}:${maxGap}`;
+  let blocks = byKind.get(key);
   if (!blocks) {
-    blocks = toBlocks(registers, kind);
-    blockCache[kind].set(registers, blocks);
+    blocks = toBlocks(registers, kind, maxGap);
+    byKind.set(key, blocks);
   }
   return blocks;
 }
+
+// Blocks a client's unit answered with a Modbus exception. They are read
+// register by register from then on, without asking for the span again on
+// every poll. A new connection gets a new client and starts afresh.
+const refusedBlocks = new WeakMap<object, Set<string>>();
 
 export function decode(response: any, entry: RegisterEntry, blockStart: number, kind: ModbusKind): Measurement {
   const measurement: Measurement = {
@@ -124,7 +134,8 @@ export function describeError(err: any): string {
  * Reads every entry in a register map, batching adjacent registers into as
  * few Modbus requests as possible. If the unit answers a batched read with a
  * Modbus exception (some firmwares refuse spans that touch unmapped
- * addresses), the registers in that block are read individually instead.
+ * addresses), the registers in that block are read individually instead,
+ * on this poll and the ones after it.
  * A timeout or a lost connection is not a refused span: the first register
  * of the block is tried alone once, and if that fails too the read fails,
  * so the caller can reconnect instead of timing out on every register.
@@ -133,6 +144,7 @@ export async function readModbus(
   client: InstanceType<typeof Modbus.client.TCP>,
   registers: RegisterMap,
   kind: ModbusKind,
+  maxGap: number = MAX_GAP[kind],
 ): Promise<Record<string, Measurement>> {
   const read = (start: number, length: number) => (kind === 'holding'
     ? client.readHoldingRegisters(start, length)
@@ -140,19 +152,28 @@ export async function readModbus(
 
   const result: Record<string, Measurement> = {};
   let successCount = 0;
+  let refused = refusedBlocks.get(client);
+  if (!refused) {
+    refused = new Set();
+    refusedBlocks.set(client, refused);
+  }
 
-  for (const block of cachedBlocks(registers, kind)) {
+  for (const block of cachedBlocks(registers, kind, maxGap)) {
     const start = block[0].addr;
     const last = block[block.length - 1];
     const length = last.addr + last.len - start;
+    const blockKey = `${kind}:${start}+${length}`;
     try {
+      if (block.length > 1 && refused.has(blockKey)) throw Object.assign(new Error('Refused before'), { refusedBefore: true });
       const { response } = await read(start, length);
       for (const entry of block) {
         result[entry.key] = decode(response, entry, start, kind);
         successCount++;
       }
-    } catch (blockErr) {
-      if (requestFailure(blockErr) !== 'exception') {
+    } catch (blockErr: any) {
+      const exception = blockErr?.refusedBefore || requestFailure(blockErr) === 'exception';
+      if (exception && block.length > 1) refused.add(blockKey);
+      if (!exception) {
         const first = block[0];
         const { response } = await read(first.addr, first.len);
         result[first.key] = decode(response, first, first.addr, kind);

@@ -3,7 +3,7 @@ import * as assert from 'node:assert/strict';
 import {
   MODE_BITS, controllerOutputs, exventStatus, exventStatusMode,
 } from '../lib/exvent';
-import { alarmOn, alarmText } from '../lib/alarms';
+import { EDA_ALARM_NAMES, alarmOn, alarmText } from '../lib/alarms';
 import { inRange, isValidHost, isValidPort } from '../lib/settings';
 
 test('eWind/eAir mode bits map to status modes, whatever else is set', () => {
@@ -50,7 +50,7 @@ test('alarm texts', () => {
   assert.equal(alarmText(16, 'no'), 'Tilluftsfilter tett');
   assert.equal(alarmText(16, 'en'), 'Supply air filter dirty');
   assert.equal(alarmText(13, 'no'), 'Ekstern alarm');
-  assert.equal(alarmText(13, 'no', true), 'Brannfare');
+  assert.equal(alarmText(13, 'no', EDA_ALARM_NAMES), 'Brannfare');
   assert.equal(alarmText(99, 'no'), 'Alarm 99');
   assert.equal(alarmOn(2), true);
   assert.equal(alarmOn(0x0201), false);

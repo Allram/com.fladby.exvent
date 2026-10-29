@@ -3,7 +3,10 @@
  * as named in the eWind, eAir and EDA register lists. The lists use the same
  * numbers; EDA names 13 fire risk where MD units have an external alarm.
  */
-const ALARM_TYPES: Record<number, { en: string; no: string }> = {
+export type AlarmNames = Record<number, { en: string; no: string }>;
+
+/** The alarm names of MD units (eWind and eAir). */
+export const ALARM_NAMES: AlarmNames = {
   1: { en: 'Supply air after heat recovery too cold', no: 'For kald tilluft etter varmegjenvinner' },
   2: { en: 'Supply air after the heater too cold', no: 'For kald tilluft etter ettervarmer' },
   3: { en: 'Supply air after the heater too hot', no: 'For varm tilluft etter ettervarmer' },
@@ -32,17 +35,18 @@ const ALARM_TYPES: Record<number, { en: string; no: string }> = {
   29: { en: 'Temperature TE49 too low', no: 'For lav temperatur TE49' },
 };
 
-const EDA_ALARM_TYPES: Record<number, { en: string; no: string }> = {
+/** The alarm names of EDA units: the same, except for two types. */
+export const EDA_ALARM_NAMES: AlarmNames = {
+  ...ALARM_NAMES,
   13: { en: 'Fire risk', no: 'Brannfare' },
   15: { en: 'Electric heater pressure switch', no: 'Trykkvakt for elektrisk ettervarmer' },
 };
 
 /** The text for an alarm type, in the language given ('no' or anything else for English). */
-export function alarmText(type: number, language: string, eda = false): string {
-  const names = (eda && EDA_ALARM_TYPES[type]) || ALARM_TYPES[type];
-  const no = language === 'no';
-  if (!names) return `Alarm ${type}`;
-  return no ? names.no : names.en;
+export function alarmText(type: number, language: string, names: AlarmNames = ALARM_NAMES): string {
+  const name = names[type];
+  if (!name) return `Alarm ${type}`;
+  return language === 'no' ? name.no : name.en;
 }
 
 /** Whether the newest alarm is on, from the state register (low byte 2). */

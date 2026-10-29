@@ -135,3 +135,30 @@ test('request failures are told apart', () => {
   assert.equal(requestFailure({ err: 'Offline' }), 'offline');
   assert.equal(requestFailure(new Error('ECONNREFUSED')), 'other');
 });
+
+test('eWind holding registers fit in six reads with the wider gap', () => {
+  assert.deepEqual(blockSpans(toBlocks(EWIND_HOLDING_REGISTERS, 'holding', 15)), [
+    [6, 25], [44, 23], [134, 4], [385, 2], [538, 1], [710, 1],
+  ]);
+});
+
+test('a span the unit refused is read register by register without asking for it again', async () => {
+  const map: RegisterMap = {
+    a: [0, 1, 'UINT16', 'a'],
+    b: [5, 1, 'UINT16', 'b'],
+  };
+  const requests: string[] = [];
+  const client: any = {
+    readHoldingRegisters: async (start: number, length: number) => {
+      requests.push(`${start}+${length}`);
+      if (length > 1) throw Object.assign(new Error('Illegal data address'), { err: 'ModbusException', response: { body: { code: 2 } } });
+      return { response: { body: { valuesAsArray: [start + 100], valuesAsBuffer: Buffer.from([0, start + 100]) } } };
+    },
+  };
+  const first = await readModbus(client, map, 'holding', 10);
+  assert.deepEqual(requests, ['0+6', '0+1', '5+1']);
+  requests.length = 0;
+  const second = await readModbus(client, map, 'holding', 10);
+  assert.deepEqual(requests, ['0+1', '5+1']);
+  assert.deepEqual(second, first);
+});

@@ -14,8 +14,8 @@ class MyeAirDevice extends ExventModbusDevice {
   registers = { ...EAIR_HOLDING_REGISTERS };
 
   /** eAir has the effective fan speeds in percent, but no boost duration register. */
-  protected capabilityIds(): string[] {
-    return super.capabilityIds().concat(['fan_output.supply', 'fan_output.extract']);
+  protected modelCapabilityIds(): string[] {
+    return super.modelCapabilityIds().concat(['fan_output.supply', 'fan_output.extract']);
   }
 }
 
