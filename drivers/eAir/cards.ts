@@ -1,4 +1,4 @@
-import { DriverCards } from '../../lib/flowCards';
+import { DriverCards, MD_ON_OFF_ARG_MAP, MD_STATUS_MODE_ARG_MAP } from '../../lib/flowCards';
 
 export const EAIR_CARDS: DriverCards = {
   ids: {
@@ -24,10 +24,7 @@ export const EAIR_CARDS: DriverCards = {
     alarmBTriggered: 'alarm_b_triggered2',
     filterDaysBelow: 'filter_days_below2',
   },
-  // The eAir condition cards use named dropdown ids while the capabilities
-  // store numeric strings; map before comparing.
-  statusModeArgMap: {
-    home: '0', away: '1', fireplace: '2', boost: '3', off: '4', enhanced: '5',
-  },
-  onOffArgMap: { on: '1', off: '0' },
+  // The eAir condition cards use named dropdown ids.
+  statusModeArgMap: MD_STATUS_MODE_ARG_MAP,
+  onOffArgMap: MD_ON_OFF_ARG_MAP,
 };

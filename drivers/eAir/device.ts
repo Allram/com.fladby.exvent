@@ -4,7 +4,7 @@ import { EAIR_CARDS } from './cards';
 
 class MyeAirDevice extends ExventModbusDevice {
   protected readonly statusCapability = 'eAirstatus';
-  protected readonly statusModeCapability = 'eAirstatus_mode';
+  readonly statusModeCapability = 'eAirstatus_mode';
   protected readonly driverCards = EAIR_CARDS;
 
   // The eAir register list has a long away coil; Home and Enhanced

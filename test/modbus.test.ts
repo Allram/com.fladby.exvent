@@ -4,13 +4,7 @@ import {
   toBlocks, decode, readModbus, requestFailure, RegisterMap,
 } from '../lib/modbus';
 import { EAIR_HOLDING_REGISTERS, EWIND_HOLDING_REGISTERS, EXVENT_COILS } from '../lib/exvent';
-
-function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]> {
-  return blocks.map((block) => {
-    const last = block[block.length - 1];
-    return [block[0].addr, last.addr + last.len - block[0].addr];
-  });
-}
+import { blockSpans } from './device-harness';
 
 test('eWind holding registers batch into 6 requests', () => {
   assert.deepEqual(blockSpans(toBlocks(EWIND_HOLDING_REGISTERS, 'holding')), [

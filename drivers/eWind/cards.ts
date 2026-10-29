@@ -1,4 +1,4 @@
-import { DriverCards } from '../../lib/flowCards';
+import { DriverCards, MD_ON_OFF_ARG_MAP, MD_STATUS_MODE_ARG_MAP } from '../../lib/flowCards';
 
 export const EWIND_CARDS: DriverCards = {
   ids: {
@@ -25,10 +25,8 @@ export const EWIND_CARDS: DriverCards = {
     alarmBTriggered: 'alarm_b_triggered',
     filterDaysBelow: 'filter_days_below',
   },
-  // The eWind condition cards use the capability values as dropdown ids.
-  // Cards saved before 4.0.1 still carry the named ids, so those map too.
-  statusModeArgMap: {
-    home: '0', away: '1', fireplace: '2', boost: '3', off: '4', enhanced: '5',
-  },
-  onOffArgMap: { on: '1', off: '0' },
+  // The eWind condition cards use the capability values as dropdown ids;
+  // cards saved before 4.0.1 still carry the named ids.
+  statusModeArgMap: MD_STATUS_MODE_ARG_MAP,
+  onOffArgMap: MD_ON_OFF_ARG_MAP,
 };

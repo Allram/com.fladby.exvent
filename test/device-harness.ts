@@ -6,9 +6,18 @@ import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
 import Module from 'node:module';
 import * as path from 'node:path';
+import type { RegisterEntry } from '../lib/modbus';
 
 /** The repository root, from .homeybuild/test. */
 export const ROOT = path.join(__dirname, '..', '..');
+
+/** Each block as [first address, length], for comparing with the register lists. */
+export function blockSpans(blocks: RegisterEntry[][]): Array<[number, number]> {
+  return blocks.map((block) => {
+    const last = block[block.length - 1];
+    return [block[0].addr, last.addr + last.len - block[0].addr];
+  });
+}
 
 export function readJson(file: string): any {
   return JSON.parse(fs.readFileSync(path.join(ROOT, file), 'utf8'));

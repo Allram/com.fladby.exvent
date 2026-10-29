@@ -10,7 +10,7 @@ import {
 import {
   ALARM_NAMES, AlarmNames, alarmOn, alarmText,
 } from './alarms';
-import { DriverCards, FlowCardIds, withTimeout } from './flowCards';
+import { DriverCards, withTimeout } from './flowCards';
 import {
   inRange, isValidHost, isValidPort, toNumber,
 } from './settings';
@@ -38,6 +38,24 @@ const SETTINGS_WRITE_TIMEOUT_MS = 25 * 1000;
 const MODE_WRITE_SETTLE_MS = 2 * POLL_INTERVAL;
 
 /** Writes that belong together; once a critical step fails, the rest is skipped. */
+/**
+ * Readings shown as they are in a capability, or divided by 10 for tenths of
+ * a degree. A capability the device does not have is left alone.
+ */
+const DIRECT_READINGS: Array<[key: string, capabilityId: string, divisor?: number]> = [
+  ['air_outside', 'measure_temperature.outsideAir', 10],
+  ['air_extract', 'measure_temperature.extractAir', 10],
+  ['air_supply', 'measure_temperature.step', 10],
+  ['air_supply_HRC', 'measure_temperature.supplyAirHRC', 10],
+  ['air_exhaust', 'measure_temperature.exhaustAir', 10],
+  ['air_humidity', 'measure_humidity.extractAir'],
+  ['air_supply_eff', 'efficiency.supplyEff'],
+  ['air_extract_eff', 'efficiency.extractEff'],
+  ['fan_speed_level', 'fanspeed_level'],
+  ['supply_fan_speed', 'fan_output.supply'],
+  ['extract_fan_speed', 'fan_output.extract'],
+];
+
 interface WriteSequence {
   aborted: boolean;
 }
@@ -71,8 +89,6 @@ interface PendingMode {
 /** One step of a mode sequence: a coil or holding register write. */
 type ModeStep = { coil: number; value: boolean; critical?: boolean } | { hreg: number; value: number; critical?: boolean };
 
-export type { FlowCardIds };
-
 /**
  * Shared implementation for all drivers. eWind and eAir only provide
  * capability names, flow card ids and register maps; EDA also overrides
@@ -83,9 +99,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
     /** e.g. 'eWindstatus' */
     protected abstract readonly statusCapability: string;
     /** e.g. 'eWindstatus_mode' */
-    protected abstract readonly statusModeCapability: string;
+    abstract readonly statusModeCapability: string;
     /** The writable capability that allows or blocks heating (coil 54). */
-    protected readonly heatingCoilCapability: string = 'heating_coil_state';
+    readonly heatingCoilCapability: string = 'heating_coil_state';
     protected abstract readonly driverCards: DriverCards;
 
     /**
@@ -250,18 +266,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
      */
     isUsable(): boolean {
       return this.isActive && this.getAvailable();
-    }
-
-    get flowCardIds(): FlowCardIds {
-      return this.driverCards.ids;
-    }
-
-    get statusModeCapabilityId(): string {
-      return this.statusModeCapability;
-    }
-
-    get heatingCoilCapabilityId(): string {
-      return this.heatingCoilCapability;
     }
 
     // --------------------------------------------------------------- connection
@@ -785,50 +789,26 @@ export abstract class ExventModbusDevice extends Homey.Device {
 
       // The picker is not held up by the writes; the mode trigger fires once
       // they have gone out, and a failure puts the picker back.
-      this.registerCapabilityListener(this.statusModeCapability, async (value) => {
-        if (!this.isUsable()) return;
+      this.listen(this.statusModeCapability, (value) => {
         const previous = this.getCapabilityValue(this.statusModeCapability);
         this.changeMode(value, previous).catch((err) => this.error(`Mode ${value}:`, describeError(err)));
       });
 
-      this.registerCapabilityListener('target_temperature.step', async (value) => {
-        if (!this.isUsable()) return;
+      this.listen('target_temperature.step', (value) => {
         this.sendHoldingRequest(this.address(this.registers, 'temperature_setpoint'), Math.round(Number(value) * 10)).catch(this.error);
       });
 
+      // The enum capabilities hold '1' and '0'.
       if (this.hasCapability('ecomode_mode')) {
-        this.registerCapabilityListener('ecomode_mode', async (value) => {
-          if (!this.isUsable()) return;
-          this.sendCoilRequest(this.address(this.coilRegisters, 'eco_mode'), value === '1').catch(this.error);
+        this.listen('ecomode_mode', (value) => {
+          this.setEcoMode(value).catch(this.error);
         });
       }
-
-      this.registerCapabilityListener(this.heatingCoilCapability, async (value) => {
-        if (!this.isUsable()) return;
-        let coilValue: boolean | null = null;
-        if (value === true || value === '1' || value === 'true') {
-          coilValue = true;
-        } else if (value === false || value === '0' || value === 'false') {
-          coilValue = false;
-        }
-        if (coilValue !== null) {
-          this.sendCoilRequest(this.address(this.coilRegisters, 'heating_coil'), coilValue).catch(this.error);
-        }
+      this.listen(this.heatingCoilCapability, (value) => {
+        this.setHeatingCoil(value).catch(this.error);
       });
 
-      if (this.hasCapability('boost')) {
-        // The quick action: on starts boost like the mode picker; off only
-        // ends boost, and the poll then reports the mode the unit went back to.
-        this.registerCapabilityListener('boost', async (value) => {
-          if (!this.isUsable()) return;
-          if (value) {
-            this.changeMode('3').catch((err) => this.error('Boost:', describeError(err)));
-          } else {
-            this.sendCoilRequest(this.modeCoils['3'] as number, false).catch(this.error);
-            this.endModeWriteSettleAfterQueue();
-          }
-        });
-      }
+      if (this.hasCapability('boost')) this.listenQuickAction('boost', '3');
 
       if (this.hasCapability('button.reset_filter')) {
         this.registerCapabilityListener('button.reset_filter', async () => {
@@ -838,6 +818,41 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
 
       this.capabilityListenersRegistered = true;
+    }
+
+    /** Registers a capability listener that does nothing while the device cannot be reached. */
+    protected listen(capabilityId: string, handler: (value: any) => unknown) {
+      this.registerCapabilityListener(capabilityId, async (value) => {
+        if (!this.isUsable()) return;
+        await handler(value);
+      });
+    }
+
+    /**
+     * A quick action for a mode, such as boost: on starts the mode like the
+     * mode picker; off only turns the mode's coil off, so a stopped unit
+     * stays stopped and away stays on. The poll then reports the mode the
+     * unit went back to and fires the mode trigger if it changed.
+     */
+    protected listenQuickAction(capabilityId: string, mode: string) {
+      this.listen(capabilityId, (value) => {
+        if (value) {
+          this.changeMode(mode).catch((err) => this.error(`${capabilityId}:`, describeError(err)));
+        } else {
+          this.sendCoilRequest(this.modeCoils[mode] as number, false).catch(this.error);
+          this.endModeWriteSettleAfterQueue();
+        }
+      });
+    }
+
+    /**
+     * Sets a capability and returns its previous value when it had one and
+     * the new value differs, so the caller can fire a trigger for the change.
+     */
+    protected async change(capabilityId: string, value: unknown): Promise<unknown> {
+      const previous = this.getCapabilityValue(capabilityId);
+      await this.setIfChanged(capabilityId, value);
+      return previous !== null && previous !== undefined && previous !== value ? previous : undefined;
     }
 
     /**
@@ -1070,16 +1085,11 @@ export abstract class ExventModbusDevice extends Homey.Device {
         const value = this.reading(result, key);
         return value === undefined ? undefined : Number(value);
       };
-      const tenths = (key: string, capabilityId: string) => {
-        const value = number(key);
-        return value === undefined ? undefined : this.setIfChanged(capabilityId, value / 10);
-      };
 
-      await tenths('air_outside', 'measure_temperature.outsideAir');
-      await tenths('air_extract', 'measure_temperature.extractAir');
-      await tenths('air_supply', 'measure_temperature.step');
-      await tenths('air_supply_HRC', 'measure_temperature.supplyAirHRC');
-      await tenths('air_exhaust', 'measure_temperature.exhaustAir');
+      for (const [key, capabilityId, divisor] of DIRECT_READINGS) {
+        const value = number(key);
+        if (value !== undefined) await this.setIfChanged(capabilityId, value / (divisor ?? 1));
+      }
 
       const setpoint = number('temperature_setpoint');
       if (setpoint !== undefined) {
@@ -1093,25 +1103,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
         }
       }
 
-      const humidity = number('air_humidity');
-      if (humidity !== undefined) await this.setIfChanged('measure_humidity.extractAir', humidity);
-      const supplyEff = number('air_supply_eff');
-      if (supplyEff !== undefined) await this.setIfChanged('efficiency.supplyEff', supplyEff);
-      const extractEff = number('air_extract_eff');
-      if (extractEff !== undefined) await this.setIfChanged('efficiency.extractEff', extractEff);
-      const fanLevel = number('fan_speed_level');
-      if (fanLevel !== undefined) await this.setIfChanged('fanspeed_level', fanLevel);
-
       const output = number('controller_output');
       if (output !== undefined) {
         const outputs = controllerOutputs(output);
         await this.setIfChanged('heat_recovery_output', outputs.heatRecovery);
         await this.setIfChanged('after_heating_output', outputs.afterHeating);
       }
-      const supplyFan = number('supply_fan_speed');
-      if (supplyFan !== undefined) await this.setIfChanged('fan_output.supply', supplyFan);
-      const extractFan = number('extract_fan_speed');
-      if (extractFan !== undefined) await this.setIfChanged('fan_output.extract', extractFan);
 
       const average = number('outdoor_24h_average');
       const threshold = number('summer_winter_threshold');
@@ -1174,11 +1171,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
     private async applyOnOff(result: Record<string, Measurement>, key: string, capabilityId: string, cardId: string) {
       const value = this.reading(result, key);
       if (value !== '0' && value !== '1') return;
-      const previous = this.getCapabilityValue(capabilityId);
-      await this.setIfChanged(capabilityId, value);
-      if (typeof previous === 'string' && previous !== value) {
-        await this.fireModeChanged(cardId, value, capabilityId);
-      }
+      if (await this.change(capabilityId, value) !== undefined) await this.fireModeChanged(cardId, value, capabilityId);
     }
 
     /**
@@ -1192,29 +1185,27 @@ export abstract class ExventModbusDevice extends Homey.Device {
       const logText = type !== undefined && state !== undefined && alarmOn(Number(state)) && Number(type) > 0
         ? alarmText(Number(type), language, this.alarmNames) : undefined;
 
-      const alarms: Array<[string, string, string]> = [
-        ['alarm_a', 'alarm_a', this.driverCards.ids.alarmATriggered],
-        ['alarm_b_desc', 'alarm_b.desc', this.driverCards.ids.alarmBTriggered],
+      const alarms = [
+        {
+          key: 'alarm_a', capabilityId: 'alarm_a', cardId: this.driverCards.ids.alarmATriggered, label: 'alarmA',
+        },
+        {
+          key: 'alarm_b_desc', capabilityId: 'alarm_b.desc', cardId: this.driverCards.ids.alarmBTriggered, label: 'alarmB',
+        },
       ];
-      const active: string[] = [];
-      for (const [key, capabilityId, cardId] of alarms) {
+      for (const {
+        key, capabilityId, cardId, label,
+      } of alarms) {
         const value = this.reading(result, key);
         if (value !== '0' && value !== '1') continue;
         const on = value === '1';
-        if (on) active.push(capabilityId);
         const wasOn = this.getCapabilityValue(capabilityId) === true;
         await this.setIfChanged(capabilityId, on);
-        if (on && !wasOn) {
-          const text = logText ?? this.homey.__(capabilityId === 'alarm_a' ? 'alarmA' : 'alarmB');
-          await this.fireTrigger(cardId, { alarm: text });
-        }
+        if (on && !wasOn) await this.fireTrigger(cardId, { alarm: logText ?? this.homey.__(label) });
       }
-      if (this.reading(result, 'alarm_a') !== undefined || this.reading(result, 'alarm_b_desc') !== undefined) {
-        let text = this.homey.__('noAlarm');
-        if (logText) text = logText;
-        else if (active.includes('alarm_a')) text = this.homey.__('alarmA');
-        else if (active.includes('alarm_b.desc')) text = this.homey.__('alarmB');
-        await this.setIfChanged('active_alarm', text);
+      if (alarms.some(({ key }) => this.reading(result, key) !== undefined)) {
+        const firstOn = alarms.find(({ key }) => this.reading(result, key) === '1');
+        await this.setIfChanged('active_alarm', logText ?? this.homey.__(firstOn ? firstOn.label : 'noAlarm'));
       }
     }
 

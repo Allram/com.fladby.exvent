@@ -37,6 +37,15 @@ export interface DriverCards {
   onOffArgMap: Record<string, string>;
 }
 
+/**
+ * The dropdown ids of MD condition and trigger cards that differ from the
+ * capability values: eAir's cards, and eWind cards saved before 4.0.1.
+ */
+export const MD_STATUS_MODE_ARG_MAP: Record<string, string> = {
+  home: '0', away: '1', fireplace: '2', boost: '3', off: '4', enhanced: '5',
+};
+export const MD_ON_OFF_ARG_MAP: Record<string, string> = { on: '1', off: '0' };
+
 /** How long an action card waits for its writes before it reports a failure. */
 export const ACTION_TIMEOUT_MS = 25 * 1000;
 
@@ -98,13 +107,13 @@ export function registerFlowCards(homey: any, cards: DriverCards) {
   action(ids.startFireplace, (device, args) => device.startModeFor('2', args.minutes));
 
   const mapped = (map: Record<string, string>, value: string) => map[value] ?? value;
-  condition(ids.statusModeIs, (device, args) => device.getCapabilityValue(device.statusModeCapabilityId) === mapped(statusModeArgMap, args.mode));
+  condition(ids.statusModeIs, (device, args) => device.getCapabilityValue(device.statusModeCapability) === mapped(statusModeArgMap, args.mode));
   condition(ids.heatExchangerIs, (device, args) => device.getCapabilityValue('heat_exchanger_mode') === mapped(onOffArgMap, args.mode));
   condition(ids.heaterIs, (device, args) => device.getCapabilityValue('heater_mode') === mapped(onOffArgMap, args.mode));
   condition(ids.alarmAIs, (device) => device.getCapabilityValue('alarm_a') === true);
   condition(ids.alarmBIs, (device) => device.getCapabilityValue('alarm_b.desc') === true);
   condition(ids.fanLevelIs, (device, args) => Number(device.getCapabilityValue('fanspeed_level')) === Number(args.level));
-  condition(ids.heatingCoilIs, (device) => device.getCapabilityValue(device.heatingCoilCapabilityId) === '1');
+  condition(ids.heatingCoilIs, (device) => device.getCapabilityValue(device.heatingCoilCapability) === '1');
   condition(ids.unitBoostingIs, (device) => device.unitBoosting === true);
 
   // The *_changed cards compare their dropdown with the value the trigger was

@@ -403,11 +403,11 @@ for (const driver of ['eWind', 'eAir'] as const) {
       newSettings: { ...device.settings, filter_interval_days: 90, fireplace_duration_minutes: 20 },
       changedKeys: ['filter_interval_days', 'fireplace_duration_minutes'],
     });
-    await device.flowCards.get(device.flowCardIds.resetFilterReminder).listener({ device });
+    await device.flowCards.get(device.driverCards.ids.resetFilterReminder).listener({ device });
     await settle(device);
     assert.deepEqual(unit.writes, mdWrites(driver));
     // Home was the mode already, so the first pick reports nothing.
-    assert.deepEqual(device.triggers, ['1', '2', '3', '4', '5'].map((mode) => `${device.flowCardIds.statusModeChanged} {"mode":"${mode}"}`));
+    assert.deepEqual(device.triggers, ['1', '2', '3', '4', '5'].map((mode) => `${device.driverCards.ids.statusModeChanged} {"mode":"${mode}"}`));
   });
 
   test(`${driver} status and mirrored settings`, async () => {

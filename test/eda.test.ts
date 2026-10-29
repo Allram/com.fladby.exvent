@@ -4,13 +4,7 @@ import { toBlocks } from '../lib/modbus';
 import {
   EDA_COILS, EDA_HOLDING_REGISTERS, EDA_MODE_COILS, EDA_STATE, edaDefrosting, edaOverpressure, edaStatus, edaStatusMode,
 } from '../lib/eda';
-
-function blockSpans(blocks: ReturnType<typeof toBlocks>): Array<[number, number]> {
-  return blocks.map((block) => {
-    const last = block[block.length - 1];
-    return [block[0].addr, last.addr + last.len - block[0].addr];
-  });
-}
+import { blockSpans } from './device-harness';
 
 test('EDA state bits map to status modes', () => {
   assert.equal(edaStatusMode(0), '0');

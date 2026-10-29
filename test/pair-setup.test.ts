@@ -18,13 +18,12 @@ import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { ROOT } from './device-harness';
 
 // jsdom and jQuery are devDependencies, used only by this test.
 // eslint-disable-next-line node/no-unpublished-require
 const { JSDOM, VirtualConsole } = require('jsdom');
 
-/** The repository root, from .homeybuild/test. */
-const ROOT = path.join(__dirname, '..', '..');
 // eslint-disable-next-line node/no-unpublished-require
 const JQUERY = fs.readFileSync(require.resolve('jquery/dist/jquery.js'), 'utf8');
 const DRIVERS = ['eWind', 'eAir', 'eda'];

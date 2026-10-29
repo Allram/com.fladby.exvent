@@ -8,9 +8,6 @@ import { inRange, toNumber } from '../../lib/settings';
 import { EDA_ALARM_NAMES } from '../../lib/alarms';
 import { EDA_CARDS } from './cards';
 
-/** Coil 3 turns overpressure on and off. */
-const OVERPRESSURE_COIL = 3;
-
 /** Device store key for the fan type read from coil 16: true for EC fans, false for AC fans. */
 const EC_FANS_STORE_KEY = 'ec_fans';
 
@@ -40,10 +37,10 @@ const UNIT_SETTINGS: Record<string, UnitSetting> = {
  */
 class MyEdaDevice extends ExventModbusDevice {
   protected readonly statusCapability = 'edastatus';
-  protected readonly statusModeCapability = 'edastatus_mode';
+  readonly statusModeCapability = 'edastatus_mode';
   // Coil 54 has its own capability here, with the values Allowed and
   // Blocked; eWind and eAir keep heating_coil_state with On and Off.
-  protected readonly heatingCoilCapability = 'heating_allowed';
+  readonly heatingCoilCapability = 'heating_allowed';
   protected readonly driverCards = EDA_CARDS;
 
   // Freeway WEB acknowledges function codes 5 and 6 without passing the
@@ -102,34 +99,20 @@ class MyEdaDevice extends ExventModbusDevice {
 
   registerCapabilityListeners() {
     super.registerCapabilityListeners();
-    this.registerCapabilityListener('cooling_allowed', async (value) => {
-      if (!this.isUsable()) return;
+    this.listen('cooling_allowed', (value) => {
       this.setUnitSetting('cooling_allowed', value === '1').catch(this.error);
     });
 
     if (this.hasCapability('fanspeed_level_set')) this.registerFanLevelListener();
 
-    // The quick action. Turning it on starts overpressure as the mode picker
-    // does. Turning it off only ends overpressure, so a stopped unit stays
-    // stopped and away stays on; the poll then reports the mode the unit
-    // went back to and fires the mode trigger if it changed.
-    this.registerCapabilityListener('overpressure', async (value) => {
-      if (!this.isUsable()) return;
-      if (value) {
-        this.changeMode('2').catch(this.error);
-      } else {
-        this.sendCoilRequest(OVERPRESSURE_COIL, false).catch(this.error);
-        this.endModeWriteSettleAfterQueue();
-      }
-    });
+    this.listenQuickAction('overpressure', '2');
   }
 
   /** The fan level slider's listener; registered once the device has the slider. */
   private registerFanLevelListener() {
     if (this.fanLevelListenerRegistered) return;
     this.fanLevelListenerRegistered = true;
-    this.registerCapabilityListener('fanspeed_level_set', async (value) => {
-      if (!this.isUsable()) return;
+    this.listen('fanspeed_level_set', async (value) => {
       // Percent sliders in Homey run from 0 to 1, like dim. The slider
       // shows the full range so its middle is 50%, but the unit's lowest
       // level is 20%. Homey stores the dragged value once this listener
@@ -374,11 +357,7 @@ class MyEdaDevice extends ExventModbusDevice {
    * was stopped does fire on the first poll.
    */
   private async updateState(id: string, value: boolean, startedCard: string, stoppedCard: string) {
-    const previous = this.getCapabilityValue(id);
-    await this.setIfChanged(id, value);
-    if (typeof previous === 'boolean' && previous !== value) {
-      await this.fireTrigger(value ? startedCard : stoppedCard);
-    }
+    if (await this.change(id, value) !== undefined) await this.fireTrigger(value ? startedCard : stoppedCard);
   }
 }
 
