@@ -1,43 +1,10 @@
 import { afterEach, test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import {
-  DriverName, FakeUnit, cleanupDevices, createDevice, defaultSettings, settle, sockets, startDevice,
+  DriverName, FakeUnit, cleanupDevices, createDevice, defaultSettings, mdUnit, settle, sockets, startDevice, tick,
 } from './device-harness';
 
 afterEach(cleanupDevices);
-
-/** An eWind or eAir unit at home, heat recovery on, 12.3 °C outside. */
-const MD_HREG = {
-  3: 45,
-  4: 47,
-  6: 123,
-  7: 145,
-  8: 146,
-  9: 212,
-  10: 230,
-  13: 48,
-  29: 24,
-  30: 19,
-  44: 0,
-  45: 2,
-  49: 40,
-  50: 2,
-  56: 60,
-  57: 60,
-  66: 120,
-  134: 110,
-  135: 150,
-  137: 120,
-  385: 0,
-  386: 0,
-  538: 180,
-  710: 63,
-};
-const MD_COILS = { 30: true, 49: true, 54: true };
-
-function mdUnit(hreg: Record<number, number> = {}, coils: Record<number, boolean> = {}) {
-  return new FakeUnit({ ...MD_HREG, ...hreg }, { ...MD_COILS, ...coils });
-}
 
 const card = (device: any, id: string) => device.flowCards.get(id).listener;
 
@@ -74,9 +41,7 @@ test('a write that waited on a torn-down attempt gets through on the next connec
   unit.silent = true;
   device.connectSocket();
   const write = device.sendCoilRequest(40, true);
-  await new Promise((resolve) => {
-    setImmediate(resolve);
-  });
+  await tick();
   // A poll that gave up tears the hanging attempt down.
   device.teardownSocket();
   unit.silent = false;

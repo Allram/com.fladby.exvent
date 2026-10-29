@@ -1,24 +1,13 @@
 import { afterEach, test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import {
-  FakeUnit, cleanupDevices, createDevice, defaultSettings, readJson, settle, startDevice,
+  cleanupDevices, coilWrites, createDevice, defaultSettings, edaUnit, mdUnit, readJson, settle, startDevice,
 } from './device-harness';
 
 afterEach(cleanupDevices);
 
-const EDA_HREG = {
-  6: 52, 7: 160, 8: 190, 9: 70, 10: 215, 13: 38, 29: 81, 30: 79, 44: 0, 45: 2, 50: 50, 53: 50, 56: 10, 57: 10, 135: 210, 164: 160, 196: 250, 538: 180,
-};
-const EDA_COILS = {
-  16: true, 30: true, 49: true, 52: true, 54: true,
-};
-
 function capabilityEvents(device: any): string[] {
   return device.events.filter((event: string) => /Capability|StoreValue/.test(event));
-}
-
-function coilWrites(unitId: number, code: string, coils: Array<[number, number]>): string[] {
-  return coils.map(([coil, value]) => `${code} unit ${unitId} coil ${coil}=${value}`);
 }
 
 test('EDA mode writes turn the other mode coils off', async () => {
@@ -30,7 +19,7 @@ test('EDA mode writes turn the other mode coils off', async () => {
     4: [[0, 1]],
   };
   for (const [mode, coils] of Object.entries(expected)) {
-    const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+    const unit = edaUnit();
     const device = await startDevice('eda', unit);
     await device.listeners['edastatus_mode'](mode);
     await settle(device);
@@ -42,7 +31,7 @@ test('EDA mode writes turn the other mode coils off', async () => {
 });
 
 test('EDA Home ends a long away set on the panel', async () => {
-  const unit = new FakeUnit(EDA_HREG, { ...EDA_COILS, 2: true });
+  const unit = edaUnit({}, { 2: true });
   unit.deriveState = true;
   const device = await startDevice('eda', unit);
   assert.equal(device.getCapabilityValue('edastatus_mode'), '1');
@@ -55,7 +44,7 @@ test('EDA Home ends a long away set on the panel', async () => {
 
 test('EDA Away and Boost end overpressure', async () => {
   for (const mode of ['1', '3']) {
-    const unit = new FakeUnit(EDA_HREG, { ...EDA_COILS, 3: true });
+    const unit = edaUnit({}, { 3: true });
     unit.deriveState = true;
     const device = await startDevice('eda', unit);
     assert.equal(device.getCapabilityValue('edastatus_mode'), '2');
@@ -70,7 +59,7 @@ test('EDA Away and Boost end overpressure', async () => {
 
 test('EDA overpressure quick action off only ends overpressure', async () => {
   // Stopped with overpressure still set: the unit stays stopped.
-  let unit = new FakeUnit(EDA_HREG, { ...EDA_COILS, 0: true, 3: true });
+  let unit = edaUnit({}, { 0: true, 3: true });
   unit.deriveState = true;
   let device = await startDevice('eda', unit);
   assert.equal(device.getCapabilityValue('edastatus_mode'), '4');
@@ -84,7 +73,7 @@ test('EDA overpressure quick action off only ends overpressure', async () => {
   assert.deepEqual(device.triggers, []);
 
   // Overpressure during away: away stays on, and the poll reports it.
-  unit = new FakeUnit(EDA_HREG, { ...EDA_COILS, 1: true, 3: true });
+  unit = edaUnit({}, { 1: true, 3: true });
   unit.deriveState = true;
   device = await startDevice('eda', unit);
   assert.equal(device.getCapabilityValue('edastatus_mode'), '2');
@@ -98,7 +87,7 @@ test('EDA overpressure quick action off only ends overpressure', async () => {
 });
 
 test('EDA overpressure quick action on starts overpressure like the mode picker', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   unit.deriveState = true;
   const device = await startDevice('eda', unit);
   await device.listeners['overpressure'](true);
@@ -113,7 +102,7 @@ test('EDA overpressure quick action on starts overpressure like the mode picker'
 test('EDA overpressure quick action off reports the mode change right after turning it on', async () => {
   // On and then off again from Homey, well within the echo window of the
   // mode write: the poll after the off write still fires the mode trigger.
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   unit.deriveState = true;
   const device = await startDevice('eda', unit);
   await device.listeners['overpressure'](true);
@@ -128,7 +117,7 @@ test('EDA overpressure quick action off reports the mode change right after turn
 });
 
 test('EDA heating picker keeps the heating allowed setting in step', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   unit.deriveState = true;
   const device = await startDevice('eda', unit);
   await device.onSettings({ newSettings: { ...device.settings, heating_allowed: false }, changedKeys: ['heating_allowed'] });
@@ -142,7 +131,7 @@ test('EDA heating picker keeps the heating allowed setting in step', async () =>
 });
 
 test('EDA fan level calls made before the fan type is known keep their order', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = createDevice('eda', unit, { settings: defaultSettings('eda') });
   await Promise.all([device.setFanLevel(30), device.setFanLevel(40), device.setFanLevel(60)]);
   await settle(device);
@@ -152,7 +141,7 @@ test('EDA fan level calls made before the fan type is known keep their order', a
 });
 
 test('EDA units with AC fans lose the fan level slider once', async () => {
-  const unit = new FakeUnit(EDA_HREG, { ...EDA_COILS, 16: false });
+  const unit = edaUnit({}, { 16: false });
   const paired = createDevice('eda', unit, { settings: defaultSettings('eda') });
   await paired.onInit();
   await settle(paired);
@@ -170,7 +159,7 @@ test('EDA units with AC fans lose the fan level slider once', async () => {
 });
 
 test('EDA units with EC fans keep the fan level slider', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = createDevice('eda', unit, { settings: defaultSettings('eda') });
   await device.onInit();
   await settle(device);
@@ -198,21 +187,21 @@ test('EDA set fan level card is offered only on devices with the slider', () => 
 });
 
 test('EDA fan level can be set before the first poll', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = createDevice('eda', unit, { settings: defaultSettings('eda') });
   assert.equal(await device.setFanLevel(40), 40);
   await settle(device);
   assert.deepEqual(unit.writes, ['FC16 unit 1 hreg 53=40']);
   assert.equal(device.store.ec_fans, true);
 
-  const acUnit = new FakeUnit(EDA_HREG, { ...EDA_COILS, 16: false });
+  const acUnit = edaUnit({}, { 16: false });
   const acDevice = createDevice('eda', acUnit, { settings: defaultSettings('eda') });
   await assert.rejects(acDevice.setFanLevel(40), { message: 'fanLevelUnsupported' });
   assert.deepEqual(acUnit.writes, []);
 });
 
 test('EDA fan level on an unreachable unit gives a connection error', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   unit.reachable = false;
   const device = createDevice('eda', unit, { settings: defaultSettings('eda') });
   await assert.rejects(device.setFanLevel(40), { message: 'noConnection' });
@@ -223,7 +212,7 @@ test('EDA fan level on an unreachable unit gives a connection error', async () =
 });
 
 test('EDA fan level is kept within 20-100% and must be a number', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = await startDevice('eda', unit);
   for (const [level, written] of [[5, 20], [150, 100], [57.4, 57], [NaN, undefined], [null, undefined], ['', undefined]]) {
     assert.equal(await device.setFanLevel(level), written, `level ${level}`);
@@ -233,7 +222,7 @@ test('EDA fan level is kept within 20-100% and must be a number', async () => {
 });
 
 test('EDA status follows every temperature control step', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = await startDevice('eda', unit);
   const steps: Array<[number, string]> = [[0, '0'], [1, '1'], [2, '2'], [4, '3'], [5, '6'], [6, '7'], [7, '4'], [8, '5'], [9, '8'], [10, '9']];
   const values = readJson('.homeycompose/capabilities/edastatus.json').values.map((value: any) => value.id);
@@ -268,7 +257,7 @@ test('EDA mirrors only unit values within the settings range', async () => {
   for (const [id, register, scale] of EDA_NUMBER_SETTINGS) {
     const { min, max } = composeSetting('eda', id);
     for (const [value, mirrored] of [[min - 1 / scale, false], [max + 1 / scale, false], [min, true], [max, true]]) {
-      const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+      const unit = edaUnit();
       const device = await startDevice('eda', unit);
       device.settings[id] = (min + max) / 2;
       unit.hreg.set(register, Math.round(Number(value) * scale) & 0xffff);
@@ -279,7 +268,7 @@ test('EDA mirrors only unit values within the settings range', async () => {
 });
 
 test('EDA mirrored settings wait for their own writes', async (t) => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = await startDevice('eda', unit);
   const changed = {
     heating_allowed: false, cooling_allowed: false, heating_block_temperature: 18, cooling_block_temperature: 20, fireplace_duration_minutes: 15, filter_interval_days: 90,
@@ -309,7 +298,7 @@ test('EDA mirrored settings wait for their own writes', async (t) => {
 });
 
 test('EDA mirrored settings follow writes that arrived', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = await startDevice('eda', unit);
   const changed = { heating_block_temperature: -5, cooling_block_temperature: 17.5, fireplace_duration_minutes: 15 };
   await device.onSettings({ oldSettings: { ...device.settings }, newSettings: { ...device.settings, ...changed }, changedKeys: Object.keys(changed) });
@@ -322,7 +311,7 @@ test('EDA mirrored settings follow writes that arrived', async () => {
 });
 
 test('EDA writes skip values outside the settings range', async () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   const device = await startDevice('eda', unit);
   // The settings dialog shows why a value is refused.
   const save = (id: string, value: unknown) => device.onSettings({ newSettings: { ...device.settings, [id]: value }, changedKeys: [id] });
@@ -353,7 +342,7 @@ test('EDA writes skip values outside the settings range', async () => {
 });
 
 test('EDA unit ID setting falls back to 1', () => {
-  const unit = new FakeUnit(EDA_HREG, EDA_COILS);
+  const unit = edaUnit();
   for (const [setting, id] of [[undefined, 1], [1, 1], [7, 7], ['3', 3], [0, 1], [256, 1], [2.5, 1], ['x', 1]]) {
     const device = createDevice('eda', unit, { settings: { unit_id: setting } });
     assert.equal(device.modbusOptions.unitId, id, `unit_id ${setting}`);
@@ -387,9 +376,9 @@ function mdWrites(driver: 'eWind' | 'eAir'): string[] {
 
 for (const driver of ['eWind', 'eAir'] as const) {
   test(`${driver} writes`, async () => {
-    const unit = new FakeUnit({
+    const unit = mdUnit({
       44: 0, 45: 2, 50: 2, 56: 10, 57: 10, 135: 200, 538: 120, 710: 25,
-    }, { 30: true, 54: true });
+    });
     const device = await startDevice(driver, unit);
     const statusMode = `${driver}status_mode`;
     for (const mode of ['0', '1', '2', '3', '4', '5']) {
@@ -411,9 +400,9 @@ for (const driver of ['eWind', 'eAir'] as const) {
   });
 
   test(`${driver} status and mirrored settings`, async () => {
-    const unit = new FakeUnit({
+    const unit = mdUnit({
       44: 0, 45: 8, 50: 2, 56: 10, 57: 10, 135: 200, 538: 120, 710: 25,
-    }, { 30: true, 54: true });
+    });
     const device = await startDevice(driver, unit);
     const status = `${driver}status`;
     assert.equal(device.getCapabilityValue(status), '5');

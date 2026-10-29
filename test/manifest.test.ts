@@ -102,3 +102,12 @@ test('the version is the same everywhere and the changelog has both languages', 
   const entry = readJson('.homeychangelog.json')[version];
   assert.ok(entry && entry.en && entry.no, `.homeychangelog.json has no en and no entry for ${version}`);
 });
+
+test('the CI workflows run the same checks', () => {
+  const workflows = ['.forgejo/workflows/validate.yml', '.forgejo/workflows/publish.yml', '.github/workflows/pr.yml'];
+  const checks = ['npm test', 'npm run lint', 'npx homey app validate --level publish'];
+  for (const file of workflows) {
+    const text = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    for (const check of checks) assert.ok(text.includes(check), `${file} lacks "${check}"`);
+  }
+});

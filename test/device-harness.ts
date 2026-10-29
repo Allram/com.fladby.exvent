@@ -69,6 +69,56 @@ export class FakeUnit {
   }
 }
 
+/** An eWind or eAir unit at home, heat recovery on, 12.3 °C outside. */
+export const MD_HREG = {
+  3: 45,
+  4: 47,
+  6: 123,
+  7: 145,
+  8: 146,
+  9: 212,
+  10: 230,
+  13: 48,
+  29: 24,
+  30: 19,
+  44: 0,
+  45: 2,
+  49: 40,
+  50: 2,
+  56: 60,
+  57: 60,
+  66: 120,
+  134: 110,
+  135: 150,
+  137: 120,
+  385: 0,
+  386: 0,
+  538: 180,
+  710: 63,
+};
+export const MD_COILS = { 30: true, 49: true, 54: true };
+
+export function mdUnit(hreg: Record<number, number> = {}, coils: Record<number, boolean> = {}) {
+  return new FakeUnit({ ...MD_HREG, ...hreg }, { ...MD_COILS, ...coils });
+}
+
+/** An EDA unit at home. */
+export const EDA_HREG = {
+  6: 52, 7: 160, 8: 190, 9: 70, 10: 215, 13: 38, 29: 81, 30: 79, 44: 0, 45: 2, 50: 50, 53: 50, 56: 10, 57: 10, 135: 210, 164: 160, 196: 250, 538: 180,
+};
+export const EDA_COILS = {
+  16: true, 30: true, 49: true, 52: true, 54: true,
+};
+
+export function edaUnit(hreg: Record<number, number> = {}, coils: Record<number, boolean> = {}) {
+  return new FakeUnit({ ...EDA_HREG, ...hreg }, { ...EDA_COILS, ...coils });
+}
+
+/** Expected log lines for coil writes, in the format FakeUnit.writes records. */
+export function coilWrites(unitId: number, code: string, coils: Array<[number, number]>): string[] {
+  return coils.map(([coil, value]) => `${code} unit ${unitId} coil ${coil}=${value}`);
+}
+
 class FakeSocket extends EventEmitter {
   host = '';
   destroyed = false;
@@ -465,12 +515,23 @@ export async function startDevice(driver: DriverName, unit: FakeUnit, options: D
   return device;
 }
 
+/** Next turn of the event loop. */
+export function tick() {
+  return new Promise((resolve) => {
+    setImmediate(resolve);
+  });
+}
+
+export function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 /** Waits until the device's queued writes have all been sent. */
 export async function settle(device: any) {
   for (let round = 0; round < 1000; round++) {
-    await new Promise((resolve) => {
-      setImmediate(resolve);
-    });
+    await tick();
     if (!device.drainingWriteQueue && device.writeQueue.length === 0 && !device.pollingInProgress) return;
   }
   throw new Error('writes did not settle');

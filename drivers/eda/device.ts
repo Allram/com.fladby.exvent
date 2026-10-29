@@ -1,4 +1,4 @@
-import { ExventModbusDevice } from '../../lib/ExventDevice';
+import { ExventModbusDevice, UnitSetting } from '../../lib/ExventDevice';
 import { Measurement, RegisterMap, readModbus } from '../../lib/modbus';
 import {
   EDA_COILS, EDA_HOLDING_REGISTERS, EDA_MODE_COIL_BY_MODE, EDA_MODE_COILS, edaDefrosting, edaFanTypeFromLevel, edaOverpressure,
@@ -10,26 +10,6 @@ import { EDA_CARDS } from './cards';
 
 /** Device store key for the fan type read from coil 16: true for EC fans, false for AC fans. */
 const EC_FANS_STORE_KEY = 'ec_fans';
-
-/** A device setting whose value lives on the unit. */
-interface UnitSetting {
-  /** Key of the register or coil in the register maps. */
-  key: string;
-  coil?: boolean;
-  /** Register value per unit of the setting, e.g. 10 for tenths of a degree. */
-  scale?: number;
-}
-
-// Device settings stored on the unit, keyed by setting id. The poll mirrors
-// them into Homey, so changes made on the unit's panel show up; onSettings
-// and the flow cards write them.
-const UNIT_SETTINGS: Record<string, UnitSetting> = {
-  heating_allowed: { key: 'heating_coil', coil: true },
-  cooling_allowed: { key: 'cooling_allowed', coil: true },
-  heating_block_temperature: { key: 'heating_block_temperature', scale: 10 },
-  cooling_block_temperature: { key: 'cooling_block_temperature', scale: 10 },
-  service_reminder: { key: 'service_reminder', coil: true },
-};
 
 /**
  * Exvent units with EDA automation, reached through a Freeway WEB adapter.
@@ -126,31 +106,19 @@ class MyEdaDevice extends ExventModbusDevice {
     });
   }
 
-  protected settingRanges(): Record<string, [number, number]> {
+  protected unitSettings(): Record<string, UnitSetting> {
     return {
-      ...super.settingRanges(),
-      heating_block_temperature: [-5, 25],
-      cooling_block_temperature: [5, 40],
+      ...super.unitSettings(),
+      heating_allowed: { coil: 'heating_coil', mirror: true },
+      cooling_allowed: { coil: 'cooling_allowed', mirror: true },
+      heating_block_temperature: {
+        registers: ['heating_block_temperature'], scale: 10, range: [-5, 25], mirror: true,
+      },
+      cooling_block_temperature: {
+        registers: ['cooling_block_temperature'], scale: 10, range: [5, 40], mirror: true,
+      },
+      service_reminder: { coil: 'service_reminder', mirror: true },
     };
-  }
-
-  protected validateSettings(settings: Record<string, any>, changedKeys: string[]) {
-    super.validateSettings(settings, changedKeys);
-    const ranges = this.settingRanges();
-    for (const id of ['heating_block_temperature', 'cooling_block_temperature']) {
-      if (changedKeys.includes(id) && inRange(settings[id], ranges[id]) === undefined) {
-        const [min, max] = ranges[id];
-        throw new Error(this.homey.__('settings.invalidNumber', { range: `${min}–${max}` }));
-      }
-    }
-  }
-
-  protected unitSettingWrites(settings: Record<string, any>, changedKeys: string[]): Array<Promise<unknown>> {
-    const writes = super.unitSettingWrites(settings, changedKeys);
-    for (const id of changedKeys) {
-      if (UNIT_SETTINGS[id]) writes.push(this.writeUnitSetting(id, settings[id]));
-    }
-    return writes;
   }
 
   async processResult(result: Record<string, Measurement>, pollSeq?: number) {
@@ -189,21 +157,6 @@ class MyEdaDevice extends ExventModbusDevice {
       await this.updateState('defrosting', edaDefrosting(Number(state)), 'defrosting_started_eda', 'defrosting_stopped_eda');
       await this.setIfChanged('overpressure', edaOverpressure(Number(state)));
     }
-
-    // setSettings does not trigger onSettings, so mirroring cannot loop.
-    for (const [id, setting] of Object.entries(UNIT_SETTINGS)) {
-      const raw = reading(setting.key);
-      if (raw !== undefined) {
-        const value = setting.coil ? raw === '1' : Number(raw) / (setting.scale ?? 1);
-        await this.mirrorSetting(id, value, pollSeq);
-      }
-    }
-  }
-
-  /** Writes a unit setting and shows the new value in the device settings. */
-  async setUnitSetting(id: string, value: boolean | number) {
-    const written = await this.writeUnitSetting(id, value);
-    if (written !== undefined) await this.setSettings({ [id]: written }).catch(this.error);
   }
 
   /**
@@ -309,44 +262,9 @@ class MyEdaDevice extends ExventModbusDevice {
     return percent;
   }
 
-  /**
-   * The heating picker and its flow card write coil 54 through the shared
-   * class. Tying the write to the heating_allowed setting lets the setting
-   * follow as soon as the unit reports it, as it does for cooling.
-   */
-  sendCoilRequest(register: number, value: boolean, options: any = {}): Promise<void> {
-    if (register === this.address(this.coilRegisters, UNIT_SETTINGS.heating_allowed.key)) {
-      return super.sendCoilRequest(register, value, { setting: 'heating_allowed', settingValue: value, ...options });
-    }
-    return super.sendCoilRequest(register, value, options);
-  }
-
   /** Writes the overpressure duration and shows it in the device settings. */
   async setOverpressureDuration(minutes: number) {
-    const value = inRange(minutes, this.settingRanges().fireplace_duration_minutes);
-    if (value === undefined || !Number.isInteger(value)) throw new Error(this.homey.__('invalidDuration'));
-    await Promise.all(this.durationWrites('fireplace_duration_minutes', value));
-    await this.setSettings({ fireplace_duration_minutes: value }).catch(this.error);
-  }
-
-  /**
-   * Writes a unit setting. A number outside the setting's range is not
-   * written. Resolves with the value the unit will report back once the
-   * write has gone out, or undefined when nothing was written.
-   */
-  async writeUnitSetting(id: string, value: unknown): Promise<number | boolean | undefined> {
-    const setting = UNIT_SETTINGS[id];
-    if (setting.coil) {
-      const on = Boolean(value);
-      await this.sendCoilRequest(this.address(this.coilRegisters, setting.key), on, { setting: id, settingValue: on });
-      return on;
-    }
-    const number = inRange(value, this.settingRanges()[id]);
-    if (number === undefined) return undefined;
-    const scale = setting.scale ?? 1;
-    const raw = Math.round(number * scale);
-    await this.sendHoldingRequest(this.address(this.registers, setting.key), raw, { setting: id, settingValue: raw / scale });
-    return raw / scale;
+    await this.setUnitSetting('fireplace_duration_minutes', this.wholeDuration('fireplace_duration_minutes', minutes));
   }
 
   /**

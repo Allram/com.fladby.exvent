@@ -38,6 +38,24 @@ const SETTINGS_WRITE_TIMEOUT_MS = 25 * 1000;
 const MODE_WRITE_SETTLE_MS = 2 * POLL_INTERVAL;
 
 /** Writes that belong together; once a critical step fails, the rest is skipped. */
+/** A device setting whose value lives on the unit. */
+export interface UnitSetting {
+  /** The coil it is written to and read from, by key in the coil map. */
+  coil?: string;
+  /** The holding registers it is written to, by key; the first is the one read. */
+  registers?: string[];
+  /** Holding register addresses, for a setting written to registers the poll does not read. */
+  addresses?: number[];
+  /** Register value per unit of the setting, e.g. 10 for tenths of a degree. */
+  scale?: number;
+  /** The min and max, as in driver.compose.json. Values outside are neither written nor mirrored. */
+  range?: [number, number];
+  /** Whether only whole numbers are valid. */
+  whole?: boolean;
+  /** Whether the poll copies the unit's value into the setting; settings that need more than a plain copy leave it out. */
+  mirror?: boolean;
+}
+
 /**
  * Readings shown as they are in a capability, or divided by 10 for tenths of
  * a degree. A capability the device does not have is left alone.
@@ -195,15 +213,18 @@ export abstract class ExventModbusDevice extends Homey.Device {
     /** Mode sequences queued or on their way to the unit. */
     private modeWritesPending: number = 0;
     private pendingMode: PendingMode | null = null;
-    /** Setting writes queued or on their way, per setting. */
-    private readonly settingWritesPending = new Map<string, number>();
+    /**
+     * Per setting: how many writes are queued or on their way, and the value
+     * of the last one the unit should report back, and when it was queued.
+     */
+    private readonly settingWrites = new Map<string, { pending: number; value?: number | boolean; at?: number }>();
     /** Counts finished setting writes, so a poll that started before one does not mirror it back. */
     private settingWriteSeq: number = 0;
     private settingsSaving: boolean = false;
-    /** The last write of each setting: the value the unit should report back, and when. */
-    private readonly recentSettingWrites = new Map<string, { value: number | boolean; at: number }>();
-    private loggedSetpoint: number | undefined;
-    private loggedDurationMismatch: string | undefined;
+    /** The formatter of lastPollTime and the language and time zone it was made for. */
+    private pollTimeFormatter: { key: string; format: Intl.DateTimeFormat } | null = null;
+    /** The last text logged per topic by logOnce. */
+    private readonly loggedOnce = new Map<string, string>();
     private modeLog: any = null;
 
     // ---------------------------------------------------------------- lifecycle
@@ -440,7 +461,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       try {
         await this.setCapabilityValue(
           'lastPollTime',
-          new Date().toLocaleString(this.homey.i18n.getLanguage(), { timeZone: this.homey.clock.getTimezone(), hour12: false }),
+          this.pollTimeFormat().format(new Date()),
         );
       } catch {
         // Ignore errors if device is deleted
@@ -501,15 +522,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
       });
       // Callers that do not wait for the write must not cause an unhandled rejection.
       promise.catch(() => {});
-      if (options.setting && options.settingValue !== undefined) {
-        this.recentSettingWrites.set(options.setting, { value: options.settingValue, at: Date.now() });
+      const write = options.setting ? this.settingWrites.get(options.setting) ?? { pending: 0 } : undefined;
+      if (write) {
+        write.pending++;
+        if (options.settingValue !== undefined) Object.assign(write, { value: options.settingValue, at: Date.now() });
+        this.settingWrites.set(options.setting as string, write);
       }
-      if (options.setting) this.settingWritesPending.set(options.setting, (this.settingWritesPending.get(options.setting) ?? 0) + 1);
       const settle = () => {
-        if (!options.setting) return;
-        const left = (this.settingWritesPending.get(options.setting) ?? 1) - 1;
-        if (left > 0) this.settingWritesPending.set(options.setting, left);
-        else this.settingWritesPending.delete(options.setting);
+        if (!write) return;
+        write.pending--;
         this.settingWriteSeq++;
       };
       this.writeQueue.push({
@@ -594,6 +615,8 @@ export abstract class ExventModbusDevice extends Homey.Device {
     }
 
     sendCoilRequest(register: number, value: boolean, options: Partial<WriteOptions> = {}): Promise<void> {
+      const setting = options.setting ?? this.settingOfCoil(register);
+      if (setting && !options.setting) options = { ...options, setting, settingValue: value };
       return this.enqueueWrite(() => (this.useMultipleWrites
         ? this.client.writeMultipleCoils(register, [value])
         : this.client.writeSingleCoil(register, value)), { label: `coil ${register}=${value ? 1 : 0}`, ...options });
@@ -693,18 +716,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
      */
     async startModeFor(mode: '2' | '3', minutes: unknown) {
       const setting = mode === '3' ? 'boost_duration_minutes' : 'fireplace_duration_minutes';
-      const value = inRange(minutes, this.settingRanges()[setting]);
-      if (value === undefined || !Number.isInteger(value)) throw new Error(this.homey.__('invalidDuration'));
-      if (this.getSetting(setting) !== value) {
-        await Promise.all(this.durationWrites(setting, value));
-        await this.setSettings({ [setting]: value }).catch(this.error);
-      }
+      if (this.getSetting(setting) !== this.wholeDuration(setting, minutes)) await this.setUnitSetting(setting, minutes);
       await this.changeMode(mode);
     }
 
-    protected durationWrites(setting: string, minutes: number): Array<Promise<void>> {
-      const registers = setting === 'boost_duration_minutes' ? [this.address(this.registers, 'boost_duration')] : this.overpressureDurationRegisters;
-      return registers.map((register) => this.sendHoldingRequest(register, minutes, { setting, settingValue: minutes }));
+    /** The minutes if they are a whole number in the setting's range; else throws the duration message. */
+    protected wholeDuration(setting: string, minutes: unknown): number {
+      const value = inRange(minutes, this.unitSettings()[setting].range as [number, number]);
+      if (value === undefined || !Number.isInteger(value)) throw new Error(this.homey.__('invalidDuration'));
+      return value;
     }
 
     // -------------------------------------------------------- simple commands
@@ -818,6 +838,32 @@ export abstract class ExventModbusDevice extends Homey.Device {
       }
 
       this.capabilityListenersRegistered = true;
+    }
+
+    /**
+     * Formats lastPollTime as Date.toLocaleString does, in the Homey's
+     * language and time zone. Made once, and again when either changes.
+     */
+    private pollTimeFormat(): Intl.DateTimeFormat {
+      const language = this.homey.i18n.getLanguage();
+      const timeZone = this.homey.clock.getTimezone();
+      const key = `${language}|${timeZone}`;
+      if (this.pollTimeFormatter?.key !== key) {
+        this.pollTimeFormatter = {
+          key,
+          format: new Intl.DateTimeFormat(language, {
+            timeZone, hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',
+          }),
+        };
+      }
+      return this.pollTimeFormatter.format;
+    }
+
+    /** Logs the text unless it is what was last logged for the topic, so a poll does not repeat it every minute. */
+    protected logOnce(topic: string, text: string) {
+      if (this.loggedOnce.get(topic) === text) return;
+      this.loggedOnce.set(topic, text);
+      this.log(text);
     }
 
     /** Registers a capability listener that does nothing while the device cannot be reached. */
@@ -966,42 +1012,70 @@ export abstract class ExventModbusDevice extends Homey.Device {
       if (changedKeys.includes('port') && !isValidPort(settings.port)) {
         throw new Error(this.homey.__('settings.invalidPort'));
       }
-      const whole = (id: string, range: [number, number]) => {
-        if (!changedKeys.includes(id)) return;
+      for (const [id, { range, whole }] of Object.entries(this.unitSettings())) {
+        if (!range || !changedKeys.includes(id)) continue;
         const value = inRange(settings[id], range);
-        if (value === undefined || !Number.isInteger(value)) {
+        if (value === undefined || (whole && !Number.isInteger(value))) {
           throw new Error(this.homey.__('settings.invalidNumber', { range: `${range[0]}–${range[1]}` }));
         }
-      };
-      const ranges = this.settingRanges();
-      for (const id of ['filter_interval_days', 'fireplace_duration_minutes', 'boost_duration_minutes']) whole(id, ranges[id]);
+      }
     }
 
     /**
-     * The min and max of the number settings stored on the unit, as in
-     * driver.compose.json. Values outside them are neither written nor mirrored.
+     * The device settings stored on the unit. The settings dialog and the
+     * flow cards write them; the poll mirrors those marked so, so changes
+     * made on the unit's panel show up.
      */
-    protected settingRanges(): Record<string, [number, number]> {
+    protected unitSettings(): Record<string, UnitSetting> {
       return {
-        filter_interval_days: [1, 365],
-        fireplace_duration_minutes: [1, 60],
-        boost_duration_minutes: this.boostDurationRange,
+        // HREG 538: days after a reset before the filter change reminder is
+        // raised. The confirmation poll refreshes the countdown.
+        filter_interval_days: { registers: ['service_interval_days'], range: [1, 365], whole: true },
+        fireplace_duration_minutes: { addresses: this.overpressureDurationRegisters, range: [1, 60], whole: true },
+        boost_duration_minutes: {
+          registers: ['boost_duration'], range: this.boostDurationRange, whole: true, mirror: true,
+        },
       };
     }
 
-    /** Queues the writes of the changed settings that live on the unit. */
+    /** Queues the writes of the changed settings that live on the unit, in the order of unitSettings. */
     protected unitSettingWrites(settings: Record<string, any>, changedKeys: string[]): Array<Promise<unknown>> {
-      const writes: Array<Promise<unknown>> = [];
-      // HREG 538: number of days after a reset before the filter change
-      // reminder is raised. The confirmation poll refreshes the countdown.
-      if (changedKeys.includes('filter_interval_days')) {
-        const days = Number(settings.filter_interval_days);
-        writes.push(this.sendHoldingRequest(this.address(this.registers, 'service_interval_days'), days, { setting: 'filter_interval_days', settingValue: days }));
+      return Object.keys(this.unitSettings())
+        .filter((id) => changedKeys.includes(id))
+        .map((id) => this.writeUnitSetting(id, settings[id]));
+    }
+
+    /**
+     * Writes a unit setting. A number outside the setting's range is not
+     * written. Resolves with the value the unit will report back once the
+     * write has gone out, or undefined when nothing was written.
+     */
+    async writeUnitSetting(id: string, value: unknown): Promise<number | boolean | undefined> {
+      const setting = this.unitSettings()[id];
+      if (setting.coil) {
+        const on = Boolean(value);
+        await this.sendCoilRequest(this.address(this.coilRegisters, setting.coil), on, { setting: id, settingValue: on });
+        return on;
       }
-      for (const id of ['fireplace_duration_minutes', 'boost_duration_minutes']) {
-        if (changedKeys.includes(id)) writes.push(...this.durationWrites(id, Number(settings[id])));
-      }
-      return writes;
+      const number = setting.range ? inRange(value, setting.range) : toNumber(value);
+      if (number === undefined) return undefined;
+      const scale = setting.scale ?? 1;
+      const raw = Math.round(number * scale);
+      const addresses = setting.addresses ?? (setting.registers ?? []).map((key) => this.address(this.registers, key));
+      await Promise.all(addresses.map((register) => this.sendHoldingRequest(register, raw, { setting: id, settingValue: raw / scale })));
+      return raw / scale;
+    }
+
+    /** Writes a unit setting and shows the new value in the device settings. */
+    async setUnitSetting(id: string, value: unknown) {
+      const written = await this.writeUnitSetting(id, value);
+      if (written !== undefined) await this.setSettings({ [id]: written }).catch(this.error);
+    }
+
+    /** The unit setting written to a coil, so writes from pickers and cards are tied to it too. */
+    private settingOfCoil(register: number): string | undefined {
+      return Object.entries(this.unitSettings())
+        .find(([, setting]) => setting.coil && this.coilRegisters[setting.coil]?.[0] === register)?.[0];
     }
 
     /**
@@ -1013,12 +1087,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * not come back from the unit yet.
      */
     protected mayMirrorSetting(id: string, value: number | boolean, pollSeq?: number): boolean {
-      const range = this.settingRanges()[id];
+      const range = this.unitSettings()[id]?.range;
       if (range && inRange(value, range) === undefined) return false;
-      if (this.settingsSaving || this.settingWritesPending.has(id)) return false;
+      const write = this.settingWrites.get(id);
+      if (this.settingsSaving || (write?.pending ?? 0) > 0) return false;
       if (pollSeq !== undefined && pollSeq !== this.settingWriteSeq) return false;
-      const write = this.recentSettingWrites.get(id);
-      return write === undefined || write.value === value || Date.now() - write.at >= this.settingSettleMs;
+      return write?.at === undefined || write.value === value || Date.now() - write.at >= this.settingSettleMs;
     }
 
     protected async mirrorSetting(id: string, value: number | boolean, pollSeq?: number) {
@@ -1096,10 +1170,9 @@ export abstract class ExventModbusDevice extends Homey.Device {
         const temperature = setpoint / 10;
         if (inRange(temperature, this.setpointRange) !== undefined) {
           await this.setIfChanged('target_temperature.step', temperature);
-        } else if (this.loggedSetpoint !== temperature) {
+        } else {
           // The capability cannot hold it, so the previous value stays shown.
-          this.loggedSetpoint = temperature;
-          this.log(`Target temperature ${temperature} °C is outside ${this.setpointRange.join('–')} °C and is not shown`);
+          this.logOnce('setpoint', `Target temperature ${temperature} °C is outside ${this.setpointRange.join('–')} °C and is not shown`);
         }
       }
 
@@ -1149,19 +1222,19 @@ export abstract class ExventModbusDevice extends Homey.Device {
       // does not re-trigger onSettings, so this cannot loop.
       const active = number('fireplace_duration');
       const standard = number('fireplace_duration_default');
-      if (active !== undefined && standard !== undefined && active !== standard
-        && this.loggedDurationMismatch !== `${active}/${standard}`) {
-        this.loggedDurationMismatch = `${active}/${standard}`;
-        this.log(`Fireplace duration is ${active} min now but ${standard} min after a restart of the unit (HREG 56/57)`);
+      if (active !== undefined && standard !== undefined && active !== standard) {
+        this.logOnce('fireplaceDuration', `Fireplace duration is ${active} min now but ${standard} min after a restart of the unit (HREG 56/57)`);
       }
       const duration = standard ?? active;
       if (duration !== undefined) {
         await this.mirrorSetting('fireplace_duration_minutes', duration, pollSeq);
       }
 
-      const boostDuration = number('boost_duration');
-      if (boostDuration !== undefined) {
-        await this.mirrorSetting('boost_duration_minutes', boostDuration, pollSeq);
+      // setSettings does not trigger onSettings, so mirroring cannot loop.
+      for (const [id, setting] of Object.entries(this.unitSettings())) {
+        if (!setting.mirror) continue;
+        const raw = this.reading(result, setting.coil ?? (setting.registers ?? [])[0]);
+        if (raw !== undefined) await this.mirrorSetting(id, setting.coil ? raw === '1' : Number(raw) / (setting.scale ?? 1), pollSeq);
       }
 
       await this.applyFilterCountdown(result, pollSeq);

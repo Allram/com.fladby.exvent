@@ -18,7 +18,7 @@ import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { ROOT } from './device-harness';
+import { ROOT, delay } from './device-harness';
 
 // jsdom and jQuery are devDependencies, used only by this test.
 // eslint-disable-next-line node/no-unpublished-require
@@ -43,12 +43,6 @@ interface Pairing {
   titles: string[];
   /** Script errors reported by jsdom. */
   errors: string[];
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
 }
 
 async function until(check: () => boolean, what: string) {
@@ -119,7 +113,8 @@ async function showPairingView(driver: string, test?: any): Promise<Pairing> {
   window.$(viewEl).html(html);
   window.translateElement(viewEl);
   // jQuery runs ready handlers asynchronously once the page has loaded.
-  await delay(50);
+  // The ready handler binds the Connect button and then initialises the view.
+  await until(() => Boolean(window.$._data(document.getElementById('connect'), 'events')?.click), 'the Connect button to be bound');
   return pairing;
 }
 

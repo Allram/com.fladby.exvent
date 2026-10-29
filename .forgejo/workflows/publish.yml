@@ -36,12 +36,7 @@ jobs:
       image: data.forgejo.org/oci/node:22
     steps:
       - name: Checkout
-        run: |
-          git init -q .
-          git remote add origin \
-            "https://actions:${{ github.token }}@kode.fladby.org/${{ github.repository }}.git"
-          git fetch -q --depth 1 origin "${GITHUB_SHA}"
-          git checkout -q --detach FETCH_HEAD
+        uses: https://github.com/actions/checkout@v4
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -57,17 +52,14 @@ jobs:
     runs-on: docker
     timeout-minutes: 15
     steps:
-      # Clone by hand with the run token in the URL (instance runs with
-      # REQUIRE_SIGNIN_VIEW). This works and is kept, but actions/checkout@v4
-      # also works against this instance: the "could not read Username"
-      # failures in August 2026 came from the Authelia bypass, fixed 2026-08-09.
+      # actions/checkout works against this instance (REQUIRE_SIGNIN_VIEW) since
+      # 2026-08-09, when the Authelia bypass behind the August "could not read
+      # Username" failures was fixed.
       - name: Checkout
-        run: |
-          git init -q .
-          git remote add origin \
-            "https://actions:${{ github.token }}@kode.fladby.org/${{ github.repository }}.git"
-          git fetch -q --depth 1 origin "${GITHUB_SHA}"
-          git checkout -q --detach FETCH_HEAD
+        uses: https://github.com/actions/checkout@v4
+        with:
+          # The ancestor check below needs the full history of the tagged commit.
+          fetch-depth: 0
 
       # Node 24 is what Homey Pro runs (v24.21.0 on firmware 13.5, checked
       # 2026-09-29) and what the Homey CLI requires (>=24). The unit tests
@@ -92,7 +84,6 @@ jobs:
             if (!entry.en || !entry.no) errors.push(".homeychangelog.json lacks en or no for " + version);
             if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
           '
-          git fetch -q --unshallow origin || true
           git fetch -q origin main:refs/remotes/origin/main
           git merge-base --is-ancestor "${GITHUB_SHA}" origin/main || { echo "The tagged commit is not on main"; exit 1; }
 

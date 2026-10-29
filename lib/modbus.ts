@@ -53,9 +53,18 @@ export function toBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: numbe
 
 // The register maps never change after a device is set up, so their blocks
 // are worked out once per map, kind and gap.
-const blockCache = new WeakMap<RegisterMap, Map<string, RegisterEntry[][]>>();
+/** A block of registers read in one request. */
+interface ReadBlock {
+  entries: RegisterEntry[];
+  start: number;
+  length: number;
+  /** Identifies the block among the ones a unit refused. */
+  key: string;
+}
 
-function cachedBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: number): RegisterEntry[][] {
+const blockCache = new WeakMap<RegisterMap, Map<string, ReadBlock[]>>();
+
+function cachedBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: number): ReadBlock[] {
   let byKind = blockCache.get(registers);
   if (!byKind) {
     byKind = new Map();
@@ -64,7 +73,14 @@ function cachedBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: number):
   const key = `${kind}:${maxGap}`;
   let blocks = byKind.get(key);
   if (!blocks) {
-    blocks = toBlocks(registers, kind, maxGap);
+    blocks = toBlocks(registers, kind, maxGap).map((entries) => {
+      const start = entries[0].addr;
+      const last = entries[entries.length - 1];
+      const length = last.addr + last.len - start;
+      return {
+        entries, start, length, key: `${kind}:${start}+${length}`,
+      };
+    });
     byKind.set(key, blocks);
   }
   return blocks;
@@ -158,11 +174,9 @@ export async function readModbus(
     refusedBlocks.set(client, refused);
   }
 
-  for (const block of cachedBlocks(registers, kind, maxGap)) {
-    const start = block[0].addr;
-    const last = block[block.length - 1];
-    const length = last.addr + last.len - start;
-    const blockKey = `${kind}:${start}+${length}`;
+  for (const {
+    entries: block, start, length, key: blockKey,
+  } of cachedBlocks(registers, kind, maxGap)) {
     try {
       if (block.length > 1 && refused.has(blockKey)) throw Object.assign(new Error('Refused before'), { refusedBefore: true });
       const { response } = await read(start, length);
