@@ -1,1 +1,0 @@
-Your ventilation runs around the clock, and with Homey it can adapt to your day. Keep an eye on the indoor climate and the filter, and let Flows turn the ventilation down when nobody is home and back up after a shower. The app works with Exvent eWind and eAir, and with Exvent units that have EDA automation through a Freeway WEB adapter.
