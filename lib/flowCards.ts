@@ -52,6 +52,27 @@ export function withTimeout<T>(promise: Promise<T>, ms: number, timeoutError: ()
 }
 
 /**
+ * Registers an action card. The listener gets the device from args.device,
+ * fails at once when the device cannot be reached, and fails when its writes
+ * have not gone out in time.
+ */
+export function registerAction(homey: any, id: string | undefined, run: (device: ExventModbusDevice, args: any) => Promise<unknown>) {
+  if (!id) return;
+  homey.flow.getActionCard(id).registerRunListener(async (args: any) => {
+    const device = args.device as ExventModbusDevice;
+    if (!device.isUsable()) throw new Error(homey.__('noConnection'));
+    await withTimeout(run(device, args), ACTION_TIMEOUT_MS, () => new Error(homey.__('writeTimeout')));
+    return true;
+  });
+}
+
+/** Registers a condition card; the check gets the device from args.device. */
+export function registerCondition(homey: any, id: string | undefined, check: (device: ExventModbusDevice, args: any) => boolean) {
+  if (!id) return;
+  homey.flow.getConditionCard(id).registerRunListener(async (args: any) => check(args.device as ExventModbusDevice, args));
+}
+
+/**
  * Registers the run listeners of a driver's flow cards; called once from the
  * driver's onInit. Action and condition listeners get the device in
  * args.device. Trigger listeners do not: a device trigger card filters by
@@ -61,19 +82,8 @@ export function withTimeout<T>(promise: Promise<T>, ms: number, timeoutError: ()
 export function registerFlowCards(homey: any, cards: DriverCards) {
   const { ids, statusModeArgMap, onOffArgMap } = cards;
 
-  const action = (id: string | undefined, run: (device: ExventModbusDevice, args: any) => Promise<unknown>) => {
-    if (!id) return;
-    homey.flow.getActionCard(id).registerRunListener(async (args: any) => {
-      const device = args.device as ExventModbusDevice;
-      if (!device.isUsable()) throw new Error(homey.__('noConnection'));
-      await withTimeout(run(device, args), ACTION_TIMEOUT_MS, () => new Error(homey.__('writeTimeout')));
-      return true;
-    });
-  };
-  const condition = (id: string | undefined, check: (device: ExventModbusDevice, args: any) => boolean) => {
-    if (!id) return;
-    homey.flow.getConditionCard(id).registerRunListener(async (args: any) => check(args.device as ExventModbusDevice, args));
-  };
+  const action = (id: string | undefined, run: (device: ExventModbusDevice, args: any) => Promise<unknown>) => registerAction(homey, id, run);
+  const condition = (id: string | undefined, check: (device: ExventModbusDevice, args: any) => boolean) => registerCondition(homey, id, check);
   const trigger = (id: string | undefined, listener: (args: any, state: any) => boolean) => {
     if (!id) return;
     homey.flow.getDeviceTriggerCard(id).registerRunListener(async (args: any, state: any) => listener(args, state));

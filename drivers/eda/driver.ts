@@ -1,4 +1,5 @@
 import { ExventDriver, PairTestResult } from '../../lib/ExventDriver';
+import { registerAction, registerCondition } from '../../lib/flowCards';
 import { EDA_CARDS } from './cards';
 
 /** HREG 599 is the software version: below 190 the unit is an MD unit (eWind or eAir), not EDA. */
@@ -12,25 +13,15 @@ class MyEdaDriver extends ExventDriver {
   protected readonly refusedMessage = 'pair.test.refused_eda';
 
   protected registerDriverFlowCards() {
-    const onAction = (cardId: string, action: (device: any, args: any) => Promise<unknown>) => {
-      this.homey.flow.getActionCard(cardId)
-        .registerRunListener(async (args: any) => {
-          const { device } = args;
-          if (!device.isUsable()) throw new Error(this.homey.__('noConnection'));
-          await action(device, args);
-          return true;
-        });
-    };
+    // The EDA device class adds these methods to the shared one.
+    const onAction = (cardId: string, action: (device: any, args: any) => Promise<unknown>) => registerAction(this.homey, cardId, action);
     onAction('set-cooling_eda', (device, args) => device.setUnitSetting('cooling_allowed', args.allowed === '1'));
     onAction('set-heating-block-temperature_eda', (device, args) => device.setUnitSetting('heating_block_temperature', args.temperature));
     onAction('set-cooling-block-temperature_eda', (device, args) => device.setUnitSetting('cooling_block_temperature', args.temperature));
     onAction('set-overpressure-duration_eda', (device, args) => device.setOverpressureDuration(args.minutes));
     onAction('set-fan-level_eda', (device, args) => device.setFanLevel(args.level));
 
-    const onCondition = (cardId: string, capabilityId: string) => {
-      this.homey.flow.getConditionCard(cardId)
-        .registerRunListener(async (args: any) => args.device.getCapabilityValue(capabilityId) === true);
-    };
+    const onCondition = (cardId: string, capabilityId: string) => registerCondition(this.homey, cardId, (device) => device.getCapabilityValue(capabilityId) === true);
     onCondition('defrosting_is_eda', 'defrosting');
     onCondition('cooling_active_is_eda', 'cooling_active');
   }

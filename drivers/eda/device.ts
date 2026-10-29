@@ -13,14 +13,6 @@ const OVERPRESSURE_COIL = 3;
 /** Device store key for the fan type read from coil 16: true for EC fans, false for AC fans. */
 const EC_FANS_STORE_KEY = 'ec_fans';
 
-/**
- * How long after a setting is written the poll keeps showing the value
- * written rather than what the unit reports. Freeway WEB acknowledges the
- * write before the unit reports it; once the unit reports the value
- * written, or the time is up, the unit's value is shown again.
- */
-const SETTING_SETTLE_MS = 30 * 1000;
-
 /** A device setting whose value lives on the unit. */
 interface UnitSetting {
   /** Key of the register or coil in the register maps. */
@@ -42,23 +34,6 @@ const UNIT_SETTINGS: Record<string, UnitSetting> = {
 };
 
 /**
- * The min and max of the number settings mirrored from the unit, as in
- * driver.compose.json. Values outside them are neither written nor mirrored.
- */
-const SETTING_RANGES: Record<string, [number, number]> = {
-  heating_block_temperature: [-5, 25],
-  cooling_block_temperature: [5, 40],
-  fireplace_duration_minutes: [1, 60],
-  boost_duration_minutes: [1, 60],
-  filter_interval_days: [1, 365],
-};
-
-/** The value if it is a number within the setting's range, else undefined. */
-function inSettingRange(id: string, value: unknown): number | undefined {
-  return inRange(value, SETTING_RANGES[id]);
-}
-
-/**
  * Exvent units with EDA automation, reached through a Freeway WEB adapter.
  * The register map differs from eWind and eAir; see lib/eda.ts.
  */
@@ -78,6 +53,9 @@ class MyEdaDevice extends ExventModbusDevice {
   protected readonly setpointRange: [number, number] = [10, 30];
   protected readonly setpointStep = 0.5;
   protected readonly boostDurationRange: [number, number] = [1, 60];
+  // Freeway WEB acknowledges a write before the unit reports it, so the
+  // value written is kept for a while rather than what the unit reports.
+  protected readonly settingSettleMs = 30 * 1000;
   protected readonly edaAlarmNames = true;
   // Home, Away, Overpressure and Boost turn the other mode coils off, so
   // Home also ends a long away set on the panel. Off only sets the stop coil:
@@ -96,9 +74,6 @@ class MyEdaDevice extends ExventModbusDevice {
 
   /** A read of the fan type still under way, shared by the calls that wait for it. */
   private ecFansRead: Promise<boolean> | null = null;
-
-  /** The last write of each mirrored setting: the value the unit should report back, and when. */
-  private readonly recentSettingWrites = new Map<string, { value: number | boolean; at: number }>();
 
   /** Freeway WEB presents the unit on ID 1 unless the unit_id setting says otherwise. */
   protected modbusUnitId(setting: unknown = this.getSetting('unit_id')): number {
@@ -171,44 +146,31 @@ class MyEdaDevice extends ExventModbusDevice {
     });
   }
 
+  protected settingRanges(): Record<string, [number, number]> {
+    return {
+      ...super.settingRanges(),
+      heating_block_temperature: [-5, 25],
+      cooling_block_temperature: [5, 40],
+    };
+  }
+
   protected validateSettings(settings: Record<string, any>, changedKeys: string[]) {
     super.validateSettings(settings, changedKeys);
+    const ranges = this.settingRanges();
     for (const id of ['heating_block_temperature', 'cooling_block_temperature']) {
-      if (changedKeys.includes(id) && inSettingRange(id, settings[id]) === undefined) {
-        const [min, max] = SETTING_RANGES[id];
+      if (changedKeys.includes(id) && inRange(settings[id], ranges[id]) === undefined) {
+        const [min, max] = ranges[id];
         throw new Error(this.homey.__('settings.invalidNumber', { range: `${min}–${max}` }));
       }
     }
   }
 
   protected unitSettingWrites(settings: Record<string, any>, changedKeys: string[]): Array<Promise<unknown>> {
-    // The shared class writes these three to the unit.
-    for (const id of ['fireplace_duration_minutes', 'boost_duration_minutes', 'filter_interval_days']) {
-      const value = inSettingRange(id, settings[id]);
-      if (changedKeys.includes(id) && value !== undefined && Number.isInteger(value)) {
-        this.noteSettingWrite(id, value);
-      }
-    }
     const writes = super.unitSettingWrites(settings, changedKeys);
     for (const id of changedKeys) {
       if (UNIT_SETTINGS[id]) writes.push(this.writeUnitSetting(id, settings[id]));
     }
     return writes;
-  }
-
-  /**
-   * Mirrors a setting only when its value is within the setting's range, and
-   * not while a value just written has not come back from the unit yet.
-   */
-  protected mayMirrorSetting(id: string, value: number | boolean, pollSeq?: number): boolean {
-    if (!super.mayMirrorSetting(id, value, pollSeq)) return false;
-    if (SETTING_RANGES[id] && inSettingRange(id, value) === undefined) return false;
-    const write = this.recentSettingWrites.get(id);
-    return write === undefined || write.value === value || Date.now() - write.at >= SETTING_SETTLE_MS;
-  }
-
-  private noteSettingWrite(id: string, value: number | boolean) {
-    this.recentSettingWrites.set(id, { value, at: Date.now() });
   }
 
   async processResult(result: Record<string, Measurement>, pollSeq?: number) {
@@ -369,22 +331,20 @@ class MyEdaDevice extends ExventModbusDevice {
 
   /**
    * The heating picker and its flow card write coil 54 through the shared
-   * class. Noting the write lets the heating_allowed setting follow as soon
-   * as the unit reports it, as it does for cooling.
+   * class. Tying the write to the heating_allowed setting lets the setting
+   * follow as soon as the unit reports it, as it does for cooling.
    */
   sendCoilRequest(register: number, value: boolean, options: any = {}): Promise<void> {
     if (register === this.coilRegisters[UNIT_SETTINGS.heating_allowed.key][0]) {
-      this.noteSettingWrite('heating_allowed', value);
-      return super.sendCoilRequest(register, value, { setting: 'heating_allowed', ...options });
+      return super.sendCoilRequest(register, value, { setting: 'heating_allowed', settingValue: value, ...options });
     }
     return super.sendCoilRequest(register, value, options);
   }
 
   /** Writes the overpressure duration and shows it in the device settings. */
   async setOverpressureDuration(minutes: number) {
-    const value = inSettingRange('fireplace_duration_minutes', minutes);
+    const value = inRange(minutes, this.settingRanges().fireplace_duration_minutes);
     if (value === undefined || !Number.isInteger(value)) throw new Error(this.homey.__('invalidDuration'));
-    this.noteSettingWrite('fireplace_duration_minutes', value);
     await Promise.all(this.durationWrites('fireplace_duration_minutes', value));
     await this.setSettings({ fireplace_duration_minutes: value }).catch(this.error);
   }
@@ -398,16 +358,14 @@ class MyEdaDevice extends ExventModbusDevice {
     const setting = UNIT_SETTINGS[id];
     if (setting.coil) {
       const on = Boolean(value);
-      this.noteSettingWrite(id, on);
-      await this.sendCoilRequest(this.coilRegisters[setting.key][0], on, { setting: id });
+      await this.sendCoilRequest(this.coilRegisters[setting.key][0], on, { setting: id, settingValue: on });
       return on;
     }
-    const number = inSettingRange(id, value);
+    const number = inRange(value, this.settingRanges()[id]);
     if (number === undefined) return undefined;
     const scale = setting.scale ?? 1;
     const raw = Math.round(number * scale);
-    this.noteSettingWrite(id, raw / scale);
-    await this.sendHoldingRequest(this.registers[setting.key][0], raw, { setting: id });
+    await this.sendHoldingRequest(this.registers[setting.key][0], raw, { setting: id, settingValue: raw / scale });
     return raw / scale;
   }
 

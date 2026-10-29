@@ -501,3 +501,15 @@ test('EDA pairing test tells an MD unit from an EDA unit', async () => {
   const other = new FakeUnit({ 599: 205 });
   assert.deepEqual(await device.driver.testConnection({ address: other.address, port: 502 }), { ok: true });
 });
+
+test('eWind shows the unit value on the first poll after a setting write that did not arrive', async () => {
+  const unit = mdUnit();
+  const device = await startDevice('eWind', unit);
+  const before = device.settings.filter_interval_days;
+  unit.applyWrites = false;
+  await device.onSettings({ oldSettings: { ...device.settings }, newSettings: { ...device.settings, filter_interval_days: 90 }, changedKeys: ['filter_interval_days'] });
+  device.settings.filter_interval_days = 90;
+  await settle(device);
+  await device.pollDevice();
+  assert.equal(device.settings.filter_interval_days, before);
+});
