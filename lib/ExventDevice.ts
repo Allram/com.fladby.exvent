@@ -118,13 +118,15 @@ export abstract class ExventModbusDevice extends Homey.Device {
     protected readonly boostDurationRange: [number, number] = [1, 500];
 
     /**
-     * Mode coils of which only one may be on, and the coil of each mode.
-     * When set, Home, Away, Overpressure and Boost start the unit, turn their
-     * own coil on and then all the others off; Off only sets the stop coil.
-     * Empty on eWind and eAir, which keep their sequences in modeSteps.
+     * Mode coils of which only one may be on, and the coil of each mode
+     * (null for Home and Enhanced ventilation, which have none). A mode
+     * starts the unit, turns its own coil on and then all the others off;
+     * Off only sets the stop coil.
      */
-    protected readonly exclusiveModeCoils: number[] = [];
-    protected readonly modeCoils: Record<string, number | null> = {};
+    protected readonly exclusiveModeCoils: number[] = [1, 3, 10];
+    protected readonly modeCoils: Record<string, number | null> = {
+      0: null, 1: 1, 2: 3, 3: 10, 5: null,
+    };
 
     /** The long away coil, turned off by Home and Enhanced ventilation, on units that have one. */
     protected readonly longAwayCoil: number | null = null;
@@ -577,38 +579,23 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * between two modes.
      */
     protected modeSteps(value: string): ModeStep[] {
+      if (value === '4') return [{ coil: 0, value: true, critical: true }];
+      if (!(value in this.modeCoils)) return [];
       const off = (coil: number): ModeStep => ({ coil, value: false });
-      if (this.exclusiveModeCoils.length > 0 && value in this.modeCoils) {
-        const modeCoil = this.modeCoils[value];
-        return [
-          { coil: 0, value: false, critical: true },
-          ...(modeCoil !== null ? [{ coil: modeCoil, value: true, critical: true }] : []),
-          ...this.exclusiveModeCoils.filter((coil) => coil !== modeCoil).map(off),
-        ];
+      const modeCoil = this.modeCoils[value];
+      const steps: ModeStep[] = [
+        { coil: 0, value: false, critical: true },
+        ...(modeCoil !== null ? [{ coil: modeCoil, value: true, critical: true }] : []),
+        ...this.exclusiveModeCoils.filter((coil) => coil !== modeCoil).map(off),
+      ];
+      if (modeCoil === null) {
+        if (this.longAwayCoil !== null) steps.push(off(this.longAwayCoil));
+        // Enhanced ventilation is Home at panel fan speed level 3 ("Home-mode
+        // with high fan speeds", HREG 50); Home returns it to level 2, which
+        // is harmless when already there.
+        if (this.enhancedVentilation) steps.push({ hreg: 50, value: value === '5' ? 3 : 2, critical: true });
       }
-      const longAway = this.longAwayCoil !== null ? [off(this.longAwayCoil)] : [];
-      switch (value) {
-        case '0':
-          // Leave enhanced ventilation by returning the panel fan speed to
-          // level 2 (Home); harmless when already at level 2.
-          return [{ coil: 0, value: false, critical: true }, off(1), off(3), off(10), ...longAway,
-            ...(this.enhancedVentilation ? [{ hreg: 50, value: 2, critical: true }] : [])];
-        case '1':
-          return [{ coil: 0, value: false, critical: true }, { coil: 1, value: true, critical: true }, off(3), off(10)];
-        case '2':
-          return [{ coil: 0, value: false, critical: true }, { coil: 3, value: true, critical: true }, off(1), off(10)];
-        case '3':
-          return [{ coil: 0, value: false, critical: true }, { coil: 10, value: true, critical: true }, off(1), off(3)];
-        case '4':
-          return [{ coil: 0, value: true, critical: true }];
-        case '5':
-          // Enhanced ventilation: normal operation at panel fan speed
-          // level 3 ("Home-mode with high fan speeds", HREG 50).
-          return [{ coil: 0, value: false, critical: true }, off(1), off(3), off(10), ...longAway,
-            { hreg: 50, value: 3, critical: true }];
-        default:
-          return [];
-      }
+      return steps;
     }
 
     /**
@@ -686,7 +673,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       await this.changeMode(mode);
     }
 
-    private durationWrites(setting: string, minutes: number): Array<Promise<void>> {
+    protected durationWrites(setting: string, minutes: number): Array<Promise<void>> {
       const registers = setting === 'boost_duration_minutes' ? [66] : this.overpressureDurationRegisters;
       return registers.map((register) => this.sendHoldingRequest(register, minutes, { setting }));
     }
@@ -827,9 +814,12 @@ export abstract class ExventModbusDevice extends Homey.Device {
      * it, and its name as the mode token.
      */
     protected async fireModeChanged(cardId: string, mode: string, capabilityId: string) {
-      await this.homey.flow.getDeviceTriggerCard(cardId)
-        .trigger(this, { mode: this.valueTitle(capabilityId, mode) }, { mode })
-        .catch(this.error);
+      await this.fireTrigger(cardId, { mode: this.valueTitle(capabilityId, mode) }, { mode });
+    }
+
+    /** Fires a device trigger card; a failure is logged, not thrown. */
+    protected async fireTrigger(cardId: string, tokens?: object, state?: object) {
+      await this.homey.flow.getDeviceTriggerCard(cardId).trigger(this, tokens, state).catch(this.error);
     }
 
     /** The title of an enum capability value in the Homey's language, e.g. 'Hjemme'. */
@@ -966,7 +956,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
       return pollSeq === undefined || pollSeq === this.settingWriteSeq;
     }
 
-    private async mirrorSetting(id: string, value: number | boolean, pollSeq?: number) {
+    protected async mirrorSetting(id: string, value: number | boolean, pollSeq?: number) {
       if (this.isActive && this.getSetting(id) !== value && this.mayMirrorSetting(id, value, pollSeq)) {
         await this.setSettings({ [id]: value }).catch(this.error);
       }
@@ -1026,9 +1016,6 @@ export abstract class ExventModbusDevice extends Homey.Device {
     }
 
     async processResult(result: Record<string, Measurement>, pollSeq?: number) {
-      if (!result) {
-        return;
-      }
       const number = (key: string) => {
         const value = this.reading(result, key);
         return value === undefined ? undefined : Number(value);
@@ -1169,9 +1156,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         await this.setIfChanged(capabilityId, on);
         if (on && !wasOn) {
           const text = logText ?? this.homey.__(capabilityId === 'alarm_a' ? 'alarmA' : 'alarmB');
-          await this.homey.flow.getDeviceTriggerCard(cardId)
-            .trigger(this, { alarm: text })
-            .catch(this.error);
+          await this.fireTrigger(cardId, { alarm: text });
         }
       }
       if (this.reading(result, 'alarm_a') !== undefined || this.reading(result, 'alarm_b_desc') !== undefined) {
@@ -1199,9 +1184,7 @@ export abstract class ExventModbusDevice extends Homey.Device {
         const remaining = reminder === '0' ? null : Math.max(0, interval - Number(counter));
         await this.setIfChanged('filter_days_remaining', remaining);
         if (this.driverCards.ids.filterDaysBelow && typeof previous === 'number' && typeof remaining === 'number' && remaining < previous) {
-          await this.homey.flow.getDeviceTriggerCard(this.driverCards.ids.filterDaysBelow)
-            .trigger(this, { days: remaining }, { previous, current: remaining })
-            .catch(this.error);
+          await this.fireTrigger(this.driverCards.ids.filterDaysBelow, { days: remaining }, { previous, current: remaining });
         }
       }
       // Mirror the unit's actual interval in the device settings. On units

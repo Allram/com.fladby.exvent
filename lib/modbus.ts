@@ -50,6 +50,21 @@ export function toBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntr
   return blocks;
 }
 
+// The register maps never change after a device is set up, so their blocks
+// are worked out once per map.
+const blockCache: Record<ModbusKind, WeakMap<RegisterMap, RegisterEntry[][]>> = {
+  holding: new WeakMap(), coil: new WeakMap(),
+};
+
+function cachedBlocks(registers: RegisterMap, kind: ModbusKind): RegisterEntry[][] {
+  let blocks = blockCache[kind].get(registers);
+  if (!blocks) {
+    blocks = toBlocks(registers, kind);
+    blockCache[kind].set(registers, blocks);
+  }
+  return blocks;
+}
+
 export function decode(response: any, entry: RegisterEntry, blockStart: number, kind: ModbusKind): Measurement {
   const measurement: Measurement = {
     value: 'xxx',
@@ -126,7 +141,7 @@ export async function readModbus(
   const result: Record<string, Measurement> = {};
   let successCount = 0;
 
-  for (const block of toBlocks(registers, kind)) {
+  for (const block of cachedBlocks(registers, kind)) {
     const start = block[0].addr;
     const last = block[block.length - 1];
     const length = last.addr + last.len - start;

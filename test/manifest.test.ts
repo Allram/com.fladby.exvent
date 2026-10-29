@@ -66,9 +66,8 @@ test('the three pairing views differ only in their driver', () => {
   const eWind = view('eWind');
   for (const [driver, name] of [['eAir', 'eAir'], ['eda', 'EDA']]) {
     const expected = eWind
-      .replace('pair.intro_eWind', `pair.intro_${driver}`)
-      .replace("name: 'eWind',", `name: '${name}',`)
-      .replace('pair.title_eWind', `pair.title_${driver}`);
+      .replaceAll('_eWind', `_${driver}`)
+      .replace("name: 'eWind',", `name: '${name}',`);
     assert.equal(view(driver), expected, `drivers/${driver}/pair/connect.html has drifted from the eWind view`);
   }
 });

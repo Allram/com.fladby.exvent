@@ -131,8 +131,7 @@ function type(pairing: Pairing, id: string, value: string) {
 }
 
 function errorBox(pairing: Pairing): string {
-  const box = pairing.document.getElementById('error');
-  return box.style.display === 'block' ? box.textContent : '';
+  return pairing.document.getElementById('error').textContent;
 }
 
 for (const driver of DRIVERS) {
@@ -168,7 +167,8 @@ for (const driver of DRIVERS) {
       pairing.document.getElementById('connect').click();
       await until(() => errorBox(pairing) !== '', 'the error message');
 
-      assert.equal(errorBox(pairing), 'pair.invalidip');
+      assert.equal(errorBox(pairing), 'pair.invalidAddress');
+      assert.equal(pairing.document.getElementById('address').getAttribute('aria-invalid'), 'true');
       assert.deepEqual(pairing.created, []);
       assert.equal(pairing.done, 0);
       assert.deepEqual(pairing.errors, []);
@@ -205,6 +205,42 @@ for (const driver of DRIVERS) {
       await until(() => pairing.done > 0, 'Homey.done() after Add anyway');
       assert.equal(pairing.created.length, 1);
       assert.deepEqual(pairing.errors, []);
+    } finally {
+      pairing.window.close();
+    }
+  });
+}
+
+for (const driver of DRIVERS) {
+  test(`${driver} pairing view refuses a port out of range and marks the field`, async () => {
+    const pairing = await showPairingView(driver);
+    try {
+      type(pairing, 'address', '192.168.1.50');
+      type(pairing, 'port', '70000');
+      pairing.document.getElementById('connect').click();
+      await until(() => errorBox(pairing) !== '', 'the error message');
+      assert.equal(errorBox(pairing), 'pair.invalidPort');
+      assert.equal(pairing.document.getElementById('port').getAttribute('aria-invalid'), 'true');
+      assert.equal(pairing.document.getElementById('address').getAttribute('aria-invalid'), null);
+      assert.deepEqual(pairing.created, []);
+    } finally {
+      pairing.window.close();
+    }
+  });
+
+  test(`${driver} pairing view does not offer to add a unit that is already added`, async () => {
+    const pairing = await showPairingView(driver, { ok: false, code: 'duplicate', message: 'pair.test.duplicate' });
+    try {
+      const button = pairing.document.getElementById('connect');
+      type(pairing, 'address', '192.168.1.50');
+      button.click();
+      await until(() => errorBox(pairing) !== '', 'the test message');
+      assert.equal(errorBox(pairing), 'pair.test.duplicate');
+      assert.equal(button.textContent, 'pair.connect');
+      button.click();
+      await delay(50);
+      assert.deepEqual(pairing.created, []);
+      assert.equal(pairing.done, 0);
     } finally {
       pairing.window.close();
     }

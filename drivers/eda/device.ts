@@ -102,8 +102,8 @@ class MyEdaDevice extends ExventModbusDevice {
 
   /** Freeway WEB presents the unit on ID 1 unless the unit_id setting says otherwise. */
   protected modbusUnitId(setting: unknown = this.getSetting('unit_id')): number {
-    const id = Number(setting);
-    return Number.isInteger(id) && id >= 1 && id <= 255 ? id : 1;
+    const id = inRange(setting, [1, 255]);
+    return id !== undefined && Number.isInteger(id) ? id : 1;
   }
 
   protected capabilityIds(): string[] {
@@ -253,9 +253,7 @@ class MyEdaDevice extends ExventModbusDevice {
       const raw = reading(setting.key);
       if (raw !== undefined) {
         const value = setting.coil ? raw === '1' : Number(raw) / (setting.scale ?? 1);
-        if (this.getSetting(id) !== value && this.mayMirrorSetting(id, value, pollSeq)) {
-          await this.setSettings({ [id]: value }).catch(this.error);
-        }
+        await this.mirrorSetting(id, value, pollSeq);
       }
     }
   }
@@ -387,7 +385,7 @@ class MyEdaDevice extends ExventModbusDevice {
     const value = inSettingRange('fireplace_duration_minutes', minutes);
     if (value === undefined || !Number.isInteger(value)) throw new Error(this.homey.__('invalidDuration'));
     this.noteSettingWrite('fireplace_duration_minutes', value);
-    await Promise.all(this.overpressureDurationRegisters.map((register) => this.sendHoldingRequest(register, value, { setting: 'fireplace_duration_minutes' })));
+    await Promise.all(this.durationWrites('fireplace_duration_minutes', value));
     await this.setSettings({ fireplace_duration_minutes: value }).catch(this.error);
   }
 
@@ -424,9 +422,7 @@ class MyEdaDevice extends ExventModbusDevice {
     const previous = this.getCapabilityValue(id);
     await this.setIfChanged(id, value);
     if (typeof previous === 'boolean' && previous !== value) {
-      await this.homey.flow.getDeviceTriggerCard(value ? startedCard : stoppedCard)
-        .trigger(this)
-        .catch(this.error);
+      await this.fireTrigger(value ? startedCard : stoppedCard);
     }
   }
 }

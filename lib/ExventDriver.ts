@@ -79,7 +79,7 @@ export abstract class ExventDriver extends Homey.Driver {
       if (requestFailure(err) === 'timeout' || (err && ['ETIMEDOUT', 'EHOSTUNREACH', 'ENETUNREACH', 'EHOSTDOWN'].includes(err.code))) {
         return { ok: false, code: 'timeout', message: this.homey.__('pair.test.timeout') };
       }
-      return { ok: false, code: 'failed', message: `${this.homey.__('pair.test.failed')} (${describeError(err)})` };
+      return { ok: false, code: 'failed', message: this.homey.__('pair.test.failed', { error: describeError(err) }) };
     } finally {
       socket.removeAllListeners();
       socket.on('error', () => {});

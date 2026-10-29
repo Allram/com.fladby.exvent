@@ -1,0 +1,1 @@
+Ventilasjonen går døgnet rundt, og med Homey kan den tilpasse seg hverdagen din. Følg med på inneklimaet og filteret, og la flytene dine skru ned ventilasjonen når ingen er hjemme, og opp igjen etter dusjen. Appen støtter Exvent eWind og eAir, i tillegg til Exvent-anlegg med EDA-styring via en Freeway WEB-adapter.

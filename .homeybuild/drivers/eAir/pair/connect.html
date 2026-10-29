@@ -1,0 +1,375 @@
+<style type="text/css">
+  /* Fields and button use Homey's own classes (Homey Pro 8.1.0 and later),
+     so the view follows the Homey app's theme. Only what Homey has no class
+     for is styled here, in colours that read on both light and dark. */
+  .exvent-pair {
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 8px 0;
+  }
+  .exvent-pair .exvent-before {
+    margin: 0 0 24px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(127, 127, 127, 0.12);
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .exvent-pair .exvent-lead {
+    margin: 0 0 10px;
+    font-weight: 600;
+    text-wrap: pretty;
+  }
+  .exvent-pair .exvent-steps {
+    margin: 0;
+    padding-left: 1.25em;
+  }
+  .exvent-pair .exvent-steps li {
+    padding-left: 2px;
+    text-wrap: pretty;
+  }
+  .exvent-pair .exvent-steps li + li {
+    margin-top: 6px;
+  }
+  .exvent-pair .exvent-hint {
+    margin: 12px 0 0;
+    font-size: 14px;
+    text-wrap: pretty;
+  }
+  .exvent-pair input[aria-invalid="true"] {
+    box-shadow: inset 0 0 0 2px #d14900;
+  }
+  .exvent-pair .exvent-message {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    border-radius: 12px;
+  }
+  .exvent-pair .exvent-message:not(:empty) {
+    margin: 4px 0 16px;
+    padding: 12px 14px;
+    background: rgba(127, 127, 127, 0.12);
+  }
+  .exvent-pair .exvent-message.is-error:not(:empty) {
+    background: rgba(255, 99, 0, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(209, 73, 0, 0.55);
+  }
+  .exvent-pair #connect:focus-visible {
+    outline: 2px solid #0070cc;
+    outline-offset: 3px;
+  }
+</style>
+
+<form class="homey-form exvent-pair" onsubmit="return false" novalidate>
+  <div class="exvent-before">
+    <p class="exvent-lead" data-i18n="pair.lead_eAir"></p>
+    <ol class="exvent-steps">
+      <li data-i18n="pair.step1_eAir"></li>
+      <li data-i18n="pair.step2_eAir"></li>
+      <li data-i18n="pair.step3_eAir"></li>
+    </ol>
+    <p class="exvent-hint" data-i18n="pair.findIp"></p>
+  </div>
+  <div class="homey-form-group">
+    <label class="homey-form-label" for="address" data-i18n="pair.address">IP address</label>
+    <input class="homey-form-input" type="text" id="address" placeholder="192.168.1.100" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+  </div>
+  <div class="homey-form-group">
+    <label class="homey-form-label" for="port" data-i18n="pair.port">Port</label>
+    <input class="homey-form-input" type="text" id="port" placeholder="502" value="502" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" required>
+  </div>
+  <p id="progress" class="exvent-message" role="status" aria-live="polite"></p>
+  <p id="error" class="exvent-message is-error" role="alert" aria-live="assertive"></p>
+  <button type="button" id="connect" class="homey-button-primary-full" data-i18n="pair.connect" disabled>Connect</button>
+</form>
+
+
+<script type="text/javascript">
+  // Modelled on the pre-4.6.0 pairing page that provably worked in Homey's
+  // pairing webview: jQuery's $(function(){}) for binding, the global __()
+  // translation helper and Homey.addDevice() with a callback. Each of them
+  // falls back to the SDK3-documented equivalent when missing, and script
+  // errors are surfaced in the error box instead of failing silently.
+  // Before adding, the driver tests the connection; when that fails the
+  // message is shown and, unless the failure is one adding cannot fix, the
+  // button adds the device anyway on the next tap.
+  var forceAdd = false;
+  // The address and port the failed test was for; changing either tests again.
+  var testedFor = null;
+  // Test results where adding anyway would only give a broken device.
+  var FINAL_FAILURES = ['invalid', 'duplicate', 'platform'];
+
+  function t(key) {
+    try { if (typeof __ === 'function') return __(key); } catch (e) {}
+    try { if (typeof Homey !== 'undefined' && typeof Homey.__ === 'function') return Homey.__(key); } catch (e) {}
+    return key;
+  }
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  // The message regions stay in the page; clearing them first makes a screen
+  // reader announce the same message again.
+  function setMessage(id, msg) {
+    var box = byId(id);
+    if (!box) return;
+    box.textContent = '';
+    if (msg) box.textContent = msg;
+  }
+
+  function showError(msg, fieldId) {
+    setMessage('progress', '');
+    setMessage('error', msg);
+    if (fieldId) {
+      var field = byId(fieldId);
+      if (field) {
+        field.setAttribute('aria-invalid', 'true');
+        field.setAttribute('aria-describedby', 'error');
+        field.focus();
+      }
+    }
+  }
+
+  function showProgress(msg) {
+    setMessage('error', '');
+    setMessage('progress', msg);
+  }
+
+  function clearMessages() {
+    setMessage('error', '');
+    setMessage('progress', '');
+    ['address', 'port'].forEach(function (id) {
+      var field = byId(id);
+      if (field) {
+        field.removeAttribute('aria-invalid');
+        field.removeAttribute('aria-describedby');
+      }
+    });
+  }
+
+  window.onerror = function (msg, src, line) {
+    try { showError(t('pair.scriptError') + ' ' + msg + (line ? ' (' + line + ')' : '')); } catch (e) {}
+  };
+
+  // The same check as lib/settings.ts: an IPv4 address without leading zeros, or a host name.
+  function isValidHost(value) {
+    if (/^[\d.]+$/.test(value)) {
+      var octets = value.split('.');
+      return octets.length === 4 && octets.every(function (octet) {
+        return /^(0|[1-9]\d{0,2})$/.test(octet) && Number(octet) <= 255;
+      });
+    }
+    return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$/.test(value);
+  }
+
+  function isValidPort(value) {
+    return /^\d{1,5}$/.test(value) && Number(value) >= 1 && Number(value) <= 65535;
+  }
+
+  function setButton(label) {
+    var button = byId('connect');
+    if (button) button.textContent = label;
+  }
+
+  function setBusy(busy) {
+    var button = byId('connect');
+    if (!button) return;
+    button.classList.toggle('is-loading', busy);
+    button.setAttribute('aria-busy', busy ? 'true' : 'false');
+    if (busy) button.disabled = true;
+  }
+
+  function isBusy() {
+    var button = byId('connect');
+    return !!button && button.classList.contains('is-loading');
+  }
+
+  function updateButtonState() {
+    var button = byId('connect');
+    var address = byId('address');
+    var port = byId('port');
+    if (!button || !address || !port || isBusy()) return;
+    button.disabled = address.value.trim() === '' || port.value.trim() === '';
+  }
+
+  function currentInput() {
+    var address = byId('address');
+    var port = byId('port');
+    return (address ? address.value.trim() : '') + ':' + (port ? port.value.trim() : '');
+  }
+
+  function onInputChanged() {
+    if (testedFor !== null && currentInput() !== testedFor) {
+      forceAdd = false;
+      testedFor = null;
+      setButton(t('pair.connect'));
+      clearMessages();
+    }
+    updateButtonState();
+  }
+
+  function newDeviceId() {
+    try {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    } catch (e) {}
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  // Homey.emit answers with a promise on newer Homeys and a callback on older ones.
+  function testConnection(data, done) {
+    var finished = false;
+    function finish(error, result) {
+      if (finished) return;
+      finished = true;
+      done(error, result);
+    }
+    try {
+      if (typeof Homey.emit !== 'function') {
+        finish(new Error('emit missing'));
+        return;
+      }
+      var answer = Homey.emit('test', data, function (error, result) { finish(error, result); });
+      if (answer && typeof answer.then === 'function') {
+        answer.then(function (result) { finish(null, result); }, function (error) { finish(error); });
+      }
+    } catch (e) {
+      finish(e);
+    }
+    setTimeout(function () { finish(new Error('no answer')); }, 12000);
+  }
+
+  function addDevice(address, port) {
+    setButton(t('pair.adding'));
+
+    function onFail(error) {
+      setBusy(false);
+      setButton(t('pair.connect'));
+      forceAdd = false;
+      testedFor = null;
+      updateButtonState();
+      showError((error && error.message) || String(error));
+    }
+
+    var payload = {
+      name: 'eAir',
+      data: { id: newDeviceId() },
+      settings: { address: address, port: port },
+    };
+    try {
+      if (typeof Homey.addDevice === 'function') {
+        Homey.addDevice(payload, function (error) {
+          if (error) onFail(error);
+          else Homey.done();
+        });
+      } else {
+        Homey.createDevice(payload).then(function () { Homey.done(); }).catch(onFail);
+      }
+    } catch (e) {
+      onFail(e);
+    }
+  }
+
+  function connect() {
+    var button = byId('connect');
+    if (!button || isBusy()) return;
+    var address = byId('address').value.trim();
+    var portValue = byId('port').value.trim();
+
+    clearMessages();
+
+    if (!address) {
+      showError(t('pair.nosettings'), 'address');
+      return;
+    }
+    if (!isValidHost(address)) {
+      showError(t('pair.invalidAddress'), 'address');
+      return;
+    }
+    if (!isValidPort(portValue)) {
+      showError(t('pair.invalidPort'), 'port');
+      return;
+    }
+    var port = Number(portValue);
+
+    setBusy(true);
+
+    if (forceAdd) {
+      showProgress(t('pair.addingAnyway'));
+      addDevice(address, port);
+      return;
+    }
+
+    setButton(t('pair.testing'));
+    showProgress(t('pair.testingLong'));
+    testConnection({ address: address, port: port }, function (error, result) {
+      if (result && result.ok) {
+        showProgress(t('pair.found'));
+        addDevice(address, port);
+        return;
+      }
+      // Without an answer (an older Homey, or the driver did not reply) the
+      // device is added as before, and it connects on its own later.
+      if (error || !result) {
+        showProgress(t('pair.untested'));
+        addDevice(address, port);
+        return;
+      }
+      setBusy(false);
+      testedFor = currentInput();
+      forceAdd = FINAL_FAILURES.indexOf(result.code) === -1;
+      setButton(t(forceAdd ? 'pair.addAnyway' : 'pair.connect'));
+      updateButtonState();
+      if (forceAdd) showError(result.message + ' ' + t('pair.autoConnect'));
+      else showError(result.message, 'address');
+    });
+  }
+
+  function initPairing() {
+    updateButtonState();
+    var address = byId('address');
+    if (address) address.focus();
+  }
+
+  function onKeydown(event) {
+    var id = event.target && event.target.id;
+    if (event.key === 'Enter' && (id === 'address' || id === 'port')) {
+      event.preventDefault();
+      connect();
+    }
+  }
+
+  if (typeof $ === 'function') {
+    $(function () {
+      $('#connect').on('click', connect);
+      $('#address, #port').on('input keyup change', onInputChanged);
+      $('#address, #port').on('keydown', onKeydown);
+      initPairing();
+    });
+  } else {
+    if (!window.__exventPairingBound) {
+      window.__exventPairingBound = true;
+      document.addEventListener('input', function (event) {
+        var id = event.target && event.target.id;
+        if (id === 'address' || id === 'port') onInputChanged();
+      }, true);
+      document.addEventListener('keydown', onKeydown, true);
+      document.addEventListener('click', function (event) {
+        var target = event.target;
+        while (target && target !== document) {
+          if (target.id === 'connect') { connect(); return; }
+          target = target.parentNode;
+        }
+      }, true);
+    }
+    (function waitForMarkup() {
+      if (!byId('connect')) {
+        setTimeout(waitForMarkup, 50);
+        return;
+      }
+      initPairing();
+    })();
+  }
+
+  try { Homey.setTitle(t('pair.title_eAir')); } catch (e) {}
+</script>
