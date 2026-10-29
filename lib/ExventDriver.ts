@@ -12,6 +12,8 @@ export interface PairTestResult {
   code?: string;
   /** A message for the user, in their language. */
   message?: string;
+  /** How many devices the driver has, so the view can number the new one. */
+  devices?: number;
 }
 
 const PAIR_TEST_TIMEOUT_MS = 5000;
@@ -37,7 +39,7 @@ export abstract class ExventDriver extends Homey.Driver {
   protected registerDriverFlowCards() {}
 
   async onPair(session: any) {
-    session.setHandler('test', async (data: any) => this.testConnection(data ?? {}));
+    session.setHandler('test', async (data: any) => ({ ...await this.testConnection(data ?? {}), devices: this.getDevices().length }));
   }
 
   /**
@@ -79,7 +81,7 @@ export abstract class ExventDriver extends Homey.Driver {
       if (requestFailure(err) === 'timeout' || (err && ['ETIMEDOUT', 'EHOSTUNREACH', 'ENETUNREACH', 'EHOSTDOWN'].includes(err.code))) {
         return { ok: false, code: 'timeout', message: this.homey.__('pair.test.timeout') };
       }
-      return { ok: false, code: 'failed', message: this.homey.__('pair.test.failed', { error: describeError(err) }) };
+      return { ok: false, code: 'failed', message: this.homey.__('pair.test.failed') };
     } finally {
       socket.removeAllListeners();
       socket.on('error', () => {});

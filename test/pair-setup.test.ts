@@ -43,6 +43,8 @@ interface Pairing {
   titles: string[];
   /** Script errors reported by jsdom. */
   errors: string[];
+  /** How many connection tests the view ran. */
+  tests: number;
 }
 
 async function until(check: () => boolean, what: string) {
@@ -77,7 +79,7 @@ async function showPairingView(driver: string, test?: any): Promise<Pairing> {
   }
 
   const pairing: Pairing = {
-    document, window, created: [], done: 0, titles: [], errors,
+    document, window, created: [], done: 0, titles: [], errors, tests: 0,
   };
 
   // What the firmware's homey.js and homey.drivers.js provide to a view.
@@ -104,7 +106,11 @@ async function showPairingView(driver: string, test?: any): Promise<Pairing> {
     },
   };
   if (test) {
-    homey.emit = (event: string) => (event === 'test' ? Promise.resolve(test) : Promise.reject(new Error(event)));
+    homey.emit = (event: string) => {
+      if (event !== 'test') return Promise.reject(new Error(event));
+      pairing.tests++;
+      return Promise.resolve(test);
+    };
   }
   window.Homey = homey;
 
@@ -128,15 +134,31 @@ function errorBox(pairing: Pairing): string {
   return pairing.document.getElementById('error').textContent;
 }
 
+function progressBox(pairing: Pairing): string {
+  return pairing.document.getElementById('progress').textContent;
+}
+
+/** The Add anyway button, when the view offers it. */
+function addAnyway(pairing: Pairing): any {
+  const button = pairing.document.getElementById('add-anyway');
+  return button.hidden ? null : button;
+}
+
 for (const driver of DRIVERS) {
-  test(`${driver} pairing view creates the device when Connect is clicked`, async () => {
+  test(`${driver} pairing view without a connection test says so and adds the device on Add anyway`, async () => {
     const pairing = await showPairingView(driver);
     try {
       const button = pairing.document.getElementById('connect');
+      assert.equal(addAnyway(pairing), null, 'Add anyway is hidden before a test');
       type(pairing, 'address', '192.168.1.50');
       assert.equal(button.disabled, false, 'Connect is still disabled after an address was typed');
       button.click();
-      await until(() => pairing.done > 0, 'Homey.done() after Connect');
+      await until(() => addAnyway(pairing) !== null, 'the Add anyway button');
+      assert.equal(progressBox(pairing), 'pair.untested pair.autoConnect');
+      assert.equal(button.textContent, 'pair.tryAgain');
+      assert.equal(pairing.created.length, 0);
+      addAnyway(pairing).click();
+      await until(() => pairing.done > 0, 'Homey.done() after Add anyway');
 
       assert.equal(pairing.created.length, 1);
       const [device] = pairing.created;
@@ -185,17 +207,36 @@ for (const driver of DRIVERS) {
     }
   });
 
-  test(`${driver} pairing view explains a failed test and adds the device on the next tap`, async () => {
+  test(`${driver} pairing view numbers a second unit`, async () => {
+    const pairing = await showPairingView(driver, { ok: true, devices: 1 });
+    try {
+      type(pairing, 'address', '192.168.1.51');
+      pairing.document.getElementById('connect').click();
+      await until(() => pairing.done > 0, 'Homey.done() after a passed test');
+      assert.match(pairing.created[0].name, / 2$/);
+    } finally {
+      pairing.window.close();
+    }
+  });
+
+  test(`${driver} pairing view warns about a failed test, tests again, and adds on Add anyway`, async () => {
     const pairing = await showPairingView(driver, { ok: false, code: 'timeout', message: 'pair.test.timeout' });
     try {
       const button = pairing.document.getElementById('connect');
       type(pairing, 'address', '192.168.1.50');
       button.click();
-      await until(() => errorBox(pairing) !== '', 'the test message');
-      assert.equal(errorBox(pairing), 'pair.test.timeout pair.autoConnect');
-      assert.equal(button.textContent, 'pair.addAnyway');
+      await until(() => addAnyway(pairing) !== null, 'the Add anyway button');
+      // A failure the user can fix is a warning, not an error.
+      assert.equal(errorBox(pairing), '');
+      assert.equal(progressBox(pairing), 'pair.test.timeout pair.autoConnect');
+      assert.equal(button.textContent, 'pair.tryAgain');
       assert.deepEqual(pairing.created, []);
+      // Try again tests again; it never adds an untested device.
       button.click();
+      await until(() => pairing.tests === 2, 'the second test');
+      await until(() => addAnyway(pairing) !== null, 'the Add anyway button again');
+      assert.deepEqual(pairing.created, []);
+      addAnyway(pairing).click();
       await until(() => pairing.done > 0, 'Homey.done() after Add anyway');
       assert.equal(pairing.created.length, 1);
       assert.deepEqual(pairing.errors, []);
@@ -231,6 +272,7 @@ for (const driver of DRIVERS) {
       await until(() => errorBox(pairing) !== '', 'the test message');
       assert.equal(errorBox(pairing), 'pair.test.duplicate');
       assert.equal(button.textContent, 'pair.connect');
+      assert.equal(addAnyway(pairing), null);
       button.click();
       await delay(50);
       assert.deepEqual(pairing.created, []);

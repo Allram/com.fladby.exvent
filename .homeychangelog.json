@@ -386,5 +386,9 @@
   "5.1.2": {
     "en": "The unit is read with fewer requests each minute. A unit that refuses a combined read is no longer asked for it again on every reading.",
     "no": "Anlegget leses med færre forespørsler hvert minutt. Et anlegg som avviser en samlet lesing, blir ikke spurt om den igjen ved hver avlesing."
+  },
+  "5.2.0": {
+    "en": "Adding a unit: if the connection check fails, Try again checks once more, and Add anyway is a separate button. A second unit is named eWind 2 (or eAir 2, EDA 2), so two devices no longer share a name. Shorter instructions before you start, and plainer error messages.",
+    "no": "Legge til anlegg: Feiler tilkoblingssjekken, sjekker «Prøv igjen» på nytt, og «Legg til likevel» er en egen knapp. Et anlegg nummer to får navnet eWind 2 (eller eAir 2, EDA 2), så to enheter ikke lenger heter det samme. Kortere forklaring før du starter, og enklere feilmeldinger."
   }
 }
