@@ -51,8 +51,6 @@ export function toBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: numbe
   return blocks;
 }
 
-// The register maps never change after a device is set up, so their blocks
-// are worked out once per map, kind and gap.
 /** A block of registers read in one request. */
 interface ReadBlock {
   entries: RegisterEntry[];
@@ -62,6 +60,8 @@ interface ReadBlock {
   key: string;
 }
 
+// The register maps never change after a device is set up, so their blocks
+// are worked out once per map, kind and gap.
 const blockCache = new WeakMap<RegisterMap, Map<string, ReadBlock[]>>();
 
 function cachedBlocks(registers: RegisterMap, kind: ModbusKind, maxGap: number): ReadBlock[] {

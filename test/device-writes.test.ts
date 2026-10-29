@@ -318,9 +318,11 @@ test('EDA writes skip values outside the settings range', async () => {
   for (const value of [25.5, -5.5, NaN, null, '', 'warm']) {
     await assert.rejects(save('heating_block_temperature', value), { message: 'settings.invalidNumber' });
   }
-  for (const value of [4.5, 40.5]) {
+  for (const value of [4.5, 40.5, 20.25]) {
     await assert.rejects(save('cooling_block_temperature', value), { message: 'settings.invalidNumber' });
   }
+  // A setting the driver does not have is an error, not a write that went nowhere.
+  await assert.rejects(device.writeUnitSetting('no_such_setting', 1), /No unit setting no_such_setting/);
   const card = (id: string) => device.flowCards.get(id).listener;
   await card('set-heating-block-temperature_eda')({ device, temperature: 26 });
   await card('set-cooling-block-temperature_eda')({ device, temperature: 4 });
