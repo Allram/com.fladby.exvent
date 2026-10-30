@@ -56,8 +56,22 @@
   }
   /* A test that failed for a reason the user can fix, or that may pass later. */
   .exvent-pair .exvent-message.is-warning:not(:empty) {
-    background: rgba(255, 184, 0, 0.16);
-    box-shadow: inset 0 0 0 1px rgba(179, 122, 0, 0.5);
+    background: rgba(127, 127, 127, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(191, 133, 0, 0.75);
+  }
+  .exvent-pair .exvent-field-hint {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0.75;
+    text-wrap: pretty;
+  }
+  .exvent-pair .exvent-button-hint {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+    text-wrap: pretty;
   }
   .exvent-pair [hidden] {
     display: none !important;
@@ -78,11 +92,11 @@
       <li data-i18n="pair.step1_eWind"></li>
       <li data-i18n="pair.step2_eWind"></li>
     </ol>
-    <p class="exvent-hint" data-i18n="pair.findIp"></p>
   </div>
   <div class="homey-form-group">
     <label class="homey-form-label" for="address" data-i18n="pair.address">IP address</label>
-    <input class="homey-form-input" type="text" id="address" placeholder="192.168.1.100" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+    <input class="homey-form-input" type="text" id="address" placeholder="192.168.1.100" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="address-hint" data-hint="address-hint" required>
+    <p class="exvent-field-hint" id="address-hint" data-i18n="pair.findIp"></p>
   </div>
   <div class="homey-form-group">
     <label class="homey-form-label" for="port" data-i18n="pair.port">Port</label>
@@ -91,7 +105,8 @@
   <p id="progress" class="exvent-message" role="status" aria-live="polite"></p>
   <p id="error" class="exvent-message is-error" role="alert" aria-live="assertive"></p>
   <button type="button" id="connect" class="homey-button-primary-full" data-i18n="pair.connect" disabled>Connect</button>
-  <button type="button" id="add-anyway" class="homey-button-secondary-full" data-i18n="pair.addAnyway" hidden>Add anyway</button>
+  <button type="button" id="add-anyway" class="homey-button-secondary-full" data-i18n="pair.addAnyway" aria-describedby="add-anyway-hint" hidden>Add anyway</button>
+  <p id="add-anyway-hint" class="exvent-button-hint" hidden></p>
 </form>
 
 
@@ -106,10 +121,14 @@
   // again and a second button adds the device anyway.
   // The address and port the failed test was for; changing either clears it.
   var testedFor = null;
+  // Whether that test failed for good; Connect then waits for a change.
+  var testFinal = false;
   // How many devices the driver has, from the last test answer.
   var knownDevices = 0;
   // Test results where adding anyway would only give a broken device.
   var FINAL_FAILURES = ['invalid', 'duplicate', 'platform'];
+  // Test results that are about the address typed, so the field is marked.
+  var ADDRESS_FAILURES = ['invalid', 'duplicate'];
 
   function t(key) {
     try { if (typeof __ === 'function') return __(key); } catch (e) {}
@@ -130,6 +149,12 @@
     if (msg) box.textContent = msg;
   }
 
+  // Keeps a message or button in sight above the phone keyboard and fold.
+  function reveal(id) {
+    var el = byId(id);
+    try { if (el && !el.hidden && typeof el.scrollIntoView === 'function') el.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+  }
+
   function showError(msg, fieldId) {
     setMessage('progress', '');
     setMessage('error', msg);
@@ -137,10 +162,11 @@
       var field = byId(fieldId);
       if (field) {
         field.setAttribute('aria-invalid', 'true');
-        field.setAttribute('aria-describedby', 'error');
+        field.setAttribute('aria-describedby', ('error ' + (field.getAttribute('data-hint') || '')).trim());
         field.focus();
       }
     }
+    reveal('error');
   }
 
   function showProgress(msg, warning) {
@@ -157,7 +183,8 @@
       var field = byId(id);
       if (field) {
         field.removeAttribute('aria-invalid');
-        field.removeAttribute('aria-describedby');
+        if (field.getAttribute('data-hint')) field.setAttribute('aria-describedby', field.getAttribute('data-hint'));
+        else field.removeAttribute('aria-describedby');
       }
     });
   }
@@ -198,9 +225,15 @@
     }
   }
 
-  function offerAddAnyway(offer) {
+  // Shows or hides Add anyway, with the line under it on what adding does.
+  function offerAddAnyway(offer, hint) {
     var button = byId('add-anyway');
     if (button) button.hidden = !offer;
+    var note = byId('add-anyway-hint');
+    if (note) {
+      note.hidden = !offer;
+      note.textContent = offer ? hint || '' : '';
+    }
   }
 
   function isBusy() {
@@ -213,7 +246,8 @@
     var address = byId('address');
     var port = byId('port');
     if (!button || !address || !port || isBusy()) return;
-    button.disabled = address.value.trim() === '' || port.value.trim() === '';
+    button.disabled = address.value.trim() === '' || port.value.trim() === ''
+      || (testFinal && currentInput() === testedFor);
   }
 
   function currentInput() {
@@ -225,6 +259,7 @@
   function onInputChanged() {
     if (testedFor !== null && currentInput() !== testedFor) {
       testedFor = null;
+      testFinal = false;
       setButton(t('pair.connect'));
       offerAddAnyway(false);
       clearMessages();
@@ -273,11 +308,13 @@
     setButton(t('pair.adding'));
 
     function onFail(error) {
+      try { console.error('Adding the device failed:', error); } catch (e) {}
       setBusy(false);
       setButton(t('pair.connect'));
       testedFor = null;
+      testFinal = false;
       updateButtonState();
-      showError((error && error.message) || String(error));
+      showError(t('pair.addFailed'));
     }
 
     var payload = {
@@ -337,17 +374,20 @@
       }
       setBusy(false);
       testedFor = currentInput();
+      testFinal = !!result && FINAL_FAILURES.indexOf(result.code) !== -1;
       updateButtonState();
-      if (result && FINAL_FAILURES.indexOf(result.code) !== -1) {
+      if (testFinal) {
         setButton(t('pair.connect'));
-        showError(result.message, 'address');
+        showError(result.message, ADDRESS_FAILURES.indexOf(result.code) !== -1 ? 'address' : null);
         return;
       }
       // Without an answer (an older Homey, or the driver did not reply) the
-      // unit may still be fine, as it may be when it is off for now.
+      // unit may still be fine, as it may be when it is off for now. Something
+      // that answered but not as an Exvent unit will not start working later.
       setButton(t('pair.tryAgain'));
-      offerAddAnyway(true);
-      showProgress((error || !result ? t('pair.untested') : result.message) + ' ' + t('pair.autoConnect'), true);
+      showProgress(error || !result ? t('pair.untested') : result.message, true);
+      offerAddAnyway(true, t(result && result.code === 'notExvent' ? 'pair.addOnlyIfSure' : 'pair.autoConnect'));
+      reveal('add-anyway-hint');
     });
   }
 

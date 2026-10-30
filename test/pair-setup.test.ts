@@ -154,7 +154,8 @@ for (const driver of DRIVERS) {
       assert.equal(button.disabled, false, 'Connect is still disabled after an address was typed');
       button.click();
       await until(() => addAnyway(pairing) !== null, 'the Add anyway button');
-      assert.equal(progressBox(pairing), 'pair.untested pair.autoConnect');
+      assert.equal(progressBox(pairing), 'pair.untested');
+      assert.equal(pairing.document.getElementById('add-anyway-hint').textContent, 'pair.autoConnect');
       assert.equal(button.textContent, 'pair.tryAgain');
       assert.equal(pairing.created.length, 0);
       addAnyway(pairing).click();
@@ -228,7 +229,8 @@ for (const driver of DRIVERS) {
       await until(() => addAnyway(pairing) !== null, 'the Add anyway button');
       // A failure the user can fix is a warning, not an error.
       assert.equal(errorBox(pairing), '');
-      assert.equal(progressBox(pairing), 'pair.test.timeout pair.autoConnect');
+      assert.equal(progressBox(pairing), 'pair.test.timeout');
+      assert.equal(pairing.document.getElementById('add-anyway-hint').textContent, 'pair.autoConnect');
       assert.equal(button.textContent, 'pair.tryAgain');
       assert.deepEqual(pairing.created, []);
       // Try again tests again; it never adds an untested device.
@@ -273,9 +275,53 @@ for (const driver of DRIVERS) {
       assert.equal(errorBox(pairing), 'pair.test.duplicate');
       assert.equal(button.textContent, 'pair.connect');
       assert.equal(addAnyway(pairing), null);
-      button.click();
-      await delay(50);
+      assert.equal(pairing.document.getElementById('address').getAttribute('aria-invalid'), 'true');
+      // The same test would fail the same way, so Connect waits for a change.
+      assert.equal(button.disabled, true);
+      type(pairing, 'address', '192.168.1.51');
+      assert.equal(button.disabled, false);
+      assert.equal(errorBox(pairing), '');
       assert.deepEqual(pairing.created, []);
+      assert.equal(pairing.done, 0);
+    } finally {
+      pairing.window.close();
+    }
+  });
+
+  test(`${driver} pairing view does not blame the address for the wrong driver`, async () => {
+    const pairing = await showPairingView(driver, { ok: false, code: 'platform', message: 'pair.test.notEda' });
+    try {
+      type(pairing, 'address', '192.168.1.50');
+      pairing.document.getElementById('connect').click();
+      await until(() => errorBox(pairing) !== '', 'the test message');
+      assert.equal(pairing.document.getElementById('address').getAttribute('aria-invalid'), null);
+      assert.equal(addAnyway(pairing), null);
+    } finally {
+      pairing.window.close();
+    }
+  });
+
+  test(`${driver} pairing view asks for certainty before adding something that is not an Exvent unit`, async () => {
+    const pairing = await showPairingView(driver, { ok: false, code: 'notExvent', message: 'pair.test.notExvent' });
+    try {
+      type(pairing, 'address', '192.168.1.50');
+      pairing.document.getElementById('connect').click();
+      await until(() => addAnyway(pairing) !== null, 'the Add anyway button');
+      assert.equal(progressBox(pairing), 'pair.test.notExvent');
+      assert.equal(pairing.document.getElementById('add-anyway-hint').textContent, 'pair.addOnlyIfSure');
+    } finally {
+      pairing.window.close();
+    }
+  });
+
+  test(`${driver} pairing view shows a plain message when Homey cannot add the device`, async () => {
+    const pairing = await showPairingView(driver, { ok: true });
+    try {
+      pairing.window.Homey.addDevice = (data: any, callback: (error: Error) => void) => callback(new Error('ECONNRESET internal'));
+      type(pairing, 'address', '192.168.1.50');
+      pairing.document.getElementById('connect').click();
+      await until(() => errorBox(pairing) !== '', 'the error message');
+      assert.equal(errorBox(pairing), 'pair.addFailed');
       assert.equal(pairing.done, 0);
     } finally {
       pairing.window.close();

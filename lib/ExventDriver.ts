@@ -44,8 +44,9 @@ export abstract class ExventDriver extends Homey.Driver {
 
   /**
    * Connects to the address, reads one register and closes again. The view
-   * shows the message and still lets the user add the device, since the
-   * unit may just be switched off for now.
+   * shows the message and, unless adding cannot help (invalid, duplicate,
+   * platform), still lets the user add the device, since the unit may just
+   * be switched off for now.
    */
   async testConnection({ address, port }: { address?: unknown; port?: unknown }): Promise<PairTestResult> {
     const host = String(address ?? '').trim();
