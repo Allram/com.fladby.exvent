@@ -51,7 +51,6 @@ jobs:
         uses: https://github.com/actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund

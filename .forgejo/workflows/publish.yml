@@ -68,7 +68,6 @@ jobs:
         uses: https://github.com/actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
 
       # The tag must match the version in all three files, the changelog must
       # have both languages for it, and the tagged commit must be on main.
