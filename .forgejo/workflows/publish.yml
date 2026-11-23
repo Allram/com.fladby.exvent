@@ -33,7 +33,7 @@ jobs:
     runs-on: docker
     timeout-minutes: 15
     container:
-      image: data.forgejo.org/oci/node:22
+      image: data.forgejo.org/oci/node:22@sha256:e13726ca604184d7a91fcacab1fc09eefd642dc28e79ac34e85540dd93b78cfb
     steps:
       - name: Checkout
         uses: https://github.com/actions/checkout@v4
